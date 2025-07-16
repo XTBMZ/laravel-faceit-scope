@@ -552,6 +552,33 @@ function showMapStatsModal(mapIndex) {
     const triples = parseInt(stats["Triple Kills"] || 0);
     const mvps = parseInt(stats["MVPs"] || 0);
     
+    // Statistiques Entry
+    const entryKills = parseInt(stats["Entry Kills"] || 0);
+    const entryAttempts = parseInt(stats["Entry Attempts"] || 0);
+    const entrySuccessRate = entryAttempts > 0 ? ((entryKills / entryAttempts) * 100).toFixed(1) : "0.0";
+    const entryRate = totalRounds > 0 ? ((entryAttempts / totalRounds) * 100).toFixed(1) : "0.0";
+    
+    // Statistiques Clutch
+    const clutch1v1Wins = parseInt(stats["1v1 Wins"] || 0);
+    const clutch1v1Total = parseInt(stats["1v1 Total"] || 0);
+    const clutch1v1Rate = clutch1v1Total > 0 ? ((clutch1v1Wins / clutch1v1Total) * 100).toFixed(1) : "0.0";
+    
+    const clutch1v2Wins = parseInt(stats["1v2 Wins"] || 0);
+    const clutch1v2Total = parseInt(stats["1v2 Total"] || 0);
+    const clutch1v2Rate = clutch1v2Total > 0 ? ((clutch1v2Wins / clutch1v2Total) * 100).toFixed(1) : "0.0";
+    
+    // Statistiques Utility
+    const flashSuccesses = parseInt(stats["Flash Successes"] || 0);
+    const flashCount = parseInt(stats["Flash Count"] || 0);
+    const flashSuccessRate = flashCount > 0 ? ((flashSuccesses / flashCount) * 100).toFixed(1) : "0.0";
+    const flashesPerRound = totalRounds > 0 ? (flashCount / totalRounds).toFixed(2) : "0.00";
+    const utilityDamage = parseInt(stats["Utility Damage"] || 0);
+    const utilitySuccessRate = parseFloat(stats["Utility Success Rate"] || 0) * 100;
+    
+    // Statistiques Sniper
+    const sniperKills = parseInt(stats["Sniper Kills"] || 0);
+    const sniperKillsPerRound = totalRounds > 0 ? (sniperKills / totalRounds).toFixed(2) : "0.00";
+    
     // Afficher le modal
     const modal = document.getElementById('mapStatsModal');
     const modalContent = document.getElementById('mapStatsModalContent');
@@ -603,8 +630,8 @@ function showMapStatsModal(mapIndex) {
                 </div>
             </div>
             
-            <!-- Stats détaillées -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Première ligne de stats détaillées -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Combat Stats -->
                 <div class="bg-faceit-elevated rounded-xl p-6">
                     <h3 class="text-xl font-bold text-red-400 mb-4 flex items-center">
@@ -634,9 +661,81 @@ function showMapStatsModal(mapIndex) {
                         <div class="flex justify-between"><span class="text-gray-300">Avg. 3K/Match</span><span class="font-bold text-yellow-400">${(triples / Math.max(matches, 1)).toFixed(2)}</span></div>
                     </div>
                 </div>
+                
+                <!-- Entry Performance -->
+                <div class="bg-faceit-elevated rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-green-400 mb-4 flex items-center">
+                        <i class="fas fa-rocket mr-2"></i>Entry Performance
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-green-300 font-semibold">Success Rate</span>
+                                <span class="font-bold text-green-400">${entrySuccessRate}%</span>
+                            </div>
+                            <div class="text-sm text-gray-400">${entryKills} réussies / ${entryAttempts} tentatives</div>
+                            ${entryAttempts > 0 ? `<div class="w-full bg-gray-700 rounded-full h-2 mt-2"><div class="bg-green-400 h-2 rounded-full" style="width: ${entrySuccessRate}%"></div></div>` : ''}
+                        </div>
+                        <div class="flex justify-between"><span class="text-gray-300">Entry Rate</span><span class="font-bold text-green-400">${entryRate}%</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Entry/Match</span><span class="font-bold text-green-400">${(entryKills / Math.max(matches, 1)).toFixed(1)}</span></div>
+                    </div>
+                </div>
             </div>
             
-            <!-- Footer avec boutons -->
+            <!-- Deuxième ligne de stats -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Clutch Performance -->
+                <div class="bg-faceit-elevated rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-red-400 mb-4 flex items-center">
+                        <i class="fas fa-fire mr-2"></i>Clutch Performance
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                            <div class="flex justify-between items-center mb-1"><span class="text-red-300 font-semibold">1v1 Rate</span><span class="font-bold text-red-400">${clutch1v1Rate}%</span></div>
+                            <div class="text-sm text-gray-400">${clutch1v1Wins}/${clutch1v1Total} victoires</div>
+                            ${clutch1v1Total > 0 ? `<div class="w-full bg-gray-700 rounded-full h-2 mt-2"><div class="bg-red-400 h-2 rounded-full" style="width: ${clutch1v1Rate}%"></div></div>` : ''}
+                        </div>
+                        <div class="p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg">
+                            <div class="flex justify-between items-center mb-1"><span class="text-orange-300 font-semibold">1v2 Rate</span><span class="font-bold text-orange-400">${clutch1v2Rate}%</span></div>
+                            <div class="text-sm text-gray-400">${clutch1v2Wins}/${clutch1v2Total} victoires</div>
+                            ${clutch1v2Total > 0 ? `<div class="w-full bg-gray-700 rounded-full h-2 mt-2"><div class="bg-orange-400 h-2 rounded-full" style="width: ${clutch1v2Rate}%"></div></div>` : ''}
+                        </div>
+                        <div class="flex justify-between"><span class="text-gray-300">Total Clutches</span><span class="font-bold text-red-400">${clutch1v1Wins + clutch1v2Wins}</span></div>
+                    </div>
+                </div>
+                
+                <!-- Utility Performance -->
+                <div class="bg-faceit-elevated rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-blue-400 mb-4 flex items-center">
+                        <i class="fas fa-sun mr-2"></i>Utility Performance
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                            <div class="flex justify-between items-center mb-1"><span class="text-blue-300 font-semibold">Flash Success</span><span class="font-bold text-blue-400">${flashSuccessRate}%</span></div>
+                            <div class="text-sm text-gray-400">${flashSuccesses}/${flashCount} réussies</div>
+                            ${flashCount > 0 ? `<div class="w-full bg-gray-700 rounded-full h-2 mt-2"><div class="bg-blue-400 h-2 rounded-full" style="width: ${flashSuccessRate}%"></div></div>` : ''}
+                        </div>
+                        <div class="flex justify-between"><span class="text-gray-300">Flashes/Round</span><span class="font-bold text-blue-400">${flashesPerRound}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Utility Damage</span><span class="font-bold text-yellow-400">${utilityDamage}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Utility Success</span><span class="font-bold text-green-400">${utilitySuccessRate.toFixed(1)}%</span></div>
+                    </div>
+                </div>
+                
+                <!-- Sniper Performance -->
+                <div class="bg-faceit-elevated rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-purple-400 mb-4 flex items-center">
+                        <i class="fas fa-crosshairs mr-2"></i>Sniper Performance
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between"><span class="text-gray-300">Sniper Kills</span><span class="font-bold text-purple-400">${sniperKills}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Sniper K/Round</span><span class="font-bold text-purple-400">${sniperKillsPerRound}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Avg. Sniper K/Match</span><span class="font-bold text-purple-400">${(sniperKills / Math.max(matches, 1)).toFixed(1)}</span></div>
+                        ${sniperKills > 0 ? `<div class="p-2 bg-purple-500/20 rounded text-center"><span class="text-purple-300 text-sm">AWP Expert!</span></div>` : ''}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer avec boutons d'action -->
             <div class="flex justify-center space-x-4 pt-4 border-t border-gray-700">
                 <button onclick="closeMapStatsModal()" class="px-6 py-3 bg-gray-600 hover:bg-gray-700 rounded-xl font-medium transition-colors">
                     <i class="fas fa-times mr-2"></i>Fermer
