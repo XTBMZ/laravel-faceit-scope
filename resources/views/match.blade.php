@@ -38,62 +38,58 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <!-- Section Teams Overview avec VS spectaculaire -->
+        <!-- Section Teams Overview avec design moderne -->
         <section class="animate-slide-up">
-            <div class="grid lg:grid-cols-7 gap-6 items-center">
+            <div class="grid lg:grid-cols-7 gap-8 items-stretch">
                 <!-- Team 1 -->
                 <div class="lg:col-span-3">
-                    <div id="team1Container" class="bg-gradient-to-br from-blue-500/20 via-faceit-card to-faceit-elevated rounded-2xl border border-blue-500/30 overflow-hidden shadow-2xl">
-                        <div class="bg-gradient-to-r from-blue-500/30 to-blue-600/30 p-4 border-b border-blue-500/50">
-                            <h2 id="team1Name" class="text-2xl font-bold text-center text-blue-200">Équipe 1</h2>
-                            <div id="team1Stats" class="flex justify-center space-x-4 mt-2 text-sm">
+                    <div id="team1Container" class="modern-team-card h-full">
+                        <div class="team-header">
+                            <div class="team-indicator team-1"></div>
+                            <h2 id="team1Name" class="text-xl font-bold text-white">Équipe 1</h2>
+                            <div id="team1Stats" class="text-xs text-gray-400 mt-1">
                                 <!-- Stats d'équipe injectées ici -->
                             </div>
                         </div>
-                        <div id="team1Players" class="divide-y divide-gray-700/50">
+                        <div id="team1Players" class="player-list">
                             <!-- Joueurs équipe 1 injectés ici -->
                         </div>
                     </div>
                 </div>
 
-                <!-- VS Central avec animations -->
-                <div class="lg:col-span-1 flex flex-col items-center justify-center py-8">
-                    <div class="relative">
-                        <!-- Cercle principal VS -->
-                        <div class="w-32 h-32 bg-gradient-to-br from-faceit-orange via-red-500 to-purple-600 rounded-full flex items-center justify-center text-4xl font-black text-white shadow-2xl animate-pulse-orange">
-                            VS
+                <!-- VS Central redesigné -->
+                <div class="lg:col-span-1 flex flex-col items-center justify-center py-8 relative">
+                    <!-- VS Principal -->
+                    <div class="vs-container">
+                        <div class="vs-circle">
+                            <span class="vs-text">VS</span>
                         </div>
-                        
-                        <!-- Anneaux d'animation -->
-                        <div class="absolute inset-0 rounded-full border-4 border-faceit-orange/30 animate-ping"></div>
-                        <div class="absolute -inset-2 rounded-full border-2 border-faceit-orange/20 animate-pulse" style="animation-delay: 0.5s"></div>
                     </div>
                     
                     <!-- Score en temps réel -->
-                    <div id="liveScore" class="mt-6 text-center">
-                        <div class="text-3xl font-bold text-faceit-orange" id="currentScore">0 - 0</div>
-                        <div class="text-sm text-gray-400" id="roundInfo">Bo1 - First to 16</div>
+                    <div id="liveScore" class="score-display">
+                        <div class="score-numbers" id="currentScore">0 - 0</div>
+                        <div class="score-info" id="roundInfo">Bo1 - First to 13</div>
                     </div>
                     
-                    <!-- Indicateur de momentum -->
-                    <div id="momentumIndicator" class="mt-4 hidden">
-                        <div class="text-xs text-gray-400 mb-1">Momentum</div>
-                        <div class="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
-                            <div id="momentumBar" class="h-full bg-gradient-to-r from-blue-500 to-red-500 transition-all duration-1000"></div>
-                        </div>
+                    <!-- Match Status -->
+                    <div id="matchStatus" class="match-status mt-4">
+                        <span class="status-dot"></span>
+                        <span class="status-text">En attente</span>
                     </div>
                 </div>
 
                 <!-- Team 2 -->
                 <div class="lg:col-span-3">
-                    <div id="team2Container" class="bg-gradient-to-br from-red-500/20 via-faceit-card to-faceit-elevated rounded-2xl border border-red-500/30 overflow-hidden shadow-2xl">
-                        <div class="bg-gradient-to-r from-red-500/30 to-red-600/30 p-4 border-b border-red-500/50">
-                            <h2 id="team2Name" class="text-2xl font-bold text-center text-red-200">Équipe 2</h2>
-                            <div id="team2Stats" class="flex justify-center space-x-4 mt-2 text-sm">
+                    <div id="team2Container" class="modern-team-card h-full">
+                        <div class="team-header">
+                            <div class="team-indicator team-2"></div>
+                            <h2 id="team2Name" class="text-xl font-bold text-white">Équipe 2</h2>
+                            <div id="team2Stats" class="text-xs text-gray-400 mt-1">
                                 <!-- Stats d'équipe injectées ici -->
                             </div>
                         </div>
-                        <div id="team2Players" class="divide-y divide-gray-700/50">
+                        <div id="team2Players" class="player-list">
                             <!-- Joueurs équipe 2 injectés ici -->
                         </div>
                     </div>
@@ -102,13 +98,13 @@
             
             <!-- Actions rapides -->
             <div class="flex justify-center space-x-4 mt-8">
-                <button id="comparePlayersBtn" class="bg-purple-500 hover:bg-purple-600 px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105 shadow-lg">
+                <button id="comparePlayersBtn" class="modern-action-btn bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800">
                     <i class="fas fa-balance-scale mr-2"></i>Comparer les joueurs
                 </button>
-                <button id="tacticalAnalysisBtn" class="bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105 shadow-lg">
+                <button id="tacticalAnalysisBtn" class="modern-action-btn bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800">
                     <i class="fas fa-chess mr-2"></i>Analyse tactique
                 </button>
-                <button id="predictionsBtn" class="bg-green-500 hover:bg-green-600 px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105 shadow-lg">
+                <button id="predictionsBtn" class="modern-action-btn bg-gradient-to-r from-faceit-orange to-orange-600 hover:from-orange-600 hover:to-orange-700">
                     <i class="fas fa-crystal-ball mr-2"></i>Prédictions IA
                 </button>
             </div>
@@ -124,9 +120,9 @@
             
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Probabilités de victoire -->
-                <div class="glass-effect rounded-xl p-6 stat-card">
-                    <h3 class="text-lg font-semibold mb-4 flex items-center">
-                        <i class="fas fa-percentage text-green-400 mr-2"></i>
+                <div class="prediction-card">
+                    <h3 class="prediction-card-title">
+                        <i class="fas fa-percentage text-faceit-orange mr-2"></i>
                         Probabilités
                     </h3>
                     <div id="winProbabilities" class="space-y-3">
@@ -135,8 +131,8 @@
                 </div>
                 
                 <!-- MVP Prédit -->
-                <div class="glass-effect rounded-xl p-6 stat-card">
-                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                <div class="prediction-card">
+                    <h3 class="prediction-card-title">
                         <i class="fas fa-crown text-yellow-400 mr-2"></i>
                         MVP Prédit
                     </h3>
@@ -146,8 +142,8 @@
                 </div>
                 
                 <!-- Score Prédit -->
-                <div class="glass-effect rounded-xl p-6 stat-card">
-                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                <div class="prediction-card">
+                    <h3 class="prediction-card-title">
                         <i class="fas fa-bullseye text-red-400 mr-2"></i>
                         Score Prédit
                     </h3>
@@ -157,8 +153,8 @@
                 </div>
                 
                 <!-- Équilibre des équipes -->
-                <div class="glass-effect rounded-xl p-6 stat-card">
-                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                <div class="prediction-card">
+                    <h3 class="prediction-card-title">
                         <i class="fas fa-balance-scale text-blue-400 mr-2"></i>
                         Équilibre
                     </h3>
@@ -179,7 +175,7 @@
             
             <div class="grid md:grid-cols-2 gap-6">
                 <!-- Joueurs clés -->
-                <div class="glass-effect rounded-xl p-6">
+                <div class="key-players-card">
                     <h3 class="text-xl font-semibold mb-4 flex items-center">
                         <i class="fas fa-star text-yellow-400 mr-2"></i>
                         Stars du match
@@ -190,7 +186,7 @@
                 </div>
                 
                 <!-- Maillons faibles -->
-                <div class="glass-effect rounded-xl p-6">
+                <div class="key-players-card">
                     <h3 class="text-xl font-semibold mb-4 flex items-center">
                         <i class="fas fa-exclamation-triangle text-orange-400 mr-2"></i>
                         Points faibles
@@ -202,37 +198,46 @@
             </div>
         </section>
 
-        <!-- Section Analyse Tactique -->
-        <section id="tacticalSection" class="animate-slide-up hidden" style="animation-delay: 0.3s">
+        <!-- Section Match Terminé avec Scoreboard moderne -->
+        <section id="finishedMatchSection" class="animate-slide-up hidden" style="animation-delay: 0.5s">
             <div class="section-divider"></div>
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-gradient">Analyse Tactique Avancée</h2>
+                <h2 class="text-2xl font-bold text-gradient">Résultats et Performances</h2>
                 <div class="h-px flex-1 ml-4 bg-gradient-to-r from-faceit-orange/50 to-transparent"></div>
             </div>
             
-            <div class="grid lg:grid-cols-3 gap-6">
-                <!-- Radar tactique -->
-                <div class="lg:col-span-2 glass-effect rounded-xl p-6">
-                    <h3 class="text-lg font-semibold mb-4 flex items-center">
-                        <i class="fas fa-map-marked-alt text-blue-400 mr-2"></i>
-                        Contrôle de carte
-                    </h3>
-                    <div class="h-80 bg-gray-800 rounded-xl flex items-center justify-center relative overflow-hidden">
-                        <div id="mapControl" class="w-full h-full">
-                            <!-- Visualisation du contrôle de carte -->
-                            <canvas id="mapControlCanvas" class="w-full h-full"></canvas>
+            <div class="space-y-6">
+                <!-- Scoreboard final moderne -->
+                <div class="scoreboard-container">
+                    <div class="scoreboard-header">
+                        <h3 class="scoreboard-title">
+                            <i class="fas fa-trophy text-faceit-orange mr-2"></i>
+                            Scoreboard Final
+                        </h3>
+                        <div class="final-score">
+                            <span id="finalScoreDisplay">16 - 12</span>
                         </div>
+                    </div>
+                    
+                    <div id="finalScoreboard" class="scoreboard-table">
+                        <!-- Scoreboard final injecté ici -->
                     </div>
                 </div>
                 
-                <!-- Recommandations tactiques -->
-                <div class="glass-effect rounded-xl p-6">
-                    <h3 class="text-lg font-semibold mb-4 flex items-center">
-                        <i class="fas fa-lightbulb text-yellow-400 mr-2"></i>
-                        Recommandations
-                    </h3>
-                    <div id="tacticalRecommendations" class="space-y-4">
-                        <!-- Recommandations tactiques injectées ici -->
+                <!-- Graphiques de performance -->
+                <div class="grid lg:grid-cols-2 gap-6">
+                    <div class="chart-card">
+                        <h3 class="chart-title">Performance par round</h3>
+                        <div class="chart-container">
+                            <canvas id="roundPerformanceChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3 class="chart-title">Répartition des frags</h3>
+                        <div class="chart-container">
+                            <canvas id="fragsDistributionChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -243,47 +248,14 @@
             <div class="section-divider"></div>
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-gradient">Statistiques Live</h2>
-                <div class="pulse-indicator">
-                    <span class="inline-block w-2 h-2 bg-red-500 rounded-full animate-pulse mr-2"></span>
-                    <span class="text-sm text-red-400">EN DIRECT</span>
+                <div class="live-indicator">
+                    <span class="live-dot"></span>
+                    <span class="live-text">EN DIRECT</span>
                 </div>
             </div>
             
             <div id="liveStats" class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Stats live injectées ici -->
-            </div>
-        </section>
-
-        <!-- Section Match Terminé -->
-        <section id="finishedMatchSection" class="animate-slide-up hidden" style="animation-delay: 0.5s">
-            <div class="section-divider"></div>
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-gradient">Résultats et Performances</h2>
-                <div class="h-px flex-1 ml-4 bg-gradient-to-r from-faceit-orange/50 to-transparent"></div>
-            </div>
-            
-            <div class="space-y-6">
-                <!-- Scoreboard final -->
-                <div id="finalScoreboard" class="glass-effect rounded-xl p-6">
-                    <!-- Scoreboard final injecté ici -->
-                </div>
-                
-                <!-- Graphiques de performance -->
-                <div class="grid lg:grid-cols-2 gap-6">
-                    <div class="glass-effect rounded-xl p-6">
-                        <h3 class="text-lg font-semibold mb-4">Performance par round</h3>
-                        <div class="h-64">
-                            <canvas id="roundPerformanceChart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <div class="glass-effect rounded-xl p-6">
-                        <h3 class="text-lg font-semibold mb-4">Répartition des frags</h3>
-                        <div class="h-64">
-                            <canvas id="fragsDistributionChart"></canvas>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
     </div>
@@ -337,73 +309,424 @@
 
 @push('styles')
 <style>
-    .pulse-indicator {
+    /* Modern Team Cards */
+    .modern-team-card {
+        background: linear-gradient(145deg, #1f1f1f 0%, #2a2a2a 100%);
+        border: 1px solid #333;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .modern-team-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        border-color: #444;
+    }
+    
+    .team-header {
+        padding: 20px;
+        background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
+        border-bottom: 1px solid #333;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .team-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, transparent 0%, #ff5500 50%, transparent 100%);
+    }
+    
+    .team-indicator {
+        width: 4px;
+        height: 40px;
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        border-radius: 0 4px 4px 0;
+    }
+    
+    .team-indicator.team-1 {
+        background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+    }
+    
+    .team-indicator.team-2 {
+        background: linear-gradient(180deg, #ef4444, #dc2626);
+    }
+    
+    .player-list {
+        padding: 0;
+    }
+    
+    /* VS Container redesigné */
+    .vs-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 24px;
+    }
+    
+    .vs-circle {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+        border: 2px solid #ff5500;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        box-shadow: 0 0 30px rgba(255, 85, 0, 0.3);
+    }
+    
+    .vs-circle::before {
+        content: '';
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #ff5500, #ff8533, #ff5500);
+        z-index: -1;
+        opacity: 0.5;
+        filter: blur(8px);
+    }
+    
+    .vs-text {
+        font-size: 24px;
+        font-weight: 900;
+        color: #ff5500;
+        text-shadow: 0 0 10px rgba(255, 85, 0, 0.5);
+    }
+    
+    .score-display {
+        text-align: center;
+    }
+    
+    .score-numbers {
+        font-size: 32px;
+        font-weight: 900;
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        margin-bottom: 4px;
+    }
+    
+    .score-info {
+        font-size: 12px;
+        color: #888;
+        font-weight: 500;
+    }
+    
+    .match-status {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #10b981;
+        animation: pulse 2s infinite;
+    }
+    
+    .status-text {
+        font-size: 12px;
+        color: #10b981;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Modern Player Cards */
+    .player-card {
+        padding: 16px 20px;
+        border-bottom: 1px solid #2a2a2a;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        background: transparent;
+    }
+    
+    .player-card:hover {
+        background: linear-gradient(90deg, rgba(255, 85, 0, 0.05) 0%, transparent 100%);
+        border-left: 3px solid #ff5500;
+        padding-left: 17px;
+    }
+    
+    .player-card:last-child {
+        border-bottom: none;
+    }
+    
+    .player-card.selected {
+        background: linear-gradient(90deg, rgba(255, 85, 0, 0.1) 0%, transparent 100%);
+        border-left: 3px solid #ff5500;
+        padding-left: 17px;
+    }
+    
+    /* Modern Action Buttons */
+    .modern-action-btn {
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        transform: translateY(0);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .modern-action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Prediction Cards */
+    .prediction-card {
+        background: linear-gradient(145deg, #1f1f1f 0%, #2a2a2a 100%);
+        border: 1px solid #333;
+        border-radius: 16px;
+        padding: 24px;
+        transition: all 0.3s ease;
+    }
+    
+    .prediction-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        border-color: #444;
+    }
+    
+    .prediction-card-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        color: #ffffff;
+    }
+    
+    /* Key Players Cards */
+    .key-players-card {
+        background: linear-gradient(145deg, #1f1f1f 0%, #2a2a2a 100%);
+        border: 1px solid #333;
+        border-radius: 16px;
+        padding: 24px;
+        transition: all 0.3s ease;
+    }
+    
+    .key-players-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Modern Scoreboard */
+    .scoreboard-container {
+        background: linear-gradient(145deg, #1a1a1a 0%, #2a2a2a 100%);
+        border: 1px solid #333;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    }
+    
+    .scoreboard-header {
+        background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
+        padding: 24px;
+        border-bottom: 1px solid #333;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .scoreboard-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #ffffff;
         display: flex;
         align-items: center;
     }
     
-    .animate-pulse-orange {
-        animation: pulseOrange 2s infinite;
+    .final-score {
+        font-size: 36px;
+        font-weight: 900;
+        color: #ff5500;
+        text-shadow: 0 0 20px rgba(255, 85, 0, 0.3);
     }
     
-    @keyframes pulseOrange {
-        0%, 100% {
-            box-shadow: 0 0 0 0 rgba(255, 85, 0, 0.7);
-        }
-        50% {
-            box-shadow: 0 0 0 20px rgba(255, 85, 0, 0);
-        }
+    .scoreboard-table {
+        overflow-x: auto;
     }
     
-    .threat-level-1 { background: linear-gradient(135deg, #374151, #4b5563); }
-    .threat-level-2 { background: linear-gradient(135deg, #065f46, #047857); }
-    .threat-level-3 { background: linear-gradient(135deg, #0c4a6e, #0369a1); }
-    .threat-level-4 { background: linear-gradient(135deg, #7c3aed, #8b5cf6); }
-    .threat-level-5 { background: linear-gradient(135deg, #dc2626, #ef4444); }
-    .threat-level-6 { background: linear-gradient(135deg, #ea580c, #f97316); }
-    .threat-level-7 { background: linear-gradient(135deg, #d97706, #f59e0b); }
-    .threat-level-8 { background: linear-gradient(135deg, #be123c, #e11d48); }
-    .threat-level-9 { background: linear-gradient(135deg, #7c2d12, #ea580c); }
-    .threat-level-10 { background: linear-gradient(135deg, #4c1d95, #6d28d9); }
-    
-    .player-card {
-        transition: all 0.3s ease;
-        cursor: pointer;
+    .scoreboard-table table {
+        width: 100%;
+        border-collapse: collapse;
     }
     
-    .player-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(255, 85, 0, 0.15);
+    .scoreboard-table th {
+        background: #2a2a2a;
+        padding: 16px 12px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 12px;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid #333;
     }
     
-    .player-card.selected {
-        border-color: #ff5500;
-        box-shadow: 0 0 20px rgba(255, 85, 0, 0.3);
+    .scoreboard-table th:first-child {
+        text-align: left;
+        padding-left: 24px;
     }
     
-    .role-badge {
-        font-size: 0.7rem;
-        padding: 2px 6px;
-        border-radius: 4px;
+    .scoreboard-table td {
+        padding: 16px 12px;
+        text-align: center;
+        border-bottom: 1px solid #2a2a2a;
         font-weight: 600;
     }
     
-    .animate-bounce-subtle {
-        animation: bounceSubtle 2s infinite;
+    .scoreboard-table td:first-child {
+        text-align: left;
+        padding-left: 24px;
     }
     
-    @keyframes bounceSubtle {
-        0%, 20%, 53%, 80%, 100% {
-            transform: translate3d(0,0,0);
+    .scoreboard-table tr:hover {
+        background: rgba(255, 85, 0, 0.05);
+    }
+    
+    .player-name-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .player-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: 1px solid #333;
+    }
+    
+    .player-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .player-nickname {
+        font-weight: 700;
+        color: #ffffff;
+        font-size: 14px;
+    }
+    
+    .player-team-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-top: 2px;
+    }
+    
+    .team-1-indicator { background: #3b82f6; }
+    .team-2-indicator { background: #ef4444; }
+    
+    /* Chart Cards */
+    .chart-card {
+        background: linear-gradient(145deg, #1f1f1f 0%, #2a2a2a 100%);
+        border: 1px solid #333;
+        border-radius: 16px;
+        padding: 24px;
+        transition: all 0.3s ease;
+    }
+    
+    .chart-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .chart-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #ffffff;
+    }
+    
+    .chart-container {
+        height: 300px;
+        position: relative;
+    }
+    
+    /* Live Indicator */
+    .live-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .live-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ef4444;
+        animation: pulse 1.5s infinite;
+    }
+    
+    .live-text {
+        font-size: 12px;
+        font-weight: 700;
+        color: #ef4444;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Animations */
+    @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.1); }
+    }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .vs-circle {
+            width: 60px;
+            height: 60px;
         }
-        40%, 43% {
-            transform: translate3d(0, -10px, 0);
+        
+        .vs-text {
+            font-size: 18px;
         }
-        70% {
-            transform: translate3d(0, -5px, 0);
+        
+        .score-numbers {
+            font-size: 24px;
         }
-        90% {
-            transform: translate3d(0, -2px, 0);
+        
+        .final-score {
+            font-size: 28px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .modern-team-card {
+            margin-bottom: 16px;
+        }
+        
+        .scoreboard-header {
+            flex-direction: column;
+            gap: 16px;
+            text-align: center;
+        }
+        
+        .scoreboard-table th:first-child,
+        .scoreboard-table td:first-child {
+            padding-left: 16px;
         }
     }
 </style>

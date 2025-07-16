@@ -1,5 +1,6 @@
 /**
  * Script pour l'analyse de match - Faceit Scope
+ * Version moderne avec design épuré
  */
 
 // Variables globales
@@ -69,7 +70,7 @@ async function loadMatchAnalysis() {
         await displayMatchHeader();
         
         updateLoadingProgress(70, 'Génération des insights...');
-        await displayTeamsOverview();
+        await displayModernTeamsOverview();
         
         updateLoadingProgress(85, 'Finalisation de l\'interface...');
         await displayPredictiveAnalysis();
@@ -170,19 +171,11 @@ async function displayMatchHeader() {
                     <span>${competitionInfo.region || 'Global'}</span>
                 </div>
             </div>
-            
-            ${matchData.results && matchData.results.score ? `
-                <div class="mt-6">
-                    <div class="text-5xl font-black text-faceit-orange">
-                        ${Object.values(matchData.results.score).join(' - ')}
-                    </div>
-                </div>
-            ` : ''}
         </div>
     `;
 }
 
-async function displayTeamsOverview() {
+async function displayModernTeamsOverview() {
     const teams = matchData.teams || {};
     const teamKeys = Object.keys(teams);
     
@@ -191,15 +184,15 @@ async function displayTeamsOverview() {
         return;
     }
     
-    // Afficher les équipes
-    displayTeam('team1', teams[teamKeys[0]], 'blue');
-    displayTeam('team2', teams[teamKeys[1]], 'red');
+    // Afficher les équipes avec le nouveau design
+    displayModernTeam('team1', teams[teamKeys[0]], 'A');
+    displayModernTeam('team2', teams[teamKeys[1]], 'B');
     
     // Mettre à jour le score central
-    updateCentralScore(teams);
+    updateModernCentralScore(teams);
 }
 
-function displayTeam(containerId, teamData, teamColor) {
+function displayModernTeam(containerId, teamData, teamLetter) {
     const nameElement = document.getElementById(`${containerId}Name`);
     const statsElement = document.getElementById(`${containerId}Stats`);
     const playersElement = document.getElementById(`${containerId}Players`);
@@ -207,34 +200,36 @@ function displayTeam(containerId, teamData, teamColor) {
     if (!nameElement || !playersElement || !teamData) return;
     
     // Nom de l'équipe
-    nameElement.textContent = teamData.name || `Équipe ${teamColor}`;
+    nameElement.textContent = teamData.name || `Équipe ${teamLetter}`;
     
-    // Stats d'équipe
+    // Stats d'équipe modernes
     if (statsElement) {
         const avgElo = teamData.average_elo || 1000;
         const skillBalance = teamData.skill_balance || {};
         
         statsElement.innerHTML = `
-            <div class="text-xs">
+            <div class="flex items-center space-x-1">
                 <span class="text-gray-400">ELO moyen:</span>
-                <span class="text-${teamColor}-300 font-semibold">${avgElo}</span>
+                <span class="text-white font-semibold">${avgElo}</span>
             </div>
-            <div class="text-xs">
+            <div class="flex items-center space-x-1">
                 <span class="text-gray-400">Équilibre:</span>
-                <span class="text-${skillBalance.balanced ? 'green' : 'yellow'}-300">${skillBalance.balanced ? 'Équilibré' : 'Déséquilibré'}</span>
+                <span class="text-${skillBalance.balanced ? 'green' : 'yellow'}-400 font-medium">
+                    ${skillBalance.balanced ? 'Équilibré' : 'Déséquilibré'}
+                </span>
             </div>
         `;
     }
     
-    // Joueurs
+    // Joueurs avec design moderne
     const players = teamData.enriched_players || teamData.roster || [];
-    playersElement.innerHTML = players.map(player => createPlayerCard(player, teamColor)).join('');
+    playersElement.innerHTML = players.map(player => createModernPlayerCard(player, teamLetter)).join('');
 }
 
-function createPlayerCard(player, teamColor) {
+function createModernPlayerCard(player, teamSide) {
     if (player.error) {
         return `
-            <div class="p-4 text-center text-gray-500">
+            <div class="player-card-modern text-center text-gray-500">
                 <i class="fas fa-exclamation-triangle mr-2"></i>
                 Données indisponibles
             </div>
@@ -248,75 +243,68 @@ function createPlayerCard(player, teamColor) {
     const elo = gameData.faceit_elo || 'N/A';
     const threatLevel = player.threat_level || 1;
     const role = player.role_prediction || 'Joueur';
-    const metrics = player.performance_metrics || {};
+    const stats = player.detailed_stats || {};
     
     const isSelected = selectedPlayers.includes(player.player_id);
-    const canSelect = isCompareMode && (selectedPlayers.length < 2 || isSelected);
     
     return `
-        <div class="player-card p-4 hover:bg-faceit-elevated/50 transition-all cursor-pointer ${isSelected ? 'selected' : ''} threat-level-${threatLevel}" 
+        <div class="player-card-modern ${isSelected ? 'selected' : ''}" 
              data-player-id="${player.player_id}" 
-             data-nickname="${player.nickname}"
              onclick="handlePlayerClick('${player.player_id}', '${player.nickname}')">
             
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center space-x-3">
                     ${isCompareMode ? `
-                        <div class="w-6 h-6 rounded-full border-2 border-${teamColor}-500 flex items-center justify-center ${isSelected ? `bg-${teamColor}-500` : 'bg-transparent'}">
-                            ${isSelected ? '<i class="fas fa-check text-white text-xs"></i>' : ''}
+                        <div class="w-5 h-5 rounded border-2 border-gray-500 flex items-center justify-center ${isSelected ? 'bg-faceit-orange border-faceit-orange' : ''}">
+                            ${isSelected ? '<i class="fas fa-check text-black text-xs"></i>' : ''}
                         </div>
                     ` : ''}
                     
                     <img src="${avatar}" alt="Avatar" class="w-10 h-10 rounded-lg border border-gray-600">
                     
                     <div class="min-w-0">
-                        <div class="font-semibold text-white truncate">${player.nickname}</div>
+                        <div class="font-semibold text-white text-sm">${player.nickname}</div>
                         <div class="flex items-center space-x-2 mt-1">
-                            <img src="${getCountryFlagUrl(country)}" alt="${country}" class="w-4 h-3">
-                            <span class="role-badge bg-${teamColor}-500/20 text-${teamColor}-300">${role}</span>
+                            <img src="${getCountryFlagUrl(country)}" alt="${country}" class="w-3 h-2">
+                            <span class="text-xs text-gray-400">${role}</span>
                         </div>
                     </div>
                 </div>
                 
                 <div class="text-right">
-                    <div class="flex items-center space-x-1 mb-1">
-                        <img src="${getRankIconUrl(level)}" alt="Rank ${level}" class="w-6 h-6">
+                    <div class="flex items-center justify-end space-x-1 mb-1">
+                        <img src="${getRankIconUrl(level)}" alt="Rank ${level}" class="w-5 h-5">
                         <span class="text-sm font-semibold text-faceit-orange">${elo}</span>
                     </div>
-                    <div class="flex items-center space-x-1">
-                        ${Array.from({length: Math.min(threatLevel, 5)}, () => '<i class="fas fa-star text-yellow-400 text-xs"></i>').join('')}
-                        ${Array.from({length: Math.max(0, 5 - threatLevel)}, () => '<i class="far fa-star text-gray-600 text-xs"></i>').join('')}
+                    <div class="flex items-center justify-end">
+                        ${Array.from({length: Math.min(threatLevel, 3)}, (_, i) => 
+                            `<span class="threat-indicator threat-${Math.min(threatLevel, 10)}"></span>`
+                        ).join('')}
                     </div>
                 </div>
             </div>
             
-            <div class="grid grid-cols-4 gap-2 text-xs">
+            <div class="grid grid-cols-3 gap-3 text-xs">
                 <div class="text-center">
                     <div class="text-gray-400">K/D</div>
-                    <div class="font-semibold text-white">${player.detailed_stats?.kd_ratio?.toFixed(2) || 'N/A'}</div>
+                    <div class="font-semibold text-white">${stats.kd_ratio?.toFixed(2) || 'N/A'}</div>
                 </div>
                 <div class="text-center">
                     <div class="text-gray-400">HS%</div>
-                    <div class="font-semibold text-green-400">${player.detailed_stats?.headshots_percent?.toFixed(0) || 'N/A'}%</div>
+                    <div class="font-semibold text-green-400">${stats.headshots_percent?.toFixed(0) || 'N/A'}%</div>
                 </div>
                 <div class="text-center">
                     <div class="text-gray-400">WR%</div>
-                    <div class="font-semibold text-blue-400">${player.detailed_stats?.win_rate?.toFixed(0) || 'N/A'}%</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-gray-400">Score</div>
-                    <div class="font-semibold text-purple-400">${metrics.overall_score || 0}</div>
+                    <div class="font-semibold text-blue-400">${stats.win_rate?.toFixed(0) || 'N/A'}%</div>
                 </div>
             </div>
             
-            ${player.detailed_stats?.recent_results ? `
-                <div class="mt-3">
-                    <div class="text-xs text-gray-400 mb-1">Forme récente:</div>
-                    <div class="flex space-x-1">
-                        ${player.detailed_stats.recent_results.slice(0, 5).map(result => `
-                            <div class="w-4 h-4 rounded ${result === '1' ? 'bg-green-500' : 'bg-red-500'} flex items-center justify-center text-xs font-bold">
-                                ${result === '1' ? 'W' : 'L'}
-                            </div>
+            ${stats.recent_results ? `
+                <div class="mt-3 pt-3 border-t border-gray-700/50">
+                    <div class="text-xs text-gray-400 mb-2">Forme récente:</div>
+                    <div class="flex justify-center space-x-1">
+                        ${stats.recent_results.slice(0, 5).map(result => `
+                            <div class="w-3 h-3 rounded ${result === '1' ? 'bg-green-500' : 'bg-red-500'}"></div>
                         `).join('')}
                     </div>
                 </div>
@@ -342,7 +330,7 @@ function togglePlayerSelection(playerId, nickname) {
     }
     
     // Rafraîchir l'affichage des équipes
-    displayTeamsOverview();
+    displayModernTeamsOverview();
     
     // Si 2 joueurs sélectionnés, lancer la comparaison
     if (selectedPlayers.length === 2) {
@@ -352,21 +340,35 @@ function togglePlayerSelection(playerId, nickname) {
     }
 }
 
-function updateCentralScore(teams) {
+function updateModernCentralScore(teams) {
     const scoreElement = document.getElementById('currentScore');
     const roundInfoElement = document.getElementById('roundInfo');
+    const statusElement = document.getElementById('matchStatus');
     
     if (!scoreElement || !roundInfoElement) return;
     
-    const teamKeys = Object.keys(teams);
-    
-    if (matchData.results && matchData.results.score) {
+    // Mise à jour du score
+    if (matchData.status === 'FINISHED' && matchData.results && matchData.results.score) {
         const scores = Object.values(matchData.results.score);
         scoreElement.textContent = scores.join(' - ');
-        roundInfoElement.textContent = `${matchData.status === 'FINISHED' ? 'Match terminé' : 'En cours'}`;
+        roundInfoElement.textContent = 'Match terminé';
+    } else if (matchData.status === 'ONGOING' && matchData.current_score) {
+        scoreElement.textContent = `${matchData.current_score.team1} - ${matchData.current_score.team2}`;
+        const totalRounds = matchData.current_score.team1 + matchData.current_score.team2;
+        roundInfoElement.textContent = `Round ${totalRounds + 1}`;
     } else {
         scoreElement.textContent = '0 - 0';
-        roundInfoElement.textContent = 'En attente';
+        roundInfoElement.textContent = 'Premier à 13';
+    }
+    
+    // Mise à jour du status moderne
+    if (statusElement) {
+        const status = getMatchStatus(matchData.status);
+        statusElement.innerHTML = `
+            <span class="w-2 h-2 ${status.dotColor} rounded-full mr-2"></span>
+            ${status.text}
+        `;
+        statusElement.className = `inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${status.bgClass} ${status.textClass} border ${status.borderClass}`;
     }
 }
 
@@ -379,8 +381,8 @@ async function displayPredictiveAnalysis() {
     // MVP prédit
     displayPredictedMVP(predictions.predicted_mvp);
     
-    // Score prédit
-    displayPredictedScore(predictions.expected_score);
+    // Score prédit (ajusté pour CS2)
+    displayCS2PredictedScore(predictions.expected_score);
     
     // Équilibre des équipes
     displayTeamBalance(matchAnalysis.playerAnalysis?.team_balance);
@@ -396,21 +398,21 @@ function displayWinProbabilities(winProb) {
     container.innerHTML = `
         <div class="space-y-3">
             <div class="flex justify-between items-center">
-                <span class="text-blue-300 font-semibold">${team1Name}</span>
-                <span class="text-lg font-bold text-blue-400">${winProb.faction1}%</span>
+                <span class="text-white font-semibold">${team1Name}</span>
+                <span class="text-lg font-bold text-faceit-orange">${winProb.faction1 || 50}%</span>
             </div>
             <div class="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-full transition-all duration-1000" 
-                     style="width: ${winProb.faction1}%"></div>
+                <div class="bg-gradient-to-r from-faceit-orange to-orange-600 h-full transition-all duration-1000" 
+                     style="width: ${winProb.faction1 || 50}%"></div>
             </div>
             
             <div class="flex justify-between items-center">
-                <span class="text-red-300 font-semibold">${team2Name}</span>
-                <span class="text-lg font-bold text-red-400">${winProb.faction2}%</span>
+                <span class="text-gray-300 font-semibold">${team2Name}</span>
+                <span class="text-lg font-bold text-gray-300">${winProb.faction2 || 50}%</span>
             </div>
             <div class="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
-                <div class="bg-gradient-to-r from-red-500 to-red-600 h-full transition-all duration-1000" 
-                     style="width: ${winProb.faction2}%"></div>
+                <div class="bg-gradient-to-r from-gray-500 to-gray-600 h-full transition-all duration-1000" 
+                     style="width: ${winProb.faction2 || 50}%"></div>
             </div>
             
             <div class="text-center mt-3">
@@ -432,7 +434,7 @@ function displayPredictedMVP(mvpData) {
         <div class="text-center">
             <img src="${mvpData.avatar || 'https://d50m6q67g4bn3.cloudfront.net/avatars/default.jpg'}" 
                  alt="MVP" class="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-yellow-400">
-            <div class="font-bold text-lg">${mvpData.nickname || 'Inconnu'}</div>
+            <div class="font-bold text-lg text-white">${mvpData.nickname || 'Inconnu'}</div>
             <div class="text-sm text-gray-400">${mvpData.role_prediction || 'Joueur'}</div>
             <div class="mt-2">
                 <span class="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full">
@@ -443,16 +445,21 @@ function displayPredictedMVP(mvpData) {
     `;
 }
 
-function displayPredictedScore(scoreData) {
+function displayCS2PredictedScore(scoreData) {
     const container = document.getElementById('predictedScore');
     if (!container || !scoreData) return;
+    
+    // Ajuster pour CS2 (premier à 13, pas 16)
+    const adjustedScore1 = Math.min(scoreData.faction1 || 13, 13);
+    const adjustedScore2 = Math.min(scoreData.faction2 || 10, 13);
     
     container.innerHTML = `
         <div class="text-center">
             <div class="text-3xl font-bold text-faceit-orange mb-2">
-                ${scoreData.faction1} - ${scoreData.faction2}
+                ${adjustedScore1} - ${adjustedScore2}
             </div>
             <div class="text-sm text-gray-400">Score prédit</div>
+            <div class="text-xs text-gray-500 mt-1">CS2 - Premier à 13</div>
             <div class="mt-2">
                 <span class="text-xs px-2 py-1 rounded-full ${scoreData.confidence === 'high' ? 'bg-green-500/20 text-green-400' : 
                     scoreData.confidence === 'medium' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-gray-500/20 text-gray-400'}">
@@ -521,11 +528,11 @@ function displayPlayersList(containerId, players, type) {
     const isStarList = type === 'star';
     
     container.innerHTML = players.map(player => `
-        <div class="flex items-center justify-between p-3 bg-faceit-elevated/50 rounded-xl hover:bg-faceit-elevated transition-colors cursor-pointer"
+        <div class="flex items-center justify-between p-4 bg-gradient-to-r from-gray-800/50 to-gray-700/50 rounded-xl border border-gray-700/50 hover:border-gray-600/50 transition-all cursor-pointer"
              onclick="handlePlayerClick('${player.player_id}', '${player.nickname}')">
             <div class="flex items-center space-x-3">
                 <img src="${player.avatar || 'https://d50m6q67g4bn3.cloudfront.net/avatars/default.jpg'}" 
-                     alt="Avatar" class="w-10 h-10 rounded-lg">
+                     alt="Avatar" class="w-12 h-12 rounded-lg border border-gray-600">
                 <div>
                     <div class="font-semibold text-white">${player.nickname}</div>
                     <div class="text-sm text-gray-400">${player.role_prediction || 'Joueur'}</div>
@@ -533,9 +540,9 @@ function displayPlayersList(containerId, players, type) {
             </div>
             
             <div class="text-right">
-                <div class="flex items-center space-x-1 mb-1">
+                <div class="flex items-center justify-end space-x-1 mb-1">
                     ${Array.from({length: Math.min(player.threat_level || 1, 5)}, () => 
-                        `<i class="fas fa-star text-${isStarList ? 'yellow' : 'red'}-400 text-xs"></i>`
+                        `<i class="fas fa-star text-${isStarList ? 'yellow' : 'orange'}-400 text-xs"></i>`
                     ).join('')}
                 </div>
                 <div class="text-xs text-gray-400">
@@ -551,30 +558,30 @@ async function displayLiveMatchContent() {
     if (liveSection) {
         liveSection.classList.remove('hidden');
         
-        // Simuler des stats live
+        // Simuler des stats live avec design moderne
         const liveStats = document.getElementById('liveStats');
         if (liveStats) {
             liveStats.innerHTML = `
-                <div class="glass-effect rounded-xl p-6 text-center">
-                    <h3 class="text-lg font-semibold mb-4 flex items-center justify-center">
+                <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6 text-center">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center justify-center text-white">
                         <i class="fas fa-crosshairs text-faceit-orange mr-2"></i>
                         Rounds joués
                     </h3>
                     <div class="text-3xl font-bold text-faceit-orange">12</div>
-                    <div class="text-sm text-gray-400 mt-1">sur 30 max</div>
+                    <div class="text-sm text-gray-400 mt-1">sur 24 max</div>
                 </div>
                 
-                <div class="glass-effect rounded-xl p-6 text-center">
-                    <h3 class="text-lg font-semibold mb-4 flex items-center justify-center">
+                <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6 text-center">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center justify-center text-white">
                         <i class="fas fa-clock text-blue-400 mr-2"></i>
                         Temps écoulé
                     </h3>
-                    <div class="text-2xl font-bold text-blue-400">38:42</div>
+                    <div class="text-2xl font-bold text-blue-400">28:42</div>
                     <div class="text-sm text-gray-400 mt-1">en cours</div>
                 </div>
                 
-                <div class="glass-effect rounded-xl p-6 text-center">
-                    <h3 class="text-lg font-semibold mb-4 flex items-center justify-center">
+                <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6 text-center">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center justify-center text-white">
                         <i class="fas fa-fire text-green-400 mr-2"></i>
                         Leader K/D
                     </h3>
@@ -582,8 +589,8 @@ async function displayLiveMatchContent() {
                     <div class="text-sm text-gray-400 mt-1">en forme</div>
                 </div>
                 
-                <div class="glass-effect rounded-xl p-6 text-center">
-                    <h3 class="text-lg font-semibold mb-4 flex items-center justify-center">
+                <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6 text-center">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center justify-center text-white">
                         <i class="fas fa-coins text-yellow-400 mr-2"></i>
                         Économie
                     </h3>
@@ -600,83 +607,76 @@ async function displayFinishedMatchContent() {
     if (finishedSection) {
         finishedSection.classList.remove('hidden');
         
-        // Afficher le scoreboard final
-        await displayFinalScoreboard();
+        // Afficher le scoreboard final moderne
+        await displayModernScoreboard();
         
         // Créer les graphiques
         await createPerformanceCharts();
     }
 }
 
-async function displayFinalScoreboard() {
-    const container = document.getElementById('finalScoreboard');
+function displayModernScoreboard() {
+    const container = document.getElementById('scoreboardBody');
     if (!container) return;
     
-    // Simuler des données de scoreboard final
+    // Données réalistes de joueurs pros
     const mockScoreboardData = [
-        { name: 'Player1', kills: 24, deaths: 18, assists: 8, kd: 1.33, adr: 85.2, rating: 1.15, team: 'team1' },
-        { name: 'Player2', kills: 19, deaths: 20, assists: 12, kd: 0.95, adr: 72.8, rating: 0.98, team: 'team1' },
-        { name: 'Player3', kills: 17, deaths: 19, assists: 9, kd: 0.89, adr: 68.5, rating: 0.91, team: 'team1' },
-        { name: 'Player4', kills: 15, deaths: 21, assists: 14, kd: 0.71, adr: 64.2, rating: 0.85, team: 'team1' },
-        { name: 'Player5', kills: 13, deaths: 22, assists: 11, kd: 0.59, adr: 58.9, rating: 0.78, team: 'team1' },
-        { name: 'Enemy1', kills: 22, deaths: 19, assists: 7, kd: 1.16, adr: 82.1, rating: 1.08, team: 'team2' },
-        { name: 'Enemy2', kills: 20, deaths: 17, assists: 10, kd: 1.18, adr: 78.4, rating: 1.05, team: 'team2' },
-        { name: 'Enemy3', kills: 18, deaths: 18, assists: 8, kd: 1.00, adr: 71.6, rating: 0.95, team: 'team2' },
-        { name: 'Enemy4', kills: 16, deaths: 19, assists: 13, kd: 0.84, adr: 67.3, rating: 0.89, team: 'team2' },
-        { name: 'Enemy5', kills: 14, deaths: 15, assists: 9, kd: 0.93, adr: 62.8, rating: 0.87, team: 'team2' }
+        { nickname: 's1mple', kills: 26, deaths: 18, assists: 7, kd: 1.44, adr: 89.2, rating: 1.18, team: 'team1', isMVP: true },
+        { nickname: 'ZywOo', kills: 24, deaths: 19, assists: 5, kd: 1.26, adr: 84.1, rating: 1.12, team: 'team2', isTopFragger: true },
+        { nickname: 'sh1ro', kills: 22, deaths: 20, assists: 9, kd: 1.10, adr: 76.8, rating: 1.05, team: 'team1' },
+        { nickname: 'device', kills: 19, deaths: 17, assists: 6, kd: 1.12, adr: 72.4, rating: 1.02, team: 'team2' },
+        { nickname: 'electroNic', kills: 18, deaths: 21, assists: 11, kd: 0.86, adr: 68.9, rating: 0.94, team: 'team1' },
+        { nickname: 'apEX', kills: 17, deaths: 22, assists: 8, kd: 0.77, adr: 65.3, rating: 0.89, team: 'team2' },
+        { nickname: 'Perfecto', kills: 15, deaths: 19, assists: 13, kd: 0.79, adr: 61.7, rating: 0.87, team: 'team1' },
+        { nickname: 'misutaaa', kills: 14, deaths: 20, assists: 7, kd: 0.70, adr: 58.2, rating: 0.82, team: 'team2' },
+        { nickname: 'b1t', kills: 13, deaths: 18, assists: 10, kd: 0.72, adr: 55.8, rating: 0.79, team: 'team1' },
+        { nickname: 'Magisk', kills: 12, deaths: 16, assists: 9, kd: 0.75, adr: 52.4, rating: 0.76, team: 'team2' }
     ];
     
-    container.innerHTML = `
-        <h3 class="text-xl font-semibold mb-6 text-center flex items-center justify-center">
-            <i class="fas fa-trophy text-faceit-orange mr-2"></i>
-            Scoreboard Final
-        </h3>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-gray-700">
-                        <th class="text-left py-3 px-4">Joueur</th>
-                        <th class="text-center py-3 px-2">K</th>
-                        <th class="text-center py-3 px-2">D</th>
-                        <th class="text-center py-3 px-2">A</th>
-                        <th class="text-center py-3 px-2">K/D</th>
-                        <th class="text-center py-3 px-2">ADR</th>
-                        <th class="text-center py-3 px-2">Rating</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-700">
-                    ${mockScoreboardData.map(player => `
-                        <tr class="hover:bg-faceit-elevated/30 transition-colors">
-                            <td class="py-3 px-4">
-                                <div class="flex items-center space-x-2">
-                                    <div class="w-2 h-2 rounded-full ${player.team === 'team1' ? 'bg-blue-400' : 'bg-red-400'}"></div>
-                                    <span class="font-medium">${player.name}</span>
-                                </div>
-                            </td>
-                            <td class="text-center py-3 px-2 font-semibold text-green-400">${player.kills}</td>
-                            <td class="text-center py-3 px-2 font-semibold text-red-400">${player.deaths}</td>
-                            <td class="text-center py-3 px-2 font-semibold text-blue-400">${player.assists}</td>
-                            <td class="text-center py-3 px-2 font-semibold ${player.kd >= 1 ? 'text-green-400' : 'text-red-400'}">${player.kd}</td>
-                            <td class="text-center py-3 px-2 font-semibold text-yellow-400">${player.adr}</td>
-                            <td class="text-center py-3 px-2 font-semibold ${player.rating >= 1 ? 'text-green-400' : 'text-red-400'}">${player.rating}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
-    `;
+    container.innerHTML = mockScoreboardData.map(player => `
+        <tr class="scoreboard-row ${player.isMVP ? 'mvp' : player.isTopFragger ? 'top-fragger' : ''} hover:bg-gray-700/30 transition-colors">
+            <td class="py-4 px-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-2 h-2 rounded-full ${player.team === 'team1' ? 'bg-white' : 'bg-gray-400'}"></div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-medium text-white">${player.nickname}</span>
+                        ${player.isMVP ? '<i class="fas fa-crown text-yellow-400 ml-2" title="MVP"></i>' : ''}
+                        ${player.isTopFragger ? '<i class="fas fa-fire text-orange-400 ml-2" title="Top Fragger"></i>' : ''}
+                    </div>
+                </div>
+            </td>
+            <td class="text-center py-4 px-3">
+                <span class="font-semibold ${player.kills >= 20 ? 'text-green-400' : 'text-white'}">${player.kills}</span>
+            </td>
+            <td class="text-center py-4 px-3">
+                <span class="font-semibold ${player.deaths >= 20 ? 'text-red-400' : 'text-white'}">${player.deaths}</span>
+            </td>
+            <td class="text-center py-4 px-3">
+                <span class="font-semibold text-blue-400">${player.assists}</span>
+            </td>
+            <td class="text-center py-4 px-3">
+                <span class="font-semibold ${player.kd >= 1 ? 'text-green-400' : 'text-red-400'}">${player.kd}</span>
+            </td>
+            <td class="text-center py-4 px-3">
+                <span class="font-semibold text-yellow-400">${player.adr}</span>
+            </td>
+            <td class="text-center py-4 px-3">
+                <span class="font-semibold ${player.rating >= 1 ? 'text-green-400' : 'text-red-400'}">${player.rating}</span>
+            </td>
+        </tr>
+    `).join('');
 }
 
 async function createPerformanceCharts() {
-    // Créer le graphique de performance par round
+    // Créer le graphique de performance par round avec thème sombre
     const roundChart = document.getElementById('roundPerformanceChart');
     if (roundChart) {
         const ctx = roundChart.getContext('2d');
         
-        // Générer des données simulées
-        const rounds = Array.from({length: 30}, (_, i) => i + 1);
-        const team1Performance = Array.from({length: 30}, () => Math.random() * 40 + 30);
-        const team2Performance = Array.from({length: 30}, () => Math.random() * 40 + 30);
+        // Générer des données simulées plus réalistes
+        const rounds = Array.from({length: 24}, (_, i) => i + 1);
+        const team1Performance = Array.from({length: 24}, () => Math.random() * 40 + 30);
+        const team2Performance = Array.from({length: 24}, () => Math.random() * 40 + 30);
         
         new Chart(ctx, {
             type: 'line',
@@ -685,17 +685,19 @@ async function createPerformanceCharts() {
                 datasets: [{
                     label: matchData.teams?.faction1?.name || 'Équipe 1',
                     data: team1Performance,
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderColor: '#ffffff',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
                     tension: 0.4,
-                    fill: true
+                    fill: true,
+                    borderWidth: 2
                 }, {
                     label: matchData.teams?.faction2?.name || 'Équipe 2',
                     data: team2Performance,
-                    borderColor: '#ef4444',
-                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderColor: '#9ca3af',
+                    backgroundColor: 'rgba(156, 163, 175, 0.1)',
                     tension: 0.4,
-                    fill: true
+                    fill: true,
+                    borderWidth: 2
                 }]
             },
             options: {
@@ -709,7 +711,7 @@ async function createPerformanceCharts() {
                         }
                     },
                     tooltip: {
-                        backgroundColor: 'rgba(26, 26, 26, 0.9)',
+                        backgroundColor: 'rgba(17, 24, 39, 0.9)',
                         titleColor: '#fff',
                         bodyColor: '#fff',
                         borderColor: '#ff5500',
@@ -734,7 +736,7 @@ async function createPerformanceCharts() {
         });
     }
     
-    // Créer le graphique de répartition des frags
+    // Créer le graphique de répartition des frags avec couleurs modernes
     const fragsChart = document.getElementById('fragsDistributionChart');
     if (fragsChart) {
         const ctx = fragsChart.getContext('2d');
@@ -747,13 +749,13 @@ async function createPerformanceCharts() {
                     data: [45, 20, 15, 12, 8],
                     backgroundColor: [
                         '#ff5500',
-                        '#3b82f6',
+                        '#ffffff',
                         '#10b981',
                         '#f59e0b',
                         '#8b5cf6'
                     ],
                     borderWidth: 2,
-                    borderColor: '#1a1a1a'
+                    borderColor: '#1f2937'
                 }]
             },
             options: {
@@ -769,7 +771,7 @@ async function createPerformanceCharts() {
                         }
                     },
                     tooltip: {
-                        backgroundColor: 'rgba(26, 26, 26, 0.9)',
+                        backgroundColor: 'rgba(17, 24, 39, 0.9)',
                         titleColor: '#fff',
                         bodyColor: '#fff',
                         borderColor: '#ff5500',
@@ -800,7 +802,7 @@ function openCompareModal() {
     }
     
     // Rafraîchir l'affichage pour montrer les boutons de sélection
-    displayTeamsOverview();
+    displayModernTeamsOverview();
 }
 
 function closeCompareModal() {
@@ -814,7 +816,7 @@ function closeCompareModal() {
     }
     
     // Rafraîchir l'affichage pour cacher les boutons de sélection
-    displayTeamsOverview();
+    displayModernTeamsOverview();
 }
 
 function populatePlayerSelectionGrid() {
@@ -829,7 +831,7 @@ function populatePlayerSelectionGrid() {
     });
     
     grid.innerHTML = allPlayers.map(player => `
-        <div class="player-selection-card bg-faceit-elevated rounded-xl p-4 cursor-pointer hover:bg-faceit-card transition-all transform hover:scale-105 ${selectedPlayers.includes(player.player_id) ? 'border-2 border-faceit-orange shadow-lg shadow-faceit-orange/25' : 'border border-gray-700'}"
+        <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 cursor-pointer hover:bg-gray-700 transition-all transform hover:scale-105 ${selectedPlayers.includes(player.player_id) ? 'border-2 border-faceit-orange shadow-lg shadow-faceit-orange/25' : ''}"
              onclick="selectPlayerForComparison('${player.player_id}')">
             <img src="${player.avatar || 'https://d50m6q67g4bn3.cloudfront.net/avatars/default.jpg'}" 
                  alt="Avatar" class="w-12 h-12 rounded-lg mx-auto mb-2">
@@ -902,23 +904,23 @@ function displayComparisonResults(comparisonData) {
     
     container.innerHTML = `
         <div class="grid md:grid-cols-2 gap-6 mb-6">
-            <div class="text-center p-6 bg-blue-500/10 rounded-xl border border-blue-500/30">
-                <img src="${player1.avatar}" alt="Avatar" class="w-20 h-20 rounded-full mx-auto mb-3 border-2 border-blue-500">
-                <h4 class="text-xl font-bold text-blue-300">${player1.nickname}</h4>
+            <div class="text-center p-6 bg-gray-800/50 rounded-xl border border-gray-700">
+                <img src="${player1.avatar}" alt="Avatar" class="w-20 h-20 rounded-full mx-auto mb-3 border-2 border-white">
+                <h4 class="text-xl font-bold text-white">${player1.nickname}</h4>
                 <div class="text-sm text-gray-400">${player1.games?.cs2?.faceit_elo || 'N/A'} ELO</div>
-                <div class="text-xs text-blue-300 mt-1">${player1.role_prediction || 'Joueur'}</div>
+                <div class="text-xs text-gray-300 mt-1">${player1.role_prediction || 'Joueur'}</div>
             </div>
             
-            <div class="text-center p-6 bg-red-500/10 rounded-xl border border-red-500/30">
-                <img src="${player2.avatar}" alt="Avatar" class="w-20 h-20 rounded-full mx-auto mb-3 border-2 border-red-500">
-                <h4 class="text-xl font-bold text-red-300">${player2.nickname}</h4>
+            <div class="text-center p-6 bg-gray-800/50 rounded-xl border border-gray-700">
+                <img src="${player2.avatar}" alt="Avatar" class="w-20 h-20 rounded-full mx-auto mb-3 border-2 border-gray-400">
+                <h4 class="text-xl font-bold text-white">${player2.nickname}</h4>
                 <div class="text-sm text-gray-400">${player2.games?.cs2?.faceit_elo || 'N/A'} ELO</div>
-                <div class="text-xs text-red-300 mt-1">${player2.role_prediction || 'Joueur'}</div>
+                <div class="text-xs text-gray-300 mt-1">${player2.role_prediction || 'Joueur'}</div>
             </div>
         </div>
         
         <div class="text-center p-6 bg-faceit-orange/10 rounded-xl border border-faceit-orange/30">
-            <div class="text-lg font-semibold mb-2">
+            <div class="text-lg font-semibold mb-2 text-white">
                 🏆 Vainqueur: <span class="text-faceit-orange">${comparison.winner === 'player1' ? player1.nickname : player2.nickname}</span>
             </div>
             <div class="text-sm text-gray-400 mb-4">
@@ -959,8 +961,8 @@ function loadTacticalAnalysis() {
     container.innerHTML = `
         <div class="grid lg:grid-cols-2 gap-8">
             <div class="space-y-6">
-                <div class="bg-faceit-elevated rounded-xl p-6">
-                    <h4 class="text-lg font-semibold mb-4 flex items-center">
+                <div class="bg-gray-800/50 rounded-xl border border-gray-700/50 p-6">
+                    <h4 class="text-lg font-semibold mb-4 flex items-center text-white">
                         <i class="fas fa-chess text-blue-400 mr-2"></i>
                         Analyse Tactique
                     </h4>
@@ -980,8 +982,8 @@ function loadTacticalAnalysis() {
                     </div>
                 </div>
                 
-                <div class="bg-faceit-elevated rounded-xl p-6">
-                    <h4 class="text-lg font-semibold mb-4 flex items-center">
+                <div class="bg-gray-800/50 rounded-xl border border-gray-700/50 p-6">
+                    <h4 class="text-lg font-semibold mb-4 flex items-center text-white">
                         <i class="fas fa-brain text-purple-400 mr-2"></i>
                         Facteurs Psychologiques
                     </h4>
@@ -1002,14 +1004,14 @@ function loadTacticalAnalysis() {
                 </div>
             </div>
             
-            <div class="bg-faceit-elevated rounded-xl p-6">
-                <h4 class="text-lg font-semibold mb-4 flex items-center">
+            <div class="bg-gray-800/50 rounded-xl border border-gray-700/50 p-6">
+                <h4 class="text-lg font-semibold mb-4 flex items-center text-white">
                     <i class="fas fa-map-marked-alt text-green-400 mr-2"></i>
                     Contrôle de Carte
                 </h4>
                 <div class="space-y-4">
                     <div class="text-center text-gray-400">
-                        <div class="w-full h-32 bg-gray-800 rounded-lg flex items-center justify-center border border-gray-700">
+                        <div class="w-full h-32 bg-gray-900 rounded-lg flex items-center justify-center border border-gray-700/50">
                             <div class="text-center">
                                 <i class="fas fa-map text-4xl mb-2 text-gray-600"></i>
                                 <p class="text-sm">Visualisation de carte</p>
@@ -1019,12 +1021,12 @@ function loadTacticalAnalysis() {
                     </div>
                     
                     <div class="grid grid-cols-2 gap-4 text-sm">
-                        <div class="bg-blue-500/10 p-3 rounded-lg border border-blue-500/30">
-                            <div class="text-blue-300 font-semibold">Contrôle Site A</div>
+                        <div class="bg-white/10 p-3 rounded-lg border border-gray-600/30">
+                            <div class="text-white font-semibold">Contrôle Site A</div>
                             <div class="text-white">60%</div>
                         </div>
-                        <div class="bg-red-500/10 p-3 rounded-lg border border-red-500/30">
-                            <div class="text-red-300 font-semibold">Contrôle Site B</div>
+                        <div class="bg-gray-500/10 p-3 rounded-lg border border-gray-600/30">
+                            <div class="text-gray-300 font-semibold">Contrôle Site B</div>
                             <div class="text-white">40%</div>
                         </div>
                     </div>
@@ -1048,42 +1050,66 @@ function getMatchStatus(status) {
             icon: 'fas fa-flag-checkered',
             bgColor: 'bg-green-500/20',
             textColor: 'text-green-400',
-            borderColor: 'border-green-500/50'
+            borderColor: 'border-green-500/50',
+            bgClass: 'bg-green-500/20',
+            textClass: 'text-green-400',
+            borderClass: 'border-green-500/50',
+            dotColor: 'bg-green-500'
         },
         'ONGOING': {
             text: 'En cours',
             icon: 'fas fa-play',
             bgColor: 'bg-blue-500/20',
             textColor: 'text-blue-400',
-            borderColor: 'border-blue-500/50'
+            borderColor: 'border-blue-500/50',
+            bgClass: 'bg-blue-500/20',
+            textClass: 'text-blue-400',
+            borderClass: 'border-blue-500/50',
+            dotColor: 'bg-blue-500'
         },
         'LIVE': {
             text: 'En direct',
             icon: 'fas fa-broadcast-tower',
             bgColor: 'bg-red-500/20',
             textColor: 'text-red-400',
-            borderColor: 'border-red-500/50'
+            borderColor: 'border-red-500/50',
+            bgClass: 'bg-red-500/20',
+            textClass: 'text-red-400',
+            borderClass: 'border-red-500/50',
+            dotColor: 'bg-red-500 animate-pulse'
         },
         'READY': {
             text: 'Prêt',
             icon: 'fas fa-clock',
             bgColor: 'bg-yellow-500/20',
             textColor: 'text-yellow-400',
-            borderColor: 'border-yellow-500/50'
+            borderColor: 'border-yellow-500/50',
+            bgClass: 'bg-yellow-500/20',
+            textClass: 'text-yellow-400',
+            borderClass: 'border-yellow-500/50',
+            dotColor: 'bg-yellow-500'
         },
         'CANCELLED': {
             text: 'Annulé',
             icon: 'fas fa-times',
             bgColor: 'bg-gray-500/20',
             textColor: 'text-gray-400',
-            borderColor: 'border-gray-500/50'
+            borderColor: 'border-gray-500/50',
+            bgClass: 'bg-gray-500/20',
+            textClass: 'text-gray-400',
+            borderClass: 'border-gray-500/50',
+            dotColor: 'bg-gray-500'
         },
         'VOTING': {
             text: 'Vote en cours',
             icon: 'fas fa-vote-yea',
             bgColor: 'bg-purple-500/20',
             textColor: 'text-purple-400',
-            borderColor: 'border-purple-500/50'
+            borderColor: 'border-purple-500/50',
+            bgClass: 'bg-purple-500/20',
+            textClass: 'text-purple-400',
+            borderClass: 'border-purple-500/50',
+            dotColor: 'bg-purple-500'
         }
     };
     
@@ -1115,6 +1141,20 @@ function showError(message) {
     `;
 }
 
+// Fonctions utilitaires
+function getCountryFlagUrl(country) {
+    return `https://flagsapi.com/${country}/flat/16.png`;
+}
+
+function getRankIconUrl(level) {
+    return `https://distribution.faceit-cdn.net/images/level-icons/cs2/${level}.svg`;
+}
+
+function showNotification(message, type = 'info') {
+    // Implémentation simple de notification
+    console.log(`${type.toUpperCase()}: ${message}`);
+}
+
 // Export pour usage global
 window.loadMatchAnalysis = loadMatchAnalysis;
 window.openCompareModal = openCompareModal;
@@ -1123,5 +1163,8 @@ window.openTacticalModal = openTacticalModal;
 window.closeTacticalModal = closeTacticalModal;
 window.selectPlayerForComparison = selectPlayerForComparison;
 window.handlePlayerClick = handlePlayerClick;
+window.createModernPlayerCard = createModernPlayerCard;
+window.displayModernScoreboard = displayModernScoreboard;
+window.displayCS2PredictedScore = displayCS2PredictedScore;
 
-console.log('🎮 Script de match chargé avec succès');
+console.log('🎮 Script de match moderne chargé avec succès');
