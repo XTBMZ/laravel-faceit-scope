@@ -96,73 +96,6 @@ class FaceitService
         return $this->makeRequest("rankings/games/{$this->gameId}/regions/{$region}", $params);
     }
 
-    public function getChampionships($type = 'all', $offset = 0, $limit = 10)
-    {
-        return $this->makeRequest('championships', [
-            'game' => $this->gameId,
-            'type' => $type,
-            'offset' => $offset,
-            'limit' => $limit
-        ]);
-    }
-
-    public function getChampionshipDetails($championshipId, $expanded = null)
-    {
-        $params = [];
-        if ($expanded) {
-            $params['expanded'] = implode(',', $expanded);
-        }
-        
-        return $this->makeRequest("championships/{$championshipId}", $params);
-    }
-
-    public function getTournaments($type = 'upcoming', $offset = 0, $limit = 20)
-    {
-        return $this->makeRequest('tournaments', [
-            'game' => $this->gameId,
-            'type' => $type,
-            'offset' => $offset,
-            'limit' => $limit
-        ]);
-    }
-
-    public function getTournamentDetails($tournamentId, $expanded = null)
-    {
-        $params = [];
-        if ($expanded) {
-            $params['expanded'] = implode(',', $expanded);
-        }
-        
-        return $this->makeRequest("tournaments/{$tournamentId}", $params);
-    }
-
-    public function getHubDetails($hubId, $expanded = null)
-    {
-        $params = [];
-        if ($expanded) {
-            $params['expanded'] = implode(',', $expanded);
-        }
-        
-        return $this->makeRequest("hubs/{$hubId}", $params);
-    }
-
-    public function getHubMatches($hubId, $type = 'all', $offset = 0, $limit = 20)
-    {
-        return $this->makeRequest("hubs/{$hubId}/matches", [
-            'type' => $type,
-            'offset' => $offset,
-            'limit' => $limit
-        ]);
-    }
-
-    public function getHubStats($hubId, $offset = 0, $limit = 20)
-    {
-        return $this->makeRequest("hubs/{$hubId}/stats", [
-            'offset' => $offset,
-            'limit' => $limit
-        ]);
-    }
-
     public function searchPlayers($nickname, $country = null, $offset = 0, $limit = 20)
     {
         $params = [
@@ -184,17 +117,6 @@ class FaceitService
         return $this->makeRequest('search/teams', [
             'nickname' => $nickname,
             'game' => $this->gameId,
-            'offset' => $offset,
-            'limit' => $limit
-        ]);
-    }
-
-    public function searchTournaments($name, $type = 'all', $offset = 0, $limit = 20)
-    {
-        return $this->makeRequest('search/tournaments', [
-            'name' => $name,
-            'game' => $this->gameId,
-            'type' => $type,
             'offset' => $offset,
             'limit' => $limit
         ]);
@@ -230,43 +152,6 @@ class FaceitService
     {
         return $this->makeRequest("players/{$playerId}/matches", [
             'type' => $type,
-            'offset' => $offset,
-            'limit' => $limit
-        ]);
-    }
-
-    public function getOrganizers($offset = 0, $limit = 20)
-    {
-        return $this->makeRequest('organizers', [
-            'offset' => $offset,
-            'limit' => $limit
-        ]);
-    }
-
-    public function getOrganizerDetails($organizerId)
-    {
-        return $this->makeRequest("organizers/{$organizerId}");
-    }
-
-    public function getOrganizerTournaments($organizerId, $offset = 0, $limit = 20)
-    {
-        return $this->makeRequest("organizers/{$organizerId}/tournaments", [
-            'offset' => $offset,
-            'limit' => $limit
-        ]);
-    }
-
-    public function getOrganizerChampionships($organizerId, $offset = 0, $limit = 20)
-    {
-        return $this->makeRequest("organizers/{$organizerId}/championships", [
-            'offset' => $offset,
-            'limit' => $limit
-        ]);
-    }
-
-    public function getOrganizerHubs($organizerId, $offset = 0, $limit = 20)
-    {
-        return $this->makeRequest("organizers/{$organizerId}/hubs", [
             'offset' => $offset,
             'limit' => $limit
         ]);
@@ -711,5 +596,288 @@ class FaceitService
                 throw $e;
             }
         });
+    }
+
+    /**
+     * Récupère les tournois
+     */
+    public function getTournaments($type = 'upcoming', $offset = 0, $limit = 20)
+    {
+        $params = [
+            'game' => $this->gameId,
+            'type' => $type,
+            'offset' => $offset,
+            'limit' => $limit
+        ];
+        
+        try {
+            return $this->makeRequest('tournaments', $params);
+        } catch (\Exception $e) {
+            Log::error('Erreur API FACEIT getTournaments', [
+                'type' => $type,
+                'offset' => $offset,
+                'limit' => $limit,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Récupère les détails d'un tournoi
+     */
+    public function getTournamentDetails($tournamentId, $expanded = null)
+    {
+        $params = [];
+        if ($expanded) {
+            $params['expanded'] = is_array($expanded) ? implode(',', $expanded) : $expanded;
+        }
+        
+        try {
+            return $this->makeRequest("tournaments/{$tournamentId}", $params);
+        } catch (\Exception $e) {
+            Log::error('Erreur API FACEIT getTournamentDetails', [
+                'tournamentId' => $tournamentId,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Récupère les championnats
+     */
+    public function getChampionships($type = 'all', $offset = 0, $limit = 10)
+    {
+        $params = [
+            'game' => $this->gameId,
+            'type' => $type,
+            'offset' => $offset,
+            'limit' => $limit
+        ];
+        
+        try {
+            return $this->makeRequest('championships', $params);
+        } catch (\Exception $e) {
+            Log::error('Erreur API FACEIT getChampionships', [
+                'type' => $type,
+                'offset' => $offset,
+                'limit' => $limit,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Récupère les détails d'un championnat
+     */
+    public function getChampionshipDetails($championshipId, $expanded = null)
+    {
+        $params = [];
+        if ($expanded) {
+            $params['expanded'] = is_array($expanded) ? implode(',', $expanded) : $expanded;
+        }
+        
+        try {
+            return $this->makeRequest("championships/{$championshipId}", $params);
+        } catch (\Exception $e) {
+            Log::error('Erreur API FACEIT getChampionshipDetails', [
+                'championshipId' => $championshipId,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Recherche de tournois
+     */
+    public function searchTournaments($name, $type = 'all', $offset = 0, $limit = 20)
+    {
+        $params = [
+            'name' => $name,
+            'game' => $this->gameId,
+            'type' => $type,
+            'offset' => $offset,
+            'limit' => $limit
+        ];
+        
+        try {
+            return $this->makeRequest('search/tournaments', $params);
+        } catch (\Exception $e) {
+            Log::error('Erreur API FACEIT searchTournaments', [
+                'name' => $name,
+                'type' => $type,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Récupère les hubs
+     */
+    public function getHubDetails($hubId, $expanded = null)
+    {
+        $params = [];
+        if ($expanded) {
+            $params['expanded'] = is_array($expanded) ? implode(',', $expanded) : $expanded;
+        }
+        
+        try {
+            return $this->makeRequest("hubs/{$hubId}", $params);
+        } catch (\Exception $e) {
+            Log::error('Erreur API FACEIT getHubDetails', [
+                'hubId' => $hubId,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Récupère les matches d'un hub
+     */
+    public function getHubMatches($hubId, $type = 'all', $offset = 0, $limit = 20)
+    {
+        $params = [
+            'type' => $type,
+            'offset' => $offset,
+            'limit' => $limit
+        ];
+        
+        try {
+            return $this->makeRequest("hubs/{$hubId}/matches", $params);
+        } catch (\Exception $e) {
+            Log::error('Erreur API FACEIT getHubMatches', [
+                'hubId' => $hubId,
+                'type' => $type,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Récupère les statistiques d'un hub
+     */
+    public function getHubStats($hubId, $offset = 0, $limit = 20)
+    {
+        $params = [
+            'offset' => $offset,
+            'limit' => $limit
+        ];
+        
+        try {
+            return $this->makeRequest("hubs/{$hubId}/stats", $params);
+        } catch (\Exception $e) {
+            Log::error('Erreur API FACEIT getHubStats', [
+                'hubId' => $hubId,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Récupère les organisateurs
+     */
+    public function getOrganizers($offset = 0, $limit = 20)
+    {
+        $params = [
+            'offset' => $offset,
+            'limit' => $limit
+        ];
+        
+        try {
+            return $this->makeRequest('organizers', $params);
+        } catch (\Exception $e) {
+            Log::error('Erreur API FACEIT getOrganizers', [
+                'offset' => $offset,
+                'limit' => $limit,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Récupère les détails d'un organisateur
+     */
+    public function getOrganizerDetails($organizerId)
+    {
+        try {
+            return $this->makeRequest("organizers/{$organizerId}");
+        } catch (\Exception $e) {
+            Log::error('Erreur API FACEIT getOrganizerDetails', [
+                'organizerId' => $organizerId,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Récupère les tournois d'un organisateur
+     */
+    public function getOrganizerTournaments($organizerId, $offset = 0, $limit = 20)
+    {
+        $params = [
+            'offset' => $offset,
+            'limit' => $limit
+        ];
+        
+        try {
+            return $this->makeRequest("organizers/{$organizerId}/tournaments", $params);
+        } catch (\Exception $e) {
+            Log::error('Erreur API FACEIT getOrganizerTournaments', [
+                'organizerId' => $organizerId,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Récupère les championnats d'un organisateur
+     */
+    public function getOrganizerChampionships($organizerId, $offset = 0, $limit = 20)
+    {
+        $params = [
+            'offset' => $offset,
+            'limit' => $limit
+        ];
+        
+        try {
+            return $this->makeRequest("organizers/{$organizerId}/championships", $params);
+        } catch (\Exception $e) {
+            Log::error('Erreur API FACEIT getOrganizerChampionships', [
+                'organizerId' => $organizerId,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Récupère les hubs d'un organisateur
+     */
+    public function getOrganizerHubs($organizerId, $offset = 0, $limit = 20)
+    {
+        $params = [
+            'offset' => $offset,
+            'limit' => $limit
+        ];
+        
+        try {
+            return $this->makeRequest("organizers/{$organizerId}/hubs", $params);
+        } catch (\Exception $e) {
+            Log::error('Erreur API FACEIT getOrganizerHubs', [
+                'organizerId' => $organizerId,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
     }
 }
