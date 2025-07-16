@@ -8,11 +8,6 @@ return [
     |--------------------------------------------------------------------------
     | Default Cache Store
     |--------------------------------------------------------------------------
-    |
-    | This option controls the default cache store that will be used by the
-    | framework. This connection is utilized if another isn't explicitly
-    | specified when running a cache operation inside the application.
-    |
     */
 
     'default' => env('CACHE_STORE', 'database'),
@@ -21,14 +16,6 @@ return [
     |--------------------------------------------------------------------------
     | Cache Stores
     |--------------------------------------------------------------------------
-    |
-    | Here you may define all of the cache "stores" for your application as
-    | well as their drivers. You may even define multiple stores for the
-    | same cache driver to group types of items stored in your caches.
-    |
-    | Supported drivers: "array", "database", "file", "memcached",
-    |                    "redis", "dynamodb", "octane", "null"
-    |
     */
 
     'stores' => [
@@ -77,13 +64,18 @@ return [
             'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'default'),
         ],
 
-        'dynamodb' => [
-            'driver' => 'dynamodb',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
-            'table' => env('DYNAMODB_CACHE_TABLE', 'cache'),
-            'endpoint' => env('DYNAMODB_ENDPOINT'),
+        // Configuration spéciale pour FACEIT avec TTL optimisé
+        'faceit' => [
+            'driver' => 'redis',
+            'connection' => env('REDIS_CACHE_CONNECTION', 'cache'),
+            'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'default'),
+            'prefix' => 'faceit_scope_',
+            'ttl' => [
+                'leaderboards' => 300,    // 5 minutes pour les classements
+                'player_stats' => 600,    // 10 minutes pour les stats joueur
+                'player_profile' => 1800, // 30 minutes pour les profils
+                'search_results' => 120,  // 2 minutes pour les recherches
+            ]
         ],
 
         'octane' => [
@@ -96,13 +88,21 @@ return [
     |--------------------------------------------------------------------------
     | Cache Key Prefix
     |--------------------------------------------------------------------------
-    |
-    | When utilizing the APC, database, memcached, Redis, and DynamoDB cache
-    | stores, there might be other applications using the same cache. For
-    | that reason, you may prefix every cache key to avoid collisions.
-    |
     */
 
     'prefix' => env('CACHE_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-cache-'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cache Tags Configuration (for Redis)
+    |--------------------------------------------------------------------------
+    */
+
+    'tags' => [
+        'leaderboards' => 'leaderboards',
+        'players' => 'players',
+        'stats' => 'stats',
+        'matches' => 'matches',
+    ],
 
 ];
