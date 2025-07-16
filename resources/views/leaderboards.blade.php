@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Classements Globaux - Faceit Scope')
+@section('title', 'Classements Globaux CS2 - Faceit Scope')
 
 @section('content')
 <!-- Hero Section -->
@@ -9,11 +9,25 @@
         <div class="text-center">
             <h1 class="text-5xl font-black mb-4 bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
                 <i class="fas fa-trophy text-faceit-orange mr-4"></i>
-                Classements Globaux
+                Classements Globaux CS2
             </h1>
             <p class="text-xl text-gray-300 max-w-2xl mx-auto">
-                Découvrez les meilleurs joueurs CS2 par région et suivez les tendances du classement mondial
+                Découvrez les meilleurs joueurs CS2 par région avec les vraies données FACEIT Rankings
             </p>
+            <div class="flex flex-wrap justify-center items-center gap-6 text-gray-400 mt-6">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-globe text-faceit-orange"></i>
+                    <span>Classements officiels FACEIT</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-chart-line text-blue-400"></i>
+                    <span>Données en temps réel</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-users text-green-400"></i>
+                    <span>Rankings par région</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -22,7 +36,7 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Stats rapides -->
     <div id="regionStatsSection" class="mb-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div class="bg-gradient-to-br from-faceit-card to-faceit-elevated rounded-xl p-6 border border-gray-800">
                 <div class="flex items-center justify-between">
                     <div>
@@ -58,6 +72,18 @@
                     </div>
                 </div>
             </div>
+
+            <div class="bg-gradient-to-br from-faceit-card to-faceit-elevated rounded-xl p-6 border border-gray-800">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-sm text-gray-400 mb-1">Niveau populaire</div>
+                        <div id="topLevel" class="text-2xl font-bold text-purple-400">-</div>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-star text-purple-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -69,12 +95,12 @@
                     <i class="fas fa-globe text-faceit-orange mr-2"></i>Région
                 </label>
                 <select id="regionSelect" class="w-full px-4 py-3 bg-faceit-elevated/80 border-2 border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-faceit-orange focus:border-faceit-orange transition-all hover:border-gray-600">
-                    <option value="EU" {{ $region === 'EU' ? 'selected' : '' }}>🇪🇺 Europe</option>
-                    <option value="NA" {{ $region === 'NA' ? 'selected' : '' }}>🇺🇸 Amérique du Nord</option>
-                    <option value="SA" {{ $region === 'SA' ? 'selected' : '' }}>🇧🇷 Amérique du Sud</option>
-                    <option value="AS" {{ $region === 'AS' ? 'selected' : '' }}>🇨🇳 Asie</option>
+                    <option value="EU" {{ $region === 'EU' ? 'selected' : '' }}>🌍 Europe</option>
+                    <option value="NA" {{ $region === 'NA' ? 'selected' : '' }}>🌎 Amérique du Nord</option>
+                    <option value="SA" {{ $region === 'SA' ? 'selected' : '' }}>🌎 Amérique du Sud</option>
+                    <option value="AS" {{ $region === 'AS' ? 'selected' : '' }}>🌏 Asie</option>
                     <option value="AF" {{ $region === 'AF' ? 'selected' : '' }}>🌍 Afrique</option>
-                    <option value="OC" {{ $region === 'OC' ? 'selected' : '' }}>🇦🇺 Océanie</option>
+                    <option value="OC" {{ $region === 'OC' ? 'selected' : '' }}>🌏 Océanie</option>
                 </select>
             </div>
             
@@ -84,26 +110,27 @@
                 </label>
                 <select id="countrySelect" class="w-full px-4 py-3 bg-faceit-elevated/80 border-2 border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-600">
                     <option value="">Tous les pays</option>
-                    <option value="FR" {{ $country === 'FR' ? 'selected' : '' }}>🇫🇷 France</option>
-                    <option value="DE" {{ $country === 'DE' ? 'selected' : '' }}>🇩🇪 Allemagne</option>
-                    <option value="GB" {{ $country === 'GB' ? 'selected' : '' }}>🇬🇧 Royaume-Uni</option>
-                    <option value="ES" {{ $country === 'ES' ? 'selected' : '' }}>🇪🇸 Espagne</option>
-                    <option value="IT" {{ $country === 'IT' ? 'selected' : '' }}>🇮🇹 Italie</option>
-                    <option value="US" {{ $country === 'US' ? 'selected' : '' }}>🇺🇸 États-Unis</option>
-                    <option value="BR" {{ $country === 'BR' ? 'selected' : '' }}>🇧🇷 Brésil</option>
-                    <option value="RU" {{ $country === 'RU' ? 'selected' : '' }}>🇷🇺 Russie</option>
-                    <option value="PL" {{ $country === 'PL' ? 'selected' : '' }}>🇵🇱 Pologne</option>
-                    <option value="SE" {{ $country === 'SE' ? 'selected' : '' }}>🇸🇪 Suède</option>
-                    <option value="DK" {{ $country === 'DK' ? 'selected' : '' }}>🇩🇰 Danemark</option>
-                    <option value="NO" {{ $country === 'NO' ? 'selected' : '' }}>🇳🇴 Norvège</option>
-                    <option value="FI" {{ $country === 'FI' ? 'selected' : '' }}>🇫🇮 Finlande</option>
-                    <option value="NL" {{ $country === 'NL' ? 'selected' : '' }}>🇳🇱 Pays-Bas</option>
-                    <option value="BE" {{ $country === 'BE' ? 'selected' : '' }}>🇧🇪 Belgique</option>
-                    <option value="CH" {{ $country === 'CH' ? 'selected' : '' }}>🇨🇭 Suisse</option>
-                    <option value="AT" {{ $country === 'AT' ? 'selected' : '' }}>🇦🇹 Autriche</option>
-                    <option value="CZ" {{ $country === 'CZ' ? 'selected' : '' }}>🇨🇿 République tchèque</option>
-                    <option value="UA" {{ $country === 'UA' ? 'selected' : '' }}>🇺🇦 Ukraine</option>
-                    <option value="TR" {{ $country === 'TR' ? 'selected' : '' }}>🇹🇷 Turquie</option>
+                    <option value="FR" {{ $country === 'FR' ? 'selected' : '' }}>🇫🇷 France (FR)</option>
+                    <option value="DE" {{ $country === 'DE' ? 'selected' : '' }}>🇩🇪 Allemagne (DE)</option>
+                    <option value="GB" {{ $country === 'GB' ? 'selected' : '' }}>🇬🇧 Royaume-Uni (GB)</option>
+                    <option value="ES" {{ $country === 'ES' ? 'selected' : '' }}>🇪🇸 Espagne (ES)</option>
+                    <option value="IT" {{ $country === 'IT' ? 'selected' : '' }}>🇮🇹 Italie (IT)</option>
+                    <option value="US" {{ $country === 'US' ? 'selected' : '' }}>🇺🇸 États-Unis (US)</option>
+                    <option value="CA" {{ $country === 'CA' ? 'selected' : '' }}>🇨🇦 Canada (CA)</option>
+                    <option value="BR" {{ $country === 'BR' ? 'selected' : '' }}>🇧🇷 Brésil (BR)</option>
+                    <option value="RU" {{ $country === 'RU' ? 'selected' : '' }}>🇷🇺 Russie (RU)</option>
+                    <option value="PL" {{ $country === 'PL' ? 'selected' : '' }}>🇵🇱 Pologne (PL)</option>
+                    <option value="SE" {{ $country === 'SE' ? 'selected' : '' }}>🇸🇪 Suède (SE)</option>
+                    <option value="DK" {{ $country === 'DK' ? 'selected' : '' }}>🇩🇰 Danemark (DK)</option>
+                    <option value="NO" {{ $country === 'NO' ? 'selected' : '' }}>🇳🇴 Norvège (NO)</option>
+                    <option value="FI" {{ $country === 'FI' ? 'selected' : '' }}>🇫🇮 Finlande (FI)</option>
+                    <option value="NL" {{ $country === 'NL' ? 'selected' : '' }}>🇳🇱 Pays-Bas (NL)</option>
+                    <option value="BE" {{ $country === 'BE' ? 'selected' : '' }}>🇧🇪 Belgique (BE)</option>
+                    <option value="CH" {{ $country === 'CH' ? 'selected' : '' }}>🇨🇭 Suisse (CH)</option>
+                    <option value="AT" {{ $country === 'AT' ? 'selected' : '' }}>🇦🇹 Autriche (AT)</option>
+                    <option value="CZ" {{ $country === 'CZ' ? 'selected' : '' }}>🇨🇿 République tchèque (CZ)</option>
+                    <option value="UA" {{ $country === 'UA' ? 'selected' : '' }}>🇺🇦 Ukraine (UA)</option>
+                    <option value="TR" {{ $country === 'TR' ? 'selected' : '' }}>🇹🇷 Turquie (TR)</option>
                 </select>
             </div>
             
@@ -162,9 +189,12 @@
                 <i class="fas fa-trophy text-faceit-orange text-2xl animate-pulse"></i>
             </div>
         </div>
-        <h2 class="text-2xl font-bold mb-4">Chargement du classement...</h2>
-        <p class="text-gray-400 animate-pulse">Récupération des profils des joueurs...</p>
+        <h2 class="text-2xl font-bold mb-4">Chargement du classement FACEIT...</h2>
+        <p class="text-gray-400 animate-pulse">Récupération des données officielles...</p>
     </div>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="hidden mb-6"></div>
 
     <!-- Classement -->
     <div id="leaderboardContainer" class="hidden">
@@ -187,19 +217,19 @@
             <div class="bg-faceit-elevated/80 px-6 py-4 border-b border-gray-700">
                 <div class="grid grid-cols-12 gap-4 text-sm font-semibold text-gray-300">
                     <div class="col-span-1 text-center">
-                        <i class="fas fa-medal mr-1"></i>Rang
+                        <i class="fas fa-medal mr-1"></i>Position
                     </div>
                     <div class="col-span-4">
                         <i class="fas fa-user mr-1"></i>Joueur
                     </div>
                     <div class="col-span-2 text-center">
-                        <i class="fas fa-fire mr-1"></i>ELO
+                        <i class="fas fa-fire mr-1"></i>ELO FACEIT
                     </div>
                     <div class="col-span-2 text-center">
                         <i class="fas fa-star mr-1"></i>Niveau
                     </div>
                     <div class="col-span-2 text-center">
-                        <i class="fas fa-chart-line mr-1"></i>Forme
+                        <i class="fas fa-chart-line mr-1"></i>Stats
                     </div>
                     <div class="col-span-1 text-center">Actions</div>
                 </div>
@@ -233,9 +263,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Error Message -->
-    <div id="errorMessage" class="hidden"></div>
 </div>
 @endsection
 
@@ -248,5 +275,5 @@
         limit: @json($limit)
     };
 </script>
-<script src="{{ asset('js/leaderboards.js') }}"></script>
+<script src="{{ asset('js/leaderboards-rankings.js') }}"></script>
 @endpush
