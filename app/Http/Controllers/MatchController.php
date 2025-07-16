@@ -82,50 +82,6 @@ class MatchController extends Controller
     }
 
     /**
-     * API - Compare deux joueurs d'un match
-     */
-    public function compareMatchPlayers(Request $request)
-    {
-        try {
-            $request->validate([
-                'player1_id' => 'required|string',
-                'player2_id' => 'required|string',
-                'match_id' => 'required|string'
-            ]);
-
-            $player1Id = $request->get('player1_id');
-            $player2Id = $request->get('player2_id');
-            $matchId = $request->get('match_id');
-
-            // Récupérer les données des joueurs
-            $player1 = $this->faceitService->getPlayer($player1Id);
-            $player2 = $this->faceitService->getPlayer($player2Id);
-            
-            // Récupérer leurs statistiques
-            $player1Stats = $this->faceitService->getPlayerStats($player1Id);
-            $player2Stats = $this->faceitService->getPlayerStats($player2Id);
-            
-            // Analyser la comparaison dans le contexte du match
-            $comparison = $this->comparePlayersInMatch($player1, $player2, $player1Stats, $player2Stats, $matchId);
-
-            return response()->json([
-                'success' => true,
-                'player1' => $player1,
-                'player2' => $player2,
-                'comparison' => $comparison
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error("Erreur comparaison joueurs match: " . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
      * Enrichit les données d'un match avec des informations détaillées
      */
     private function enrichMatchData($match, $matchStats = null)
@@ -149,6 +105,71 @@ class MatchController extends Controller
         }
 
         return $enriched;
+    }
+
+    /**
+     * Obtient les informations de la carte - FIXED VERSION
+     */
+    private function getMapInformation($match)
+    {
+        // Gestion sécurisée de l'extraction du nom de carte
+        $mapName = 'Carte inconnue';
+        
+        // Essayer différentes structures de données possibles
+        if (isset($match['voting']['map']['pick'])) {
+            $mapPick = $match['voting']['map']['pick'];
+            if (is_string($mapPick)) {
+                $mapName = $mapPick;
+            } elseif (is_array($mapPick) && !empty($mapPick)) {
+                // Si c'est un array, prendre le premier élément s'il est string
+                $mapName = is_string($mapPick[0]) ? $mapPick[0] : 'Carte inconnue';
+            }
+        } elseif (isset($match['voting']['map']['name'])) {
+            $mapName = is_string($match['voting']['map']['name']) ? $match['voting']['map']['name'] : 'Carte inconnue';
+        } elseif (isset($match['map'])) {
+            $mapName = is_string($match['map']) ? $match['map'] : 'Carte inconnue';
+        }
+
+        // Images des cartes CS2
+        $mapImages = [
+            'de_mirage' => 'https://steamuserimages-a.akamaihd.net/ugc/872989250901610927/A8E1F68B50C103D10A5AEE27F1DAA3A41E4FD8BC/',
+            'de_dust2' => 'https://steamuserimages-a.akamaihd.net/ugc/872989250901615736/BF76CBF9C4F16E9D44F36A8CC1F9E1A8D8A3E6EF/',
+            'de_inferno' => 'https://steamuserimages-a.akamaihd.net/ugc/872989250901616629/3C54A5C75D7F5F8E1E0EE8C7F2F2C2B7F9F9F9F9/',
+            'de_cache' => 'https://steamuserimages-a.akamaihd.net/ugc/872989250901617521/1A2B3C4D5E6F7A8B9C0D1E2F3A4B5C6D7E8F9A0B/',
+            'de_overpass' => 'https://steamuserimages-a.akamaihd.net/ugc/872989250901618413/2B3C4D5E6F7A8B9C0D1E2F3A4B5C6D7E8F9A0B1C/',
+            'de_train' => 'https://steamuserimages-a.akamaihd.net/ugc/872989250901619305/3C4D5E6F7A8B9C0D1E2F3A4B5C6D7E8F9A0B1C2D/',
+            'de_nuke' => 'https://steamuserimages-a.akamaihd.net/ugc/872989250901620197/4D5E6F7A8B9C0D1E2F3A4B5C6D7E8F9A0B1C2D3E/',
+            'de_ancient' => 'https://steamuserimages-a.akamaihd.net/ugc/872989250901621089/5E6F7A8B9C0D1E2F3A4B5C6D7E8F9A0B1C2D3E4F/',
+            'de_vertigo' => 'https://steamuserimages-a.akamaihd.net/ugc/872989250901621981/6F7A8B9C0D1E2F3A4B5C6D7E8F9A0B1C2D3E4F5A/',
+            'de_anubis' => 'https://steamuserimages-a.akamaihd.net/ugc/872989250901622873/7A8B9C0D1E2F3A4B5C6D7E8F9A0B1C2D3E4F5A6B/'
+        ];
+        
+        // Nettoyer le nom de carte et créer le nom d'affichage
+        $cleanMapName = is_string($mapName) ? $mapName : 'de_unknown';
+        
+        // Remplacer le préfixe de_ pour l'affichage si présent
+        $displayName = $cleanMapName;
+        if (strpos($cleanMapName, 'de_') === 0) {
+            $displayName = str_replace('de_', '', $cleanMapName);
+        }
+        
+        return [
+            'name' => $cleanMapName,
+            'display_name' => ucfirst($displayName),
+            'image' => $mapImages[$cleanMapName] ?? $mapImages['de_mirage']
+        ];
+    }
+
+    /**
+     * Obtient les informations de la compétition
+     */
+    private function getCompetitionInfo($match)
+    {
+        return [
+            'name' => $match['competition_name'] ?? 'Match personnalisé',
+            'type' => $match['competition_type'] ?? 'matchmaking',
+            'region' => $match['region'] ?? 'EU'
+        ];
     }
 
     /**
@@ -557,30 +578,6 @@ class MatchController extends Controller
         ];
     }
 
-    /**
-     * Obtient les informations de la carte
-     */
-    private function getMapInformation($match)
-    {
-        $mapName = $match['voting']['map']['pick'] ?? 'Carte inconnue';
-        
-        $mapImages = [
-            'de_mirage' => 'https://steamuserimages-a.akamaihd.net/ugc/872989250901610927/A8E1F68B50C103D10A5AEE27F1DAA3A41E4FD8BC/',
-            'de_dust2' => 'https://steamuserimages-a.akamaihd.net/ugc/872989250901615736/BF76CBF9C4F16E9D44F36A8CC1F9E1A8D8A3E6EF/',
-            'de_inferno' => 'https://steamuserimages-a.akamaihd.net/ugc/872989250901616629/3C54A5C75D7F5F8E1E0EE8C7F2F2C2B7F9F9F9F9/',
-            'de_cache' => 'https://steamuserimages-a.akamaihd.net/ugc/872989250901617521/1A2B3C4D5E6F7A8B9C0D1E2F3A4B5C6D7E8F9A0B/',
-            'de_overpass' => 'https://steamuserimages-a.akamaihd.net/ugc/872989250901618413/2B3C4D5E6F7A8B9C0D1E2F3A4B5C6D7E8F9A0B1C/',
-            'de_train' => 'https://steamuserimages-a.akamaihd.net/ugc/872989250901619305/3C4D5E6F7A8B9C0D1E2F3A4B5C6D7E8F9A0B1C2D/',
-            'de_nuke' => 'https://steamuserimages-a.akamaihd.net/ugc/872989250901620197/4D5E6F7A8B9C0D1E2F3A4B5C6D7E8F9A0B1C2D3E/'
-        ];
-        
-        return [
-            'name' => $mapName,
-            'display_name' => str_replace('de_', '', $mapName),
-            'image' => $mapImages[$mapName] ?? $mapImages['de_mirage']
-        ];
-    }
-
     // Méthodes utilitaires supplémentaires...
     private function getRelativeTime($timestamp)
     {
@@ -698,12 +695,47 @@ class MatchController extends Controller
         ];
     }
 
-    private function getCompetitionInfo($match)
+    /**
+     * API - Compare deux joueurs d'un match
+     */
+    public function compareMatchPlayers(Request $request)
     {
-        return [
-            'name' => $match['competition_name'] ?? 'Match personnalisé',
-            'type' => $match['competition_type'] ?? 'matchmaking',
-            'region' => $match['region'] ?? 'EU'
-        ];
+        try {
+            $request->validate([
+                'player1_id' => 'required|string',
+                'player2_id' => 'required|string',
+                'match_id' => 'required|string'
+            ]);
+
+            $player1Id = $request->get('player1_id');
+            $player2Id = $request->get('player2_id');
+            $matchId = $request->get('match_id');
+
+            // Récupérer les données des joueurs
+            $player1 = $this->faceitService->getPlayer($player1Id);
+            $player2 = $this->faceitService->getPlayer($player2Id);
+            
+            // Récupérer leurs statistiques
+            $player1Stats = $this->faceitService->getPlayerStats($player1Id);
+            $player2Stats = $this->faceitService->getPlayerStats($player2Id);
+            
+            // Analyser la comparaison dans le contexte du match
+            $comparison = $this->comparePlayersInMatch($player1, $player2, $player1Stats, $player2Stats, $matchId);
+
+            return response()->json([
+                'success' => true,
+                'player1' => $player1,
+                'player2' => $player2,
+                'comparison' => $comparison
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("Erreur comparaison joueurs match: " . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
