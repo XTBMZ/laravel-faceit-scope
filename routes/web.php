@@ -6,6 +6,7 @@ use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\ComparisonController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\TournamentController;
+use App\Http\Controllers\MatchController; // Nouveau contrôleur
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +20,9 @@ Route::get('/comparison', [ComparisonController::class, 'index'])->name('compari
 Route::get('/leaderboards', [LeaderboardController::class, 'index'])->name('leaderboards');
 Route::get('/tournaments', [TournamentController::class, 'index'])->name('tournaments');
 
+// Nouvelle route pour l'analyse de match
+Route::get('/match', [MatchController::class, 'index'])->name('match');
+
 // Routes API pour les données FACEIT
 Route::prefix('api')->group(function () {
     // Routes joueurs
@@ -26,6 +30,10 @@ Route::prefix('api')->group(function () {
     Route::get('/player/{playerId}', [PlayerController::class, 'getPlayer'])->name('api.player.get');
     Route::get('/player/{playerId}/stats', [PlayerController::class, 'getPlayerStats'])->name('api.player.stats');
     Route::get('/match/{matchId}', [PlayerController::class, 'getMatch'])->name('api.match.get');
+    
+    // Nouvelles routes pour l'analyse de match
+    Route::get('/match/{matchId}/analysis', [MatchController::class, 'getMatchAnalysis'])->name('api.match.analysis');
+    Route::post('/match/compare-players', [MatchController::class, 'compareMatchPlayers'])->name('api.match.compare');
     
     // Routes pour la comparaison
     Route::post('/compare', [ComparisonController::class, 'compare'])->name('api.compare');
