@@ -40,7 +40,7 @@ class LeaderboardController extends Controller
     }
 
     /**
-     * API - Récupère le classement
+     * API - Récupère le classement (utilise FaceitService)
      */
     public function getLeaderboard(Request $request)
     {
@@ -64,42 +64,15 @@ class LeaderboardController extends Controller
                 $limit = 20;
             }
 
-            // Clé de cache unique
-            $cacheKey = "leaderboard_{$region}_{$country}_{$limit}_{$offset}";
-            
-            // Vérifier le cache (3 minutes)
-            $cachedData = Cache::get($cacheKey);
-            if ($cachedData && !$request->has('_t')) {
-                return response()->json([
-                    'success' => true,
-                    'data' => $cachedData['data'],
-                    'pagination' => $cachedData['pagination'],
-                    'cached' => true
-                ]);
-            }
-
-            // Récupération des données depuis FACEIT
-            $leaderboardData = $this->faceitService->getGlobalRanking($region, $country, $offset, $limit);
+            // ✅ DÉLÉGUER au FaceitService (pas de duplication)
+            $leaderboardData = $this->faceitService->getLeaderboardsWithFullData($region, $country, $offset, $limit);
 
             if (!$leaderboardData || !isset($leaderboardData['items'])) {
                 throw new \Exception('Aucune donnée de classement disponible');
             }
 
-            // Traitement des données - Version optimisée
-            $players = collect($leaderboardData['items'])->map(function ($item, $index) use ($offset) {
-                return [
-                    'player_id' => $item['player_id'] ?? '',
-                    'nickname' => $item['nickname'] ?? 'Joueur inconnu',
-                    'avatar' => $item['avatar'] ?? '',
-                    'country' => $item['country'] ?? 'EU',
-                    'faceit_elo' => $item['faceit_elo'] ?? 1000,
-                    'skill_level' => $item['skill_level'] ?? 1,
-                    'position' => $offset + $index + 1,
-                    'win_rate' => 0, // On récupérera ces données à la demande
-                    'kd_ratio' => 0, // Pour optimiser les performances
-                    'recent_form' => 'unknown' // Données lourdes, on les récupère uniquement pour la recherche
-                ];
-            })->toArray();
+            // Les données sont déjà enrichies par le service (forme récente incluse)
+            $players = $leaderboardData['items'];
 
             // Pagination
             $pagination = [
@@ -108,13 +81,6 @@ class LeaderboardController extends Controller
                 'total_items' => $offset + count($players),
                 'items_per_page' => $limit
             ];
-
-            // Mettre en cache
-            $cacheData = [
-                'data' => $players,
-                'pagination' => $pagination
-            ];
-            Cache::put($cacheKey, $cacheData, 180); // 3 minutes
 
             return response()->json([
                 'success' => true,
@@ -134,7 +100,7 @@ class LeaderboardController extends Controller
     }
 
     /**
-     * API - Recherche un joueur dans le classement
+     * API - Recherche un joueur (utilise FaceitService)
      */
     public function searchPlayer(Request $request)
     {
@@ -149,84 +115,8 @@ class LeaderboardController extends Controller
                 ], 400);
             }
 
-            // Clé de cache
-            $cacheKey = "player_search_{$nickname}_{$region}";
-            $cachedData = Cache::get($cacheKey);
-            
-            if ($cachedData) {
-                return response()->json([
-                    'success' => true,
-                    'player' => $cachedData,
-                    'cached' => true
-                ]);
-            }
-
-            // Rechercher le joueur
-            $player = $this->faceitService->getPlayerByNickname($nickname);
-            
-            if (!$player) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Joueur non trouvé'
-                ], 404);
-            }
-
-            // Vérifier s'il a un profil CS2
-            if (!isset($player['games']['cs2']) && !isset($player['games']['csgo'])) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Ce joueur n\'a pas de profil CS2'
-                ], 404);
-            }
-
-            // Récupérer les stats pour la recherche spécifique
-            $stats = null;
-            $winRate = 0;
-            $kdRatio = 0;
-            $recentForm = 'unknown';
-            
-            try {
-                $stats = $this->faceitService->getPlayerStats($player['player_id']);
-                if ($stats && isset($stats['lifetime'])) {
-                    $winRate = round(floatval($stats['lifetime']['Win Rate %'] ?? 0), 1);
-                    $kdRatio = round(floatval($stats['lifetime']['Average K/D Ratio'] ?? 0), 2);
-                    
-                    // Analyser la forme récente depuis Recent Results
-                    $recentResults = $stats['lifetime']['Recent Results'] ?? [];
-                    if (!empty($recentResults)) {
-                        $recentForm = $this->analyzeRecentForm($recentResults);
-                    }
-                }
-            } catch (\Exception $e) {
-                Log::warning("Stats indisponibles pour {$nickname}: " . $e->getMessage());
-            }
-
-            // Essayer de récupérer la position dans le classement
-            $position = 'N/A';
-            try {
-                $ranking = $this->faceitService->getPlayerRanking($player['player_id'], $region);
-                if ($ranking && isset($ranking['position'])) {
-                    $position = $ranking['position'];
-                }
-            } catch (\Exception $e) {
-                Log::warning("Position indisponible pour {$nickname}: " . $e->getMessage());
-            }
-
-            $playerData = [
-                'player_id' => $player['player_id'],
-                'nickname' => $player['nickname'],
-                'avatar' => $player['avatar'] ?? '',
-                'country' => $player['country'] ?? 'EU',
-                'faceit_elo' => $player['games']['cs2']['faceit_elo'] ?? $player['games']['csgo']['faceit_elo'] ?? 1000,
-                'skill_level' => $player['games']['cs2']['skill_level'] ?? $player['games']['csgo']['skill_level'] ?? 1,
-                'position' => $position,
-                'win_rate' => $winRate,
-                'kd_ratio' => $kdRatio,
-                'recent_form' => $recentForm
-            ];
-
-            // Mettre en cache (5 minutes)
-            Cache::put($cacheKey, $playerData, 300);
+            // ✅ DÉLÉGUER au FaceitService (toute la logique y est)
+            $playerData = $this->faceitService->searchPlayerOptimized($nickname, $region);
 
             return response()->json([
                 'success' => true,
@@ -317,30 +207,6 @@ class LeaderboardController extends Controller
                 'success' => false,
                 'error' => 'Erreur lors du chargement des statistiques'
             ], 500);
-        }
-    }
-
-    /**
-     * Analyse la forme récente d'un joueur
-     */
-    private function analyzeRecentForm(array $recentResults)
-    {
-        if (empty($recentResults)) {
-            return 'unknown';
-        }
-
-        $totalGames = count($recentResults);
-        $wins = array_sum(array_map('intval', $recentResults));
-        $winRate = ($wins / $totalGames) * 100;
-
-        if ($winRate >= 80) {
-            return 'excellent';
-        } elseif ($winRate >= 60) {
-            return 'good';
-        } elseif ($winRate >= 40) {
-            return 'average';
-        } else {
-            return 'poor';
         }
     }
 }

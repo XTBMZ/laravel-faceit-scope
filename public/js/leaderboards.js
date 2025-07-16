@@ -1,5 +1,6 @@
 /**
  * Script optimisé pour la page des classements - Faceit Scope
+ * COMPLET avec forme récente simplifiée
  */
 
 // Variables globales
@@ -13,7 +14,7 @@ let loadingTimeout = null;
 
 // Cache côté client
 const clientCache = new Map();
-const CACHE_DURATION = 3 * 60 * 1000; // 3 minutes pour données plus fraîches
+const CACHE_DURATION = 3 * 60 * 1000; // 3 minutes
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
@@ -409,14 +410,19 @@ function displayPlayerSearchResult(player) {
     const searchResult = document.getElementById('playerSearchResult');
     if (!searchResult) return;
     
+    console.log('🎯 Données du joueur reçues:', player);
+    
     // Utiliser les VRAIES données maintenant
     const avatar = player.avatar || 'https://d50m6q67g4bn3.cloudfront.net/avatars/101f7b39-7130-4919-8d2d-13a87add102c_1516883786781';
     const country = player.country || 'EU';
     const level = player.skill_level || 1;
     const elo = player.faceit_elo || 'N/A';
     const position = player.position || 'N/A';
-    const winRate = player.win_rate || 0; // VRAIE win rate
-    const kdRatio = player.kd_ratio || 0; // VRAIE K/D
+    const winRate = player.win_rate || 0;
+    const kdRatio = player.kd_ratio || 0;
+    const recentForm = player.recent_form || 'unknown'; // VRAIE forme récente
+    
+    const formConfig = getFormConfig(recentForm);
     
     searchResult.innerHTML = `
         <div class="bg-gradient-to-r from-faceit-elevated to-faceit-card rounded-xl p-6 border border-gray-700 shadow-lg animate-scale-in">
@@ -440,7 +446,7 @@ function displayPlayerSearchResult(player) {
                             <span>•</span>
                             <span class="${getRankColor(level)} font-semibold">${formatNumber(elo)} ELO</span>
                         </div>
-                        <div class="grid grid-cols-2 gap-4 mt-3">
+                        <div class="grid grid-cols-3 gap-4 mt-3">
                             <div class="text-center p-2 bg-black/20 rounded-lg">
                                 <div class="text-sm font-semibold text-blue-400">${winRate}%</div>
                                 <div class="text-xs text-gray-500">Win Rate</div>
@@ -448,6 +454,12 @@ function displayPlayerSearchResult(player) {
                             <div class="text-center p-2 bg-black/20 rounded-lg">
                                 <div class="text-sm font-semibold text-green-400">${kdRatio}</div>
                                 <div class="text-xs text-gray-500">K/D Ratio</div>
+                            </div>
+                            <div class="text-center p-2 bg-black/20 rounded-lg">
+                                <div class="px-2 py-1 rounded-full text-xs font-semibold ${formConfig.class}">
+                                    <i class="${formConfig.icon} mr-1"></i>
+                                    ${formConfig.text}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -528,7 +540,8 @@ function displayLeaderboard() {
 }
 
 function createPlayerRow(player, index) {
-    console.log(player);
+    console.log('🎯 Données du joueur pour le classement:', player);
+    
     const position = player.position;
     const avatar = player.avatar || 'https://d50m6q67g4bn3.cloudfront.net/avatars/101f7b39-7130-4919-8d2d-13a87add102c_1516883786781';
     const country = player.country || 'EU';
@@ -536,9 +549,9 @@ function createPlayerRow(player, index) {
     const elo = player.faceit_elo || 'N/A';
     const nickname = player.nickname || 'Joueur inconnu';
     const playerId = player.player_id || '';
-    const winRate = player.win_rate || 0; // VRAIE win rate
-    const kdRatio = player.kd_ratio || 0; // VRAIE K/D
-    const recentForm = player.recent_form || 'unknown'; // VRAIE forme
+    const winRate = player.win_rate || 0;
+    const kdRatio = player.kd_ratio || 0;
+    const recentForm = player.recent_form || 'unknown'; // VRAIE forme récente
     
     // Couleurs spéciales pour le podium
     let positionClass = 'text-gray-300';
@@ -643,6 +656,8 @@ function createPlayerRow(player, index) {
 }
 
 function getFormConfig(form) {
+    console.log('🎯 Forme reçue:', form);
+    
     const configs = {
         'excellent': {
             class: 'bg-green-500/20 text-green-400 border border-green-500/50',

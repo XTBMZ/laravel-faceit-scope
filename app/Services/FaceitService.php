@@ -402,58 +402,57 @@ class FaceitService
             'limit' => (int) $limit
         ];
     }
-    // Ajoutez cette méthode à votre FaceitService.php existant
 
-/**
- * Récupération des classements par région
- */
-public function getLeaderboards($region, $country = null, $offset = 0, $limit = 20)
-{
-    $params = [
-        'offset' => $offset,
-        'limit' => $limit
-    ];
-    
-    if ($country) {
-        $params['country'] = $country;
-    }
-    
-    try {
-        return $this->makeRequest("rankings/games/{$this->gameId}/regions/{$region}", $params);
-    } catch (\Exception $e) {
-        \Log::error('Erreur API FACEIT getLeaderboards', [
-            'region' => $region,
-            'country' => $country,
+    /**
+     * Récupération des classements par région
+     */
+    public function getLeaderboards($region, $country = null, $offset = 0, $limit = 20)
+    {
+        $params = [
             'offset' => $offset,
-            'limit' => $limit,
-            'error' => $e->getMessage()
-        ]);
-        throw $e;
+            'limit' => $limit
+        ];
+        
+        if ($country) {
+            $params['country'] = $country;
+        }
+        
+        try {
+            return $this->makeRequest("rankings/games/{$this->gameId}/regions/{$region}", $params);
+        } catch (\Exception $e) {
+            \Log::error('Erreur API FACEIT getLeaderboards', [
+                'region' => $region,
+                'country' => $country,
+                'offset' => $offset,
+                'limit' => $limit,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
     }
-}
 
-/**
- * Récupération du classement d'un joueur spécifique
- */
-public function getPlayerRanking($playerId, $region, $country = null, $limit = 20)
-{
-    $params = ['limit' => $limit];
-    
-    if ($country) {
-        $params['country'] = $country;
+    /**
+     * Récupération du classement d'un joueur spécifique
+     */
+    public function getPlayerRanking($playerId, $region, $country = null, $limit = 20)
+    {
+        $params = ['limit' => $limit];
+        
+        if ($country) {
+            $params['country'] = $country;
+        }
+        
+        try {
+            return $this->makeRequest("rankings/games/{$this->gameId}/regions/{$region}/players/{$playerId}", $params);
+        } catch (\Exception $e) {
+            \Log::error('Erreur API FACEIT getPlayerRanking', [
+                'playerId' => $playerId,
+                'region' => $region,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
     }
-    
-    try {
-        return $this->makeRequest("rankings/games/{$this->gameId}/regions/{$region}/players/{$playerId}", $params);
-    } catch (\Exception $e) {
-        \Log::error('Erreur API FACEIT getPlayerRanking', [
-            'playerId' => $playerId,
-            'region' => $region,
-            'error' => $e->getMessage()
-        ]);
-        throw $e;
-    }
-}
 
     /**
      * Récupération optimisée des classements avec données complètes
@@ -487,16 +486,16 @@ public function getPlayerRanking($playerId, $region, $country = null, $limit = 2
                             $enrichedItems[] = [
                                 'player_id' => $playerId,
                                 'nickname' => $playerData['nickname'],
-                                'avatar' => $playerData['avatar'], // VRAIE avatar
+                                'avatar' => $playerData['avatar'],
                                 'country' => $playerData['country'],
                                 'skill_level' => $playerData['skill_level'],
                                 'faceit_elo' => $playerData['faceit_elo'],
                                 'region' => $playerData['region'],
                                 'position' => $offset + $index + 1,
-                                'win_rate' => $playerData['win_rate'], // VRAIE win rate
-                                'kd_ratio' => $playerData['kd_ratio'], // VRAIE K/D
+                                'win_rate' => $playerData['win_rate'],
+                                'kd_ratio' => $playerData['kd_ratio'],
                                 'matches' => $playerData['matches'],
-                                'recent_form' => $playerData['recent_form'] // VRAIE forme
+                                'recent_form' => $playerData['recent_form']
                             ];
                         }
                         
@@ -544,15 +543,7 @@ public function getPlayerRanking($playerId, $region, $country = null, $limit = 2
                     Log::warning("Pas de stats pour {$playerId}: " . $e->getMessage());
                 }
                 
-                // 3. Historique des derniers matches pour la forme
-                $recentMatches = null;
-                try {
-                    $recentMatches = $this->getPlayerHistory($playerId, 0, 0, 0, 5);
-                } catch (\Exception $e) {
-                    Log::warning("Pas d'historique pour {$playerId}: " . $e->getMessage());
-                }
-                
-                // 4. Compilation des données
+                // 3. Compilation des données
                 $gameData = $player['games'][$this->gameId];
                 
                 return [
@@ -565,7 +556,7 @@ public function getPlayerRanking($playerId, $region, $country = null, $limit = 2
                     'win_rate' => $this->extractRealWinRate($stats),
                     'kd_ratio' => $this->extractRealKDRatio($stats),
                     'matches' => $this->extractMatches($stats),
-                    'recent_form' => $this->calculateRecentForm($recentMatches)
+                    'recent_form' => $this->calculateRecentForm($stats)
                 ];
                 
             } catch (\Exception $e) {
@@ -640,43 +631,42 @@ public function getPlayerRanking($playerId, $region, $country = null, $limit = 2
     }
 
     /**
-     * Calcul de la vraie forme récente basée sur les derniers matches
+     * Calcul de la forme récente basée sur Recent Results
+     * Recent Results = ["1", "1", "0", "1", "0"] où "1" = victoire
      */
-    private function calculateRecentForm($recentMatches)
+    private function calculateRecentForm($stats)
     {
-        if (!$recentMatches || !isset($recentMatches['items']) || empty($recentMatches['items'])) {
+        if (!$stats || !isset($stats['lifetime'])) {
             return 'unknown';
         }
         
-        $matches = array_slice($recentMatches['items'], 0, 5);
-        $victories = 0;
+        $recentResults = $stats['lifetime']['Recent Results'] ?? [];
         
-        foreach ($matches as $match) {
-            if (isset($match['results'])) {
-                $result = $match['results']['winner'] ?? null;
-                if ($result === 'faction1' || $result === 'faction2') {
-                    // Déterminer si le joueur a gagné
-                    // Cette logique peut être complexe, simplifions
-                    $victories++;
-                }
+        if (empty($recentResults)) {
+            return 'unknown';
+        }
+        
+        // Compter les victoires ("1")
+        $wins = 0;
+        foreach ($recentResults as $result) {
+            if ($result === "1") {
+                $wins++;
             }
         }
         
-        // Alternative: utiliser Recent Results si disponible
-        $recentResults = null;
-        if (isset($recentMatches['recent_results'])) {
-            $recentResults = $recentMatches['recent_results'];
+        $totalGames = count($recentResults);
+        
+        if ($totalGames === 0) {
+            return 'unknown';
         }
         
-        if ($recentResults && is_array($recentResults)) {
-            $victories = array_sum(array_map('intval', $recentResults));
-        }
+        $winRate = ($wins / $totalGames) * 100;
         
         // Classification
-        if ($victories >= 5) return 'excellent';
-        if ($victories >= 3) return 'good';
-        if ($victories >= 1) return 'average';
-        return 'poor';
+        if ($winRate >= 100) return 'excellent';  // 4-5 victoires sur 5
+        if ($winRate >= 60) return 'good';       // 3 victoires sur 5
+        if ($winRate >= 40) return 'average';    // 2 victoires sur 5
+        return 'poor';                           // 0-1 victoire sur 5
     }
 
     /**
