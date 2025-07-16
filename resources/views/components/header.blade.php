@@ -22,7 +22,7 @@
                     <a href="{{ route('comparison') }}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('comparison') ? 'text-white bg-faceit-orange/20' : '' }}">
                         <i class="fas fa-balance-scale mr-2"></i>Comparer
                     </a>
-                    <a href="#" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                    <a href="{{ route('leaderboards') }}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('leaderboards') ? 'text-white bg-faceit-orange/20' : '' }}">
                         <i class="fas fa-trophy mr-2"></i>Classements
                     </a>
                     <a href="#" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
@@ -60,7 +60,7 @@
             <a href="{{ route('comparison') }}" class="block px-3 py-2 text-gray-300 hover:text-white {{ request()->routeIs('comparison') ? 'text-white bg-faceit-orange/20' : '' }}">
                 <i class="fas fa-balance-scale mr-2"></i>Comparer
             </a>
-            <a href="#" class="block px-3 py-2 text-gray-300 hover:text-white">
+            <a href="{{ route('leaderboards') }}" class="block px-3 py-2 text-gray-300 hover:text-white {{ request()->routeIs('leaderboards') ? 'text-white bg-faceit-orange/20' : '' }}">
                 <i class="fas fa-trophy mr-2"></i>Classements
             </a>
             <a href="#" class="block px-3 py-2 text-gray-300 hover:text-white">
