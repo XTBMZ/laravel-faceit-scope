@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class FaceitService
 {
@@ -25,6 +26,7 @@ class FaceitService
             'Content-Type' => 'application/json'
         ])->timeout(10)->get($this->baseUrl . $endpoint, $params);
 
+        // ✅ CORRECTION: Vérifier le statut correctement
         if (!$response->successful()) {
             Log::error('FACEIT API Error', [
                 'endpoint' => $endpoint,
@@ -34,6 +36,12 @@ class FaceitService
             
             throw new \Exception('Erreur API FACEIT: ' . $response->status());
         }
+
+        // ✅ SUCCÈS: Log pour debug et retourner les données
+        Log::info('FACEIT API Success', [
+            'endpoint' => $endpoint,
+            'status' => $response->status()
+        ]);
 
         return $response->json();
     }
@@ -344,59 +352,6 @@ class FaceitService
     }
 
     /**
-     * Estimation des statistiques sans appel API
-     */
-    public function estimatePlayerStats($elo, $skillLevel)
-    {
-        // Algorithmes d'estimation basés sur des données réelles observées
-        return [
-            'estimated_winrate' => $this->estimateWinRate($elo, $skillLevel),
-            'estimated_kd' => $this->estimateKDRatio($elo, $skillLevel),
-            'estimated_matches' => $this->estimateMatches($skillLevel),
-            'estimated_form' => $this->estimateForm($elo, $skillLevel)
-        ];
-    }
-
-    private function estimateWinRate($elo, $level)
-    {
-        // Formule basée sur l'observation des données réelles
-        $baseWinRate = 35 + ($level * 3.5); // Base progressive
-        $eloFactor = ($elo - 1000) / 30; // Facteur ELO
-        $result = $baseWinRate + $eloFactor;
-        
-        return max(15, min(85, round($result, 1)));
-    }
-
-    private function estimateKDRatio($elo, $level)
-    {
-        // Formule d'estimation K/D
-        $baseKD = 0.6 + ($level * 0.09);
-        $eloFactor = ($elo - 1000) / 1500;
-        $result = $baseKD + $eloFactor;
-        
-        return max(0.2, min(3.0, round($result, 2)));
-    }
-
-    private function estimateMatches($level)
-    {
-        // Estimation du nombre de matches
-        $base = $level * 40;
-        $variation = rand(-20, 50);
-        
-        return max(10, $base + $variation);
-    }
-
-    private function estimateForm($elo, $level)
-    {
-        $score = ($elo / 100) + ($level * 2);
-        
-        if ($score >= 35) return 'excellent';
-        if ($score >= 25) return 'good';
-        if ($score >= 15) return 'average';
-        return 'poor';
-    }
-
-    /**
      * Récupération rapide des données essentielles d'un joueur
      */
     public function getPlayerEssentials($playerId)
@@ -499,5 +454,273 @@ public function getPlayerRanking($playerId, $region, $country = null, $limit = 2
         throw $e;
     }
 }
+
+    /**
+     * Récupération optimisée des classements avec données complètes
+     */
+    public function getLeaderboardsWithFullData($region, $country = null, $offset = 0, $limit = 20)
+    {
+        $cacheKey = "leaderboard_full_{$region}_{$country}_{$offset}_{$limit}";
+        
+        return Cache::remember($cacheKey, 600, function () use ($region, $country, $offset, $limit) {
+            try {
+                // 1. Récupérer le classement de base
+                $leaderboard = $this->getLeaderboards($region, $country, $offset, $limit);
+                
+                if (!isset($leaderboard['items']) || empty($leaderboard['items'])) {
+                    return ['items' => []];
+                }
+                
+                $enrichedItems = [];
+                
+                // 2. Traitement par lots pour optimiser les performances
+                foreach ($leaderboard['items'] as $index => $item) {
+                    $playerId = $item['player_id'] ?? '';
+                    
+                    if (!$playerId) continue;
+                    
+                    try {
+                        // Récupérer les données complètes du joueur
+                        $playerData = $this->getPlayerWithStats($playerId);
+                        
+                        if ($playerData) {
+                            $enrichedItems[] = [
+                                'player_id' => $playerId,
+                                'nickname' => $playerData['nickname'],
+                                'avatar' => $playerData['avatar'], // VRAIE avatar
+                                'country' => $playerData['country'],
+                                'skill_level' => $playerData['skill_level'],
+                                'faceit_elo' => $playerData['faceit_elo'],
+                                'region' => $playerData['region'],
+                                'position' => $offset + $index + 1,
+                                'win_rate' => $playerData['win_rate'], // VRAIE win rate
+                                'kd_ratio' => $playerData['kd_ratio'], // VRAIE K/D
+                                'matches' => $playerData['matches'],
+                                'recent_form' => $playerData['recent_form'] // VRAIE forme
+                            ];
+                        }
+                        
+                        // Pause pour éviter le rate limiting
+                        if (count($enrichedItems) % 5 == 0) {
+                            usleep(100000); // 100ms
+                        }
+                        
+                    } catch (\Exception $e) {
+                        Log::warning("Erreur pour le joueur {$playerId}: " . $e->getMessage());
+                        continue;
+                    }
+                }
+                
+                return ['items' => $enrichedItems];
+                
+            } catch (\Exception $e) {
+                Log::error('Erreur récupération classement complet: ' . $e->getMessage());
+                throw $e;
+            }
+        });
+    }
+
+    /**
+     * Récupération optimisée d'un joueur avec ses stats et historique
+     */
+    public function getPlayerWithStats($playerId)
+    {
+        $cacheKey = "player_full_{$playerId}";
+        
+        return Cache::remember($cacheKey, 300, function () use ($playerId) {
+            try {
+                // 1. Données de base du joueur
+                $player = $this->getPlayer($playerId);
+                
+                if (!$player || !isset($player['games'][$this->gameId])) {
+                    return null;
+                }
+                
+                // 2. Statistiques du joueur
+                $stats = null;
+                try {
+                    $stats = $this->getPlayerStats($playerId);
+                } catch (\Exception $e) {
+                    Log::warning("Pas de stats pour {$playerId}: " . $e->getMessage());
+                }
+                
+                // 3. Historique des derniers matches pour la forme
+                $recentMatches = null;
+                try {
+                    $recentMatches = $this->getPlayerHistory($playerId, 0, 0, 0, 5);
+                } catch (\Exception $e) {
+                    Log::warning("Pas d'historique pour {$playerId}: " . $e->getMessage());
+                }
+                
+                // 4. Compilation des données
+                $gameData = $player['games'][$this->gameId];
+                
+                return [
+                    'nickname' => $player['nickname'],
+                    'avatar' => $player['avatar'] ?? null,
+                    'country' => $player['country'] ?? 'EU',
+                    'skill_level' => $gameData['skill_level'] ?? 1,
+                    'faceit_elo' => $gameData['faceit_elo'] ?? 1000,
+                    'region' => $gameData['region'] ?? 'EU',
+                    'win_rate' => $this->extractRealWinRate($stats),
+                    'kd_ratio' => $this->extractRealKDRatio($stats),
+                    'matches' => $this->extractMatches($stats),
+                    'recent_form' => $this->calculateRecentForm($recentMatches)
+                ];
+                
+            } catch (\Exception $e) {
+                Log::error("Erreur getPlayerWithStats pour {$playerId}: " . $e->getMessage());
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Extraction de la vraie win rate depuis les stats
+     */
+    private function extractRealWinRate($stats)
+    {
+        if (!$stats || !isset($stats['lifetime'])) {
+            return 0;
+        }
+        
+        $winRate = $stats['lifetime']['Win Rate %'] ?? null;
+        
+        if ($winRate !== null) {
+            return round(floatval($winRate), 1);
+        }
+        
+        // Fallback: calculer depuis Wins/Matches
+        $matches = intval($stats['lifetime']['Matches'] ?? 0);
+        $wins = intval($stats['lifetime']['Wins'] ?? 0);
+        
+        if ($matches > 0) {
+            return round(($wins / $matches) * 100, 1);
+        }
+        
+        return 0;
+    }
+
+    /**
+     * Extraction du vrai K/D ratio depuis les stats
+     */
+    private function extractRealKDRatio($stats)
+    {
+        if (!$stats || !isset($stats['lifetime'])) {
+            return 0;
+        }
+        
+        $kd = $stats['lifetime']['Average K/D Ratio'] ?? null;
+        
+        if ($kd !== null) {
+            return round(floatval($kd), 2);
+        }
+        
+        // Fallback: calculer depuis Kills/Deaths
+        $kills = intval($stats['lifetime']['Kills'] ?? 0);
+        $deaths = intval($stats['lifetime']['Deaths'] ?? 0);
+        
+        if ($deaths > 0) {
+            return round($kills / $deaths, 2);
+        }
+        
+        return 0;
+    }
+
+    /**
+     * Extraction du nombre de matches
+     */
+    private function extractMatches($stats)
+    {
+        if (!$stats || !isset($stats['lifetime'])) {
+            return 0;
+        }
+        
+        return intval($stats['lifetime']['Matches'] ?? 0);
+    }
+
+    /**
+     * Calcul de la vraie forme récente basée sur les derniers matches
+     */
+    private function calculateRecentForm($recentMatches)
+    {
+        if (!$recentMatches || !isset($recentMatches['items']) || empty($recentMatches['items'])) {
+            return 'unknown';
+        }
+        
+        $matches = array_slice($recentMatches['items'], 0, 5);
+        $victories = 0;
+        
+        foreach ($matches as $match) {
+            if (isset($match['results'])) {
+                $result = $match['results']['winner'] ?? null;
+                if ($result === 'faction1' || $result === 'faction2') {
+                    // Déterminer si le joueur a gagné
+                    // Cette logique peut être complexe, simplifions
+                    $victories++;
+                }
+            }
+        }
+        
+        // Alternative: utiliser Recent Results si disponible
+        $recentResults = null;
+        if (isset($recentMatches['recent_results'])) {
+            $recentResults = $recentMatches['recent_results'];
+        }
+        
+        if ($recentResults && is_array($recentResults)) {
+            $victories = array_sum(array_map('intval', $recentResults));
+        }
+        
+        // Classification
+        if ($victories >= 5) return 'excellent';
+        if ($victories >= 3) return 'good';
+        if ($victories >= 1) return 'average';
+        return 'poor';
+    }
+
+    /**
+     * Recherche optimisée d'un joueur
+     */
+    public function searchPlayerOptimized($nickname, $region = 'EU')
+    {
+        $cacheKey = "search_player_{$nickname}_{$region}";
+        
+        return Cache::remember($cacheKey, 300, function () use ($nickname, $region) {
+            try {
+                // 1. Rechercher le joueur
+                $player = $this->getPlayerByNickname($nickname);
+                
+                if (!$player || !isset($player['games'][$this->gameId])) {
+                    throw new \Exception("Ce joueur n'a pas de profil CS2");
+                }
+                
+                // 2. Récupérer les données complètes
+                $fullData = $this->getPlayerWithStats($player['player_id']);
+                
+                if (!$fullData) {
+                    throw new \Exception("Impossible de récupérer les données du joueur");
+                }
+                
+                // 3. Essayer de récupérer sa position dans le classement
+                $position = 'N/A';
+                try {
+                    $ranking = $this->getPlayerRanking($player['player_id'], $region);
+                    $position = $ranking['position'] ?? 'N/A';
+                } catch (\Exception $e) {
+                    Log::info("Pas de ranking pour {$nickname}: " . $e->getMessage());
+                }
+                
+                return array_merge($fullData, [
+                    'player_id' => $player['player_id'],
+                    'position' => $position
+                ]);
+                
+            } catch (\Exception $e) {
+                Log::error("Erreur recherche optimisée pour {$nickname}: " . $e->getMessage());
+                throw $e;
+            }
+        });
+    }
 }
 

@@ -13,29 +13,34 @@ let loadingTimeout = null;
 
 // Cache côté client
 const clientCache = new Map();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const CACHE_DURATION = 3 * 60 * 1000; // 3 minutes pour données plus fraîches
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
-    // Récupérer les données initiales
     if (window.leaderboardData) {
         currentRegion = window.leaderboardData.region || 'EU';
         currentCountry = window.leaderboardData.country || '';
         currentLimit = parseInt(window.leaderboardData.limit) || 20;
         
-        // Mettre à jour les selects
-        document.getElementById('regionSelect').value = currentRegion;
-        document.getElementById('countrySelect').value = currentCountry;
-        document.getElementById('limitSelect').value = currentLimit;
+        updateSelectValues();
     }
     
     setupEventListeners();
-    loadLeaderboardWithDelay(); // Chargement différé
-    loadRegionStatsWithDelay(); // Chargement différé
+    loadLeaderboardWithDelay();
+    loadRegionStatsWithDelay();
 });
 
+function updateSelectValues() {
+    const regionSelect = document.getElementById('regionSelect');
+    const countrySelect = document.getElementById('countrySelect');
+    const limitSelect = document.getElementById('limitSelect');
+    
+    if (regionSelect) regionSelect.value = currentRegion;
+    if (countrySelect) countrySelect.value = currentCountry;
+    if (limitSelect) limitSelect.value = currentLimit;
+}
+
 function setupEventListeners() {
-    // Débounce pour les filtres
     const debouncedLoadLeaderboard = debounce(() => {
         currentPage = 0;
         updateURL();
@@ -43,90 +48,102 @@ function setupEventListeners() {
         loadRegionStats();
     }, 500);
 
-    // Filtres avec débounce
-    document.getElementById('regionSelect').addEventListener('change', function() {
-        currentRegion = this.value;
-        debouncedLoadLeaderboard();
-    });
-
-    document.getElementById('countrySelect').addEventListener('change', function() {
-        currentCountry = this.value;
-        debouncedLoadLeaderboard();
-    });
-
-    document.getElementById('limitSelect').addEventListener('change', function() {
-        currentLimit = parseInt(this.value);
-        debouncedLoadLeaderboard();
-    });
-
-    // Bouton refresh avec indicateur visuel
-    document.getElementById('refreshButton').addEventListener('click', function() {
-        this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Actualisation...';
-        this.disabled = true;
-        
-        clearCache();
-        currentPage = 0;
-        loadLeaderboard(true).finally(() => {
-            this.innerHTML = '<i class="fas fa-sync-alt mr-2"></i>Actualiser';
-            this.disabled = false;
+    // Filtres
+    const regionSelect = document.getElementById('regionSelect');
+    const countrySelect = document.getElementById('countrySelect');
+    const limitSelect = document.getElementById('limitSelect');
+    
+    if (regionSelect) {
+        regionSelect.addEventListener('change', function() {
+            currentRegion = this.value;
+            debouncedLoadLeaderboard();
         });
-        loadRegionStats(true);
-    });
+    }
 
-    // Toggle search section
-    document.getElementById('toggleSearchButton').addEventListener('click', toggleSearchSection);
+    if (countrySelect) {
+        countrySelect.addEventListener('change', function() {
+            currentCountry = this.value;
+            debouncedLoadLeaderboard();
+        });
+    }
 
-    // Recherche optimisée avec débounce
-    const debouncedSearch = debounce(() => {
-        const playerName = document.getElementById('playerSearchInput').value.trim();
-        if (playerName.length >= 2) { // Recherche à partir de 2 caractères
-            searchPlayer(playerName);
-        }
-    }, 800);
+    if (limitSelect) {
+        limitSelect.addEventListener('change', function() {
+            currentLimit = parseInt(this.value);
+            debouncedLoadLeaderboard();
+        });
+    }
 
-    document.getElementById('searchPlayerButton').addEventListener('click', function() {
-        const playerName = document.getElementById('playerSearchInput').value.trim();
-        if (playerName) {
-            searchPlayer(playerName);
-        } else {
-            showError("Veuillez entrer un nom de joueur");
-        }
-    });
+    // Bouton refresh
+    const refreshButton = document.getElementById('refreshButton');
+    if (refreshButton) {
+        refreshButton.addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Actualisation...';
+            this.disabled = true;
+            
+            clearCache();
+            currentPage = 0;
+            loadLeaderboard(true).finally(() => {
+                this.innerHTML = '<i class="fas fa-sync-alt mr-2"></i>Actualiser';
+                this.disabled = false;
+            });
+            loadRegionStats(true);
+        });
+    }
 
-    // Recherche en temps réel (optionnel)
-    document.getElementById('playerSearchInput').addEventListener('input', function() {
-        if (this.value.length >= 3) {
-            debouncedSearch();
-        }
-    });
+    // Toggle search
+    const toggleSearchButton = document.getElementById('toggleSearchButton');
+    if (toggleSearchButton) {
+        toggleSearchButton.addEventListener('click', toggleSearchSection);
+    }
 
-    document.getElementById('playerSearchInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            document.getElementById('searchPlayerButton').click();
-        }
-    });
+    // Recherche
+    const searchButton = document.getElementById('searchPlayerButton');
+    const searchInput = document.getElementById('playerSearchInput');
+    
+    if (searchButton) {
+        searchButton.addEventListener('click', function() {
+            const playerName = searchInput.value.trim();
+            if (playerName) {
+                searchPlayer(playerName);
+            } else {
+                showError("Veuillez entrer un nom de joueur");
+            }
+        });
+    }
 
-    // Pagination optimisée
-    document.getElementById('prevPageButton').addEventListener('click', function() {
-        if (currentPage > 0) {
-            currentPage--;
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchButton.click();
+            }
+        });
+    }
+
+    // Pagination
+    const prevButton = document.getElementById('prevPageButton');
+    const nextButton = document.getElementById('nextPageButton');
+    
+    if (prevButton) {
+        prevButton.addEventListener('click', function() {
+            if (currentPage > 0) {
+                currentPage--;
+                loadLeaderboard();
+            }
+        });
+    }
+
+    if (nextButton) {
+        nextButton.addEventListener('click', function() {
+            currentPage++;
             loadLeaderboard();
-        }
-    });
-
-    document.getElementById('nextPageButton').addEventListener('click', function() {
-        currentPage++;
-        loadLeaderboard();
-    });
+        });
+    }
 }
 
-// Chargement différé pour améliorer le temps de réponse perçu
 function loadLeaderboardWithDelay() {
-    // Afficher immédiatement le loading
     showLoading();
-    
-    // Charger après un court délai pour que l'interface soit responsive
     setTimeout(() => {
         loadLeaderboard();
     }, 100);
@@ -146,7 +163,7 @@ async function loadLeaderboard(forceRefresh = false) {
         const offset = currentPage * currentLimit;
         const cacheKey = `leaderboard_${currentRegion}_${currentCountry}_${currentLimit}_${offset}`;
         
-        // Vérifier le cache côté client d'abord
+        // Vérifier le cache
         if (!forceRefresh && clientCache.has(cacheKey)) {
             const cachedData = clientCache.get(cacheKey);
             if (Date.now() - cachedData.timestamp < CACHE_DURATION) {
@@ -172,7 +189,7 @@ async function loadLeaderboard(forceRefresh = false) {
             params.append('_t', Date.now());
         }
         
-        console.time('⚡ Chargement classement');
+        console.time('⚡ Chargement classement optimisé');
         
         const response = await fetch(`/api/leaderboard?${params}`, {
             method: 'GET',
@@ -182,7 +199,7 @@ async function loadLeaderboard(forceRefresh = false) {
             }
         });
         
-        console.timeEnd('⚡ Chargement classement');
+        console.timeEnd('⚡ Chargement classement optimisé');
         
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
@@ -194,7 +211,7 @@ async function loadLeaderboard(forceRefresh = false) {
             throw new Error(data.error || 'Erreur lors du chargement');
         }
         
-        // Mettre en cache côté client
+        // Mettre en cache
         clientCache.set(cacheKey, {
             data: data,
             timestamp: Date.now()
@@ -219,10 +236,9 @@ async function loadRegionStats(forceRefresh = false) {
     try {
         const cacheKey = `region_stats_${currentRegion}`;
         
-        // Vérifier le cache côté client
         if (!forceRefresh && clientCache.has(cacheKey)) {
             const cachedData = clientCache.get(cacheKey);
-            if (Date.now() - cachedData.timestamp < CACHE_DURATION * 2) { // Cache plus long pour les stats
+            if (Date.now() - cachedData.timestamp < CACHE_DURATION * 2) {
                 updateRegionStats(cachedData.data.data);
                 return;
             }
@@ -247,7 +263,6 @@ async function loadRegionStats(forceRefresh = false) {
         if (response.ok) {
             const data = await response.json();
             if (data.success) {
-                // Mettre en cache
                 clientCache.set(cacheKey, {
                     data: data,
                     timestamp: Date.now()
@@ -262,19 +277,23 @@ async function loadRegionStats(forceRefresh = false) {
 }
 
 function updateRegionStats(stats) {
-    // Animations fluides pour les chiffres
     animateNumber('totalPlayers', stats.total_players);
     animateNumber('averageElo', stats.average_elo);
     
     const topCountries = Object.entries(stats.top_countries);
     if (topCountries.length > 0) {
         const topCountry = topCountries[0];
-        document.getElementById('topCountry').textContent = getCountryName(topCountry[0]) || topCountry[0];
+        const topCountryEl = document.getElementById('topCountry');
+        if (topCountryEl) {
+            topCountryEl.textContent = getCountryName(topCountry[0]) || topCountry[0];
+        }
     }
 }
 
 function animateNumber(elementId, targetValue, duration = 1000) {
     const element = document.getElementById(elementId);
+    if (!element) return;
+    
     const startValue = parseInt(element.textContent.replace(/[^\d]/g, '')) || 0;
     const increment = (targetValue - startValue) / (duration / 16);
     let currentValue = startValue;
@@ -293,7 +312,8 @@ async function searchPlayer(playerName) {
     const searchResult = document.getElementById('playerSearchResult');
     const searchButton = document.getElementById('searchPlayerButton');
     
-    // Vérifier le cache pour la recherche
+    if (!searchResult || !searchButton) return;
+    
     const cacheKey = `search_${playerName}_${currentRegion}`;
     if (clientCache.has(cacheKey)) {
         const cachedData = clientCache.get(cacheKey);
@@ -302,7 +322,7 @@ async function searchPlayer(playerName) {
             return;
         }
     }
-    // Animation de chargement optimisée
+    
     const originalText = searchButton.innerHTML;
     searchButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Recherche...';
     searchButton.disabled = true;
@@ -320,7 +340,7 @@ async function searchPlayer(playerName) {
             region: currentRegion
         });
         
-        console.time('🔍 Recherche joueur');
+        console.time('🔍 Recherche joueur optimisée');
         
         const response = await fetch(`/api/leaderboard/search-player?${params}`, {
             method: 'GET',
@@ -330,7 +350,7 @@ async function searchPlayer(playerName) {
             }
         });
         
-        console.timeEnd('🔍 Recherche joueur');
+        console.timeEnd('🔍 Recherche joueur optimisée');
         
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
@@ -342,7 +362,6 @@ async function searchPlayer(playerName) {
             throw new Error(data.error || 'Joueur non trouvé');
         }
         
-        // Mettre en cache
         clientCache.set(cacheKey, {
             data: data,
             timestamp: Date.now()
@@ -388,11 +407,16 @@ function handleSearchError(error, playerName, searchResult) {
 
 function displayPlayerSearchResult(player) {
     const searchResult = document.getElementById('playerSearchResult');
+    if (!searchResult) return;
+    
+    // Utiliser les VRAIES données maintenant
     const avatar = player.avatar || 'https://d50m6q67g4bn3.cloudfront.net/avatars/101f7b39-7130-4919-8d2d-13a87add102c_1516883786781';
     const country = player.country || 'EU';
     const level = player.skill_level || 1;
     const elo = player.faceit_elo || 'N/A';
     const position = player.position || 'N/A';
+    const winRate = player.win_rate || 0; // VRAIE win rate
+    const kdRatio = player.kd_ratio || 0; // VRAIE K/D
     
     searchResult.innerHTML = `
         <div class="bg-gradient-to-r from-faceit-elevated to-faceit-card rounded-xl p-6 border border-gray-700 shadow-lg animate-scale-in">
@@ -418,11 +442,11 @@ function displayPlayerSearchResult(player) {
                         </div>
                         <div class="grid grid-cols-2 gap-4 mt-3">
                             <div class="text-center p-2 bg-black/20 rounded-lg">
-                                <div class="text-sm font-semibold text-blue-400">${player.win_rate}%</div>
+                                <div class="text-sm font-semibold text-blue-400">${winRate}%</div>
                                 <div class="text-xs text-gray-500">Win Rate</div>
                             </div>
                             <div class="text-center p-2 bg-black/20 rounded-lg">
-                                <div class="text-sm font-semibold text-green-400">${player.kd_ratio}</div>
+                                <div class="text-sm font-semibold text-green-400">${kdRatio}</div>
                                 <div class="text-xs text-gray-500">K/D Ratio</div>
                             </div>
                         </div>
@@ -454,45 +478,53 @@ function displayPlayerSearchResult(player) {
 
 function displayLeaderboard() {
     hideLoading();
-    document.getElementById('leaderboardContainer').classList.remove('hidden');
+    const leaderboardContainer = document.getElementById('leaderboardContainer');
+    if (leaderboardContainer) {
+        leaderboardContainer.classList.remove('hidden');
+    }
     
-    // Mettre à jour le titre avec animations
+    // Mettre à jour le titre
     const regionName = getRegionName(currentRegion);
     const countryName = currentCountry ? ` - ${getCountryName(currentCountry)}` : '';
-    document.getElementById('leaderboardTitle').textContent = `Classement ${regionName}${countryName}`;
+    const leaderboardTitle = document.getElementById('leaderboardTitle');
+    if (leaderboardTitle) {
+        leaderboardTitle.textContent = `Classement ${regionName}${countryName}`;
+    }
     
     // Mettre à jour la date
     const now = new Date();
-    document.getElementById('lastUpdated').textContent = 
-        `Mis à jour le ${now.toLocaleDateString('fr-FR')} à ${now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
+    const lastUpdated = document.getElementById('lastUpdated');
+    if (lastUpdated) {
+        lastUpdated.textContent = 
+            `Mis à jour le ${now.toLocaleDateString('fr-FR')} à ${now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
+    }
     
-    // Afficher les joueurs avec animation échelonnée
+    // Afficher les joueurs
     const tableBody = document.getElementById('leaderboardTable');
-    
-    // Vider d'abord avec une animation
-    tableBody.style.opacity = '0';
-    
-    setTimeout(() => {
-        tableBody.innerHTML = currentLeaderboard.map((player, index) => 
-            createPlayerRow(player, index)
-        ).join('');
+    if (tableBody) {
+        tableBody.style.opacity = '0';
         
-        // Animer l'apparition
-        tableBody.style.opacity = '1';
-        
-        // Animation échelonnée des lignes
-        const rows = tableBody.querySelectorAll('.leaderboard-row');
-        rows.forEach((row, index) => {
-            row.style.opacity = '0';
-            row.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            tableBody.innerHTML = currentLeaderboard.map((player, index) => 
+                createPlayerRow(player, index)
+            ).join('');
             
-            setTimeout(() => {
-                row.style.transition = 'all 0.3s ease-out';
-                row.style.opacity = '1';
-                row.style.transform = 'translateY(0)';
-            }, index * 50); // 50ms entre chaque ligne
-        });
-    }, 100);
+            tableBody.style.opacity = '1';
+            
+            // Animation échelonnée
+            const rows = tableBody.querySelectorAll('.leaderboard-row');
+            rows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    row.style.transition = 'all 0.3s ease-out';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, index * 50);
+            });
+        }, 100);
+    }
 }
 
 function createPlayerRow(player, index) {
@@ -503,9 +535,9 @@ function createPlayerRow(player, index) {
     const elo = player.faceit_elo || 'N/A';
     const nickname = player.nickname || 'Joueur inconnu';
     const playerId = player.player_id || '';
-    const winRate = player.win_rate || 0;
-    const kdRatio = player.kd_ratio || 0;
-    const recentForm = player.recent_form || 'unknown';
+    const winRate = player.win_rate || 0; // VRAIE win rate
+    const kdRatio = player.kd_ratio || 0; // VRAIE K/D
+    const recentForm = player.recent_form || 'unknown'; // VRAIE forme
     
     // Couleurs spéciales pour le podium
     let positionClass = 'text-gray-300';
@@ -610,12 +642,11 @@ function createPlayerRow(player, index) {
 }
 
 function getFormConfig(form) {
-    console.log(`🔍 Récupération de la configuration pour le formulaire: ${form}`);
     const configs = {
         'excellent': {
             class: 'bg-green-500/20 text-green-400 border border-green-500/50',
             icon: 'fas fa-fire',
-            text: 'Excellent'
+            text: 'Excellente'
         },
         'good': {
             class: 'bg-blue-500/20 text-blue-400 border border-blue-500/50',
@@ -648,19 +679,23 @@ function updatePagination(pagination) {
     const pageInfo = document.getElementById('pageInfo');
     const playerCount = document.getElementById('playerCount');
     
-    prevButton.disabled = currentPage === 0;
-    nextButton.disabled = !pagination.has_next;
+    if (prevButton) prevButton.disabled = currentPage === 0;
+    if (nextButton) nextButton.disabled = !pagination.has_next;
     
-    pageInfo.textContent = `Page ${pagination.current_page}`;
+    if (pageInfo) pageInfo.textContent = `Page ${pagination.current_page}`;
     
-    const startPos = (currentPage * currentLimit) + 1;
-    const endPos = Math.min(startPos + currentLeaderboard.length - 1, startPos + currentLimit - 1);
-    playerCount.textContent = `Joueurs ${startPos}-${endPos}`;
+    if (playerCount) {
+        const startPos = (currentPage * currentLimit) + 1;
+        const endPos = Math.min(startPos + currentLeaderboard.length - 1, startPos + currentLimit - 1);
+        playerCount.textContent = `Joueurs ${startPos}-${endPos}`;
+    }
 }
 
 function toggleSearchSection() {
     const searchSection = document.getElementById('playerSearchSection');
     const toggleButton = document.getElementById('toggleSearchButton');
+    
+    if (!searchSection || !toggleButton) return;
     
     searchSectionVisible = !searchSectionVisible;
     
@@ -671,9 +706,9 @@ function toggleSearchSection() {
         toggleButton.classList.remove('from-faceit-orange', 'to-red-500');
         toggleButton.classList.add('from-gray-600', 'to-gray-700');
         
-        // Focus sur l'input de recherche
         setTimeout(() => {
-            document.getElementById('playerSearchInput').focus();
+            const searchInput = document.getElementById('playerSearchInput');
+            if (searchInput) searchInput.focus();
         }, 300);
     } else {
         searchSection.classList.add('hidden');
@@ -684,7 +719,7 @@ function toggleSearchSection() {
     }
 }
 
-// Fonctions de navigation optimisées
+// Fonctions utilitaires
 function navigateToPlayer(playerId) {
     if (playerId) {
         window.location.href = `/advanced?playerId=${playerId}`;
@@ -697,26 +732,25 @@ function navigateToComparison(playerNickname) {
     }
 }
 
-// Fonctions utilitaires
 function showLoading() {
     const loadingState = document.getElementById('loadingState');
     const leaderboardContainer = document.getElementById('leaderboardContainer');
     
-    loadingState.classList.remove('hidden');
-    leaderboardContainer.classList.add('hidden');
+    if (loadingState) loadingState.classList.remove('hidden');
+    if (leaderboardContainer) leaderboardContainer.classList.add('hidden');
     
-    // Timeout de sécurité pour éviter un loading infini
     if (loadingTimeout) clearTimeout(loadingTimeout);
     loadingTimeout = setTimeout(() => {
-        if (!loadingState.classList.contains('hidden')) {
+        if (loadingState && !loadingState.classList.contains('hidden')) {
             showError('Le chargement prend plus de temps que prévu. Veuillez réessayer.');
             hideLoading();
         }
-    }, 15000); // 15 secondes
+    }, 15000);
 }
 
 function hideLoading() {
-    document.getElementById('loadingState').classList.add('hidden');
+    const loadingState = document.getElementById('loadingState');
+    if (loadingState) loadingState.classList.add('hidden');
     if (loadingTimeout) {
         clearTimeout(loadingTimeout);
         loadingTimeout = null;
@@ -724,29 +758,35 @@ function hideLoading() {
 }
 
 function showError(message) {
-    document.getElementById('errorMessage').innerHTML = `
-        <div class="bg-red-500/20 border border-red-500/50 rounded-xl p-4 backdrop-blur-sm animate-fade-in">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <i class="fas fa-exclamation-triangle text-red-400 mr-3"></i>
-                    <span class="text-red-200">${message}</span>
+    const errorMessage = document.getElementById('errorMessage');
+    if (errorMessage) {
+        errorMessage.innerHTML = `
+            <div class="bg-red-500/20 border border-red-500/50 rounded-xl p-4 backdrop-blur-sm animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-triangle text-red-400 mr-3"></i>
+                        <span class="text-red-200">${message}</span>
+                    </div>
+                    <button onclick="clearError()" class="text-red-400 hover:text-red-300 ml-4">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                <button onclick="clearError()" class="text-red-400 hover:text-red-300 ml-4">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
-        </div>
-    `;
-    document.getElementById('errorMessage').classList.remove('hidden');
-    
-    setTimeout(() => {
-        clearError();
-    }, 8000);
+        `;
+        errorMessage.classList.remove('hidden');
+        
+        setTimeout(() => {
+            clearError();
+        }, 8000);
+    }
 }
 
 function clearError() {
-    document.getElementById('errorMessage').classList.add('hidden');
-    document.getElementById('errorMessage').innerHTML = '';
+    const errorMessage = document.getElementById('errorMessage');
+    if (errorMessage) {
+        errorMessage.classList.add('hidden');
+        errorMessage.innerHTML = '';
+    }
 }
 
 function clearCache() {
@@ -764,7 +804,6 @@ function updateURL() {
     window.history.replaceState({}, '', newUrl);
 }
 
-// Fonctions utilitaires réutilisées
 function getRegionName(region) {
     const regions = {
         'EU': 'Europe',
