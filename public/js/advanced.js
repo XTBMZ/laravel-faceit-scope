@@ -531,7 +531,9 @@ function showMapStatsModal(mapIndex) {
     const mapImageKey = mapName.toLowerCase().replace(/\s/g, '');
     const mapImage = MAP_IMAGES[mapImageKey] || null;
     
-    // Calculer les statistiques détaillées
+    console.log('Stats de la carte:', stats); // Debug pour voir les données disponibles
+    
+    // Calculer les statistiques de base
     const matches = parseInt(stats["Matches"] || 0);
     const wins = parseInt(stats["Wins"] || 0);
     const winRate = matches > 0 ? ((wins / matches) * 100).toFixed(1) : "0.0";
@@ -552,32 +554,48 @@ function showMapStatsModal(mapIndex) {
     const triples = parseInt(stats["Triple Kills"] || 0);
     const mvps = parseInt(stats["MVPs"] || 0);
     
-    // Statistiques Entry
-    const entryKills = parseInt(stats["Entry Kills"] || 0);
-    const entryAttempts = parseInt(stats["Entry Attempts"] || 0);
-    const entrySuccessRate = entryAttempts > 0 ? ((entryKills / entryAttempts) * 100).toFixed(1) : "0.0";
-    const entryRate = totalRounds > 0 ? ((entryAttempts / totalRounds) * 100).toFixed(1) : "0.0";
+    // Statistiques Entry - Utilisation des clés exactes des segments
+    const totalEntryWins = parseInt(stats["Total Entry Wins"] || 0);
+    const totalEntryCount = parseInt(stats["Total Entry Count"] || 0);
+    const entrySuccessRate = totalEntryCount > 0 ? ((totalEntryWins / totalEntryCount) * 100).toFixed(1) : "0.0";
+    const entryRate = parseFloat(stats["Entry Rate"] || 0) * 100; // Déjà en pourcentage
     
-    // Statistiques Clutch
-    const clutch1v1Wins = parseInt(stats["1v1 Wins"] || 0);
-    const clutch1v1Total = parseInt(stats["1v1 Total"] || 0);
+    // Statistiques Clutch - Utilisation des clés exactes des segments
+    const clutch1v1Wins = parseInt(stats["Total 1v1 Wins"] || 0);
+    const clutch1v1Total = parseInt(stats["Total 1v1 Count"] || 0);
     const clutch1v1Rate = clutch1v1Total > 0 ? ((clutch1v1Wins / clutch1v1Total) * 100).toFixed(1) : "0.0";
     
-    const clutch1v2Wins = parseInt(stats["1v2 Wins"] || 0);
-    const clutch1v2Total = parseInt(stats["1v2 Total"] || 0);
+    const clutch1v2Wins = parseInt(stats["Total 1v2 Wins"] || 0);
+    const clutch1v2Total = parseInt(stats["Total 1v2 Count"] || 0);
     const clutch1v2Rate = clutch1v2Total > 0 ? ((clutch1v2Wins / clutch1v2Total) * 100).toFixed(1) : "0.0";
     
-    // Statistiques Utility
-    const flashSuccesses = parseInt(stats["Flash Successes"] || 0);
-    const flashCount = parseInt(stats["Flash Count"] || 0);
-    const flashSuccessRate = flashCount > 0 ? ((flashSuccesses / flashCount) * 100).toFixed(1) : "0.0";
-    const flashesPerRound = totalRounds > 0 ? (flashCount / totalRounds).toFixed(2) : "0.00";
-    const utilityDamage = parseInt(stats["Utility Damage"] || 0);
-    const utilitySuccessRate = parseFloat(stats["Utility Success Rate"] || 0) * 100;
+    const clutch1v3Wins = parseInt(stats["Total 1v3 Wins"] || 0);
+    const clutch1v4Wins = parseInt(stats["Total 1v4 Wins"] || 0);
+    const clutch1v5Wins = parseInt(stats["Total 1v5 Wins"] || 0);
     
-    // Statistiques Sniper
-    const sniperKills = parseInt(stats["Sniper Kills"] || 0);
+    // Statistiques Utility - Utilisation des clés exactes des segments
+    const flashSuccesses = parseInt(stats["Total Flash Successes"] || 0);
+    const flashCount = parseInt(stats["Total Flash Count"] || 0);
+    const flashSuccessRate = flashCount > 0 ? ((flashSuccesses / flashCount) * 100).toFixed(1) : "0.0";
+    const flashesPerRound = parseFloat(stats["Flashes per Round"] || 0).toFixed(2);
+    const utilityDamage = parseInt(stats["Total Utility Damage"] || 0);
+    const utilitySuccessRate = parseFloat(stats["Utility Success Rate"] || 0);
+    const utilitySuccessRatePercent = utilitySuccessRate > 1 ? utilitySuccessRate.toFixed(1) : (utilitySuccessRate * 100).toFixed(1);
+    
+    // Statistiques Sniper - Utilisation des clés exactes des segments
+    const sniperKills = parseInt(stats["Total Sniper Kills"] || 0);
     const sniperKillsPerRound = totalRounds > 0 ? (sniperKills / totalRounds).toFixed(2) : "0.00";
+    const sniperKillsPerMatch = matches > 0 ? (sniperKills / matches).toFixed(1) : "0.0";
+    
+    // Statistiques supplémentaires
+    const totalEnemiesFlashed = parseInt(stats["Total Enemies Flashed"] || 0);
+    const enemiesFlashedPerRound = parseFloat(stats["Enemies Flashed per Round"] || 0).toFixed(2);
+    
+    // Calcul des first kills/deaths depuis les données disponibles
+    const entrySuccessRateFloat = parseFloat(stats["Entry Success Rate"] || 0);
+    const entryRateFloat = parseFloat(stats["Entry Rate"] || 0);
+    const estimatedFirstKills = Math.round(totalEntryWins * entrySuccessRateFloat);
+    const estimatedFirstDeaths = Math.round(totalEntryCount - totalEntryWins);
     
     // Afficher le modal
     const modal = document.getElementById('mapStatsModal');
@@ -644,6 +662,7 @@ function showMapStatsModal(mapIndex) {
                         <div class="flex justify-between"><span class="text-gray-300">K/R Ratio</span><span class="font-bold text-orange-400">${kr}</span></div>
                         <div class="flex justify-between"><span class="text-gray-300">Kills/Round</span><span class="font-bold text-green-400">${killsPerRound}</span></div>
                         <div class="flex justify-between"><span class="text-gray-300">Morts/Round</span><span class="font-bold text-red-400">${deathsPerRound}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Opening Kill Ratio</span><span class="font-bold text-blue-400">${entrySuccessRate}%</span></div>
                     </div>
                 </div>
                 
@@ -659,6 +678,7 @@ function showMapStatsModal(mapIndex) {
                         <div class="flex justify-between"><span class="text-gray-300">Avg. Aces/Match</span><span class="font-bold text-red-400">${(aces / Math.max(matches, 1)).toFixed(2)}</span></div>
                         <div class="flex justify-between"><span class="text-gray-300">Avg. 4K/Match</span><span class="font-bold text-orange-400">${(quadros / Math.max(matches, 1)).toFixed(2)}</span></div>
                         <div class="flex justify-between"><span class="text-gray-300">Avg. 3K/Match</span><span class="font-bold text-yellow-400">${(triples / Math.max(matches, 1)).toFixed(2)}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Total Entries</span><span class="font-bold text-green-400">${totalEntryCount}</span></div>
                     </div>
                 </div>
                 
@@ -673,11 +693,14 @@ function showMapStatsModal(mapIndex) {
                                 <span class="text-green-300 font-semibold">Success Rate</span>
                                 <span class="font-bold text-green-400">${entrySuccessRate}%</span>
                             </div>
-                            <div class="text-sm text-gray-400">${entryKills} réussies / ${entryAttempts} tentatives</div>
-                            ${entryAttempts > 0 ? `<div class="w-full bg-gray-700 rounded-full h-2 mt-2"><div class="bg-green-400 h-2 rounded-full" style="width: ${entrySuccessRate}%"></div></div>` : ''}
+                            <div class="text-sm text-gray-400">${totalEntryWins} réussies / ${totalEntryCount} tentatives</div>
+                            ${totalEntryCount > 0 ? `<div class="w-full bg-gray-700 rounded-full h-2 mt-2"><div class="bg-green-400 h-2 rounded-full" style="width: ${entrySuccessRate}%"></div></div>` : ''}
                         </div>
-                        <div class="flex justify-between"><span class="text-gray-300">Entry Rate</span><span class="font-bold text-green-400">${entryRate}%</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Entry/Match</span><span class="font-bold text-green-400">${(entryKills / Math.max(matches, 1)).toFixed(1)}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Entry Rate</span><span class="font-bold text-green-400">${entryRate.toFixed(1)}%</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Entry Wins/Match</span><span class="font-bold text-green-400">${(totalEntryWins / Math.max(matches, 1)).toFixed(1)}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Entry Attempts</span><span class="font-bold text-orange-400">${totalEntryCount}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Enemies Flashed</span><span class="font-bold text-blue-400">${totalEnemiesFlashed}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Flash/Round</span><span class="font-bold text-purple-400">${enemiesFlashedPerRound}</span></div>
                     </div>
                 </div>
             </div>
@@ -700,7 +723,10 @@ function showMapStatsModal(mapIndex) {
                             <div class="text-sm text-gray-400">${clutch1v2Wins}/${clutch1v2Total} victoires</div>
                             ${clutch1v2Total > 0 ? `<div class="w-full bg-gray-700 rounded-full h-2 mt-2"><div class="bg-orange-400 h-2 rounded-full" style="width: ${clutch1v2Rate}%"></div></div>` : ''}
                         </div>
-                        <div class="flex justify-between"><span class="text-gray-300">Total Clutches</span><span class="font-bold text-red-400">${clutch1v1Wins + clutch1v2Wins}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">1v3 Wins</span><span class="font-bold text-yellow-400">${clutch1v3Wins}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">1v4 Wins</span><span class="font-bold text-purple-400">${clutch1v4Wins}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">1v5 Wins</span><span class="font-bold text-pink-400">${clutch1v5Wins}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Total Clutches</span><span class="font-bold text-red-400">${clutch1v1Wins + clutch1v2Wins + clutch1v3Wins + clutch1v4Wins + clutch1v5Wins}</span></div>
                     </div>
                 </div>
                 
@@ -717,7 +743,9 @@ function showMapStatsModal(mapIndex) {
                         </div>
                         <div class="flex justify-between"><span class="text-gray-300">Flashes/Round</span><span class="font-bold text-blue-400">${flashesPerRound}</span></div>
                         <div class="flex justify-between"><span class="text-gray-300">Utility Damage</span><span class="font-bold text-yellow-400">${utilityDamage}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Utility Success</span><span class="font-bold text-green-400">${utilitySuccessRate.toFixed(1)}%</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Utility Success</span><span class="font-bold text-green-400">${utilitySuccessRatePercent}%</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Total Flashes</span><span class="font-bold text-blue-400">${flashCount}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Enemies Flashed</span><span class="font-bold text-purple-400">${totalEnemiesFlashed}</span></div>
                     </div>
                 </div>
                 
@@ -729,7 +757,10 @@ function showMapStatsModal(mapIndex) {
                     <div class="space-y-3">
                         <div class="flex justify-between"><span class="text-gray-300">Sniper Kills</span><span class="font-bold text-purple-400">${sniperKills}</span></div>
                         <div class="flex justify-between"><span class="text-gray-300">Sniper K/Round</span><span class="font-bold text-purple-400">${sniperKillsPerRound}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Avg. Sniper K/Match</span><span class="font-bold text-purple-400">${(sniperKills / Math.max(matches, 1)).toFixed(1)}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Avg. Sniper K/Match</span><span class="font-bold text-purple-400">${sniperKillsPerMatch}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Sniper Kill Rate</span><span class="font-bold text-orange-400">${(parseFloat(stats["Sniper Kill Rate"] || 0) * 100).toFixed(1)}%</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Total Damage</span><span class="font-bold text-red-400">${parseInt(stats["Total Damage"] || 0)}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">Utility Usage/Round</span><span class="font-bold text-blue-400">${parseFloat(stats["Utility Usage per Round"] || 0).toFixed(2)}</span></div>
                         ${sniperKills > 0 ? `<div class="p-2 bg-purple-500/20 rounded text-center"><span class="text-purple-300 text-sm">AWP Expert!</span></div>` : ''}
                     </div>
                 </div>
