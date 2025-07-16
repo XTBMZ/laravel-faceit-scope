@@ -87,4 +87,205 @@ class FaceitService
         
         return $this->makeRequest("rankings/games/{$this->gameId}/regions/{$region}", $params);
     }
+
+    public function getPlayerRanking($playerId, $region, $country = null, $limit = 20)
+    {
+        $params = ['limit' => $limit];
+        
+        if ($country) {
+            $params['country'] = $country;
+        }
+        
+        return $this->makeRequest("rankings/games/{$this->gameId}/regions/{$region}/players/{$playerId}", $params);
+    }
+
+    public function getChampionships($type = 'all', $offset = 0, $limit = 10)
+    {
+        return $this->makeRequest('championships', [
+            'game' => $this->gameId,
+            'type' => $type,
+            'offset' => $offset,
+            'limit' => $limit
+        ]);
+    }
+
+    public function getChampionshipDetails($championshipId, $expanded = null)
+    {
+        $params = [];
+        if ($expanded) {
+            $params['expanded'] = implode(',', $expanded);
+        }
+        
+        return $this->makeRequest("championships/{$championshipId}", $params);
+    }
+
+    public function getTournaments($type = 'upcoming', $offset = 0, $limit = 20)
+    {
+        return $this->makeRequest('tournaments', [
+            'game' => $this->gameId,
+            'type' => $type,
+            'offset' => $offset,
+            'limit' => $limit
+        ]);
+    }
+
+    public function getTournamentDetails($tournamentId, $expanded = null)
+    {
+        $params = [];
+        if ($expanded) {
+            $params['expanded'] = implode(',', $expanded);
+        }
+        
+        return $this->makeRequest("tournaments/{$tournamentId}", $params);
+    }
+
+    public function getHubDetails($hubId, $expanded = null)
+    {
+        $params = [];
+        if ($expanded) {
+            $params['expanded'] = implode(',', $expanded);
+        }
+        
+        return $this->makeRequest("hubs/{$hubId}", $params);
+    }
+
+    public function getHubMatches($hubId, $type = 'all', $offset = 0, $limit = 20)
+    {
+        return $this->makeRequest("hubs/{$hubId}/matches", [
+            'type' => $type,
+            'offset' => $offset,
+            'limit' => $limit
+        ]);
+    }
+
+    public function getHubStats($hubId, $offset = 0, $limit = 20)
+    {
+        return $this->makeRequest("hubs/{$hubId}/stats", [
+            'offset' => $offset,
+            'limit' => $limit
+        ]);
+    }
+
+    public function searchPlayers($nickname, $country = null, $offset = 0, $limit = 20)
+    {
+        $params = [
+            'nickname' => $nickname,
+            'game' => $this->gameId,
+            'offset' => $offset,
+            'limit' => $limit
+        ];
+        
+        if ($country) {
+            $params['country'] = $country;
+        }
+        
+        return $this->makeRequest('search/players', $params);
+    }
+
+    public function searchTeams($nickname, $offset = 0, $limit = 20)
+    {
+        return $this->makeRequest('search/teams', [
+            'nickname' => $nickname,
+            'game' => $this->gameId,
+            'offset' => $offset,
+            'limit' => $limit
+        ]);
+    }
+
+    public function searchTournaments($name, $type = 'all', $offset = 0, $limit = 20)
+    {
+        return $this->makeRequest('search/tournaments', [
+            'name' => $name,
+            'game' => $this->gameId,
+            'type' => $type,
+            'offset' => $offset,
+            'limit' => $limit
+        ]);
+    }
+
+    public function getGameDetails($gameId = null)
+    {
+        $gameId = $gameId ?? $this->gameId;
+        return $this->makeRequest("games/{$gameId}");
+    }
+
+    public function getTeamDetails($teamId)
+    {
+        return $this->makeRequest("teams/{$teamId}");
+    }
+
+    public function getTeamStats($teamId, $gameId = null)
+    {
+        $gameId = $gameId ?? $this->gameId;
+        return $this->makeRequest("teams/{$teamId}/stats/{$gameId}");
+    }
+
+    public function getTeamMatches($teamId, $type = 'all', $offset = 0, $limit = 20)
+    {
+        return $this->makeRequest("teams/{$teamId}/matches", [
+            'type' => $type,
+            'offset' => $offset,
+            'limit' => $limit
+        ]);
+    }
+
+    public function getPlayerMatches($playerId, $type = 'all', $offset = 0, $limit = 20)
+    {
+        return $this->makeRequest("players/{$playerId}/matches", [
+            'type' => $type,
+            'offset' => $offset,
+            'limit' => $limit
+        ]);
+    }
+
+    public function getLeaderboards($region, $country = null, $offset = 0, $limit = 20)
+    {
+        $params = [
+            'offset' => $offset,
+            'limit' => $limit
+        ];
+        
+        if ($country) {
+            $params['country'] = $country;
+        }
+        
+        return $this->makeRequest("leaderboards/games/{$this->gameId}/regions/{$region}", $params);
+    }
+
+    public function getOrganizers($offset = 0, $limit = 20)
+    {
+        return $this->makeRequest('organizers', [
+            'offset' => $offset,
+            'limit' => $limit
+        ]);
+    }
+
+    public function getOrganizerDetails($organizerId)
+    {
+        return $this->makeRequest("organizers/{$organizerId}");
+    }
+
+    public function getOrganizerTournaments($organizerId, $offset = 0, $limit = 20)
+    {
+        return $this->makeRequest("organizers/{$organizerId}/tournaments", [
+            'offset' => $offset,
+            'limit' => $limit
+        ]);
+    }
+
+    public function getOrganizerChampionships($organizerId, $offset = 0, $limit = 20)
+    {
+        return $this->makeRequest("organizers/{$organizerId}/championships", [
+            'offset' => $offset,
+            'limit' => $limit
+        ]);
+    }
+
+    public function getOrganizerHubs($organizerId, $offset = 0, $limit = 20)
+    {
+        return $this->makeRequest("organizers/{$organizerId}/hubs", [
+            'offset' => $offset,
+            'limit' => $limit
+        ]);
+    }
 }

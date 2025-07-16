@@ -171,7 +171,7 @@ async function displayPlayerHeader(player) {
                 <div class="player-avatar w-32 h-32 rounded-2xl overflow-hidden shadow-2xl animate-pulse-orange">
                     <img src="${avatar}" alt="Avatar" class="w-full h-full object-cover">
                 </div>
-                <div class="absolute -bottom-2 -right-2 bg-gradient-to-r from-faceit-orange to-faceit-orange-dark rounded-full p-3 shadow-xl border-2 border-faceit-dark">
+                <div class="absolute -bottom-2 -right-2 bg-gradient-to-r from-faceit-orange to-faceit-orange-dark rounded-full p-1 shadow-md border-1 border-faceit-dark">
                     <img src="${getRankIconUrl(level)}" alt="Rank" class="w-8 h-8">
                 </div>
             </div>
@@ -182,7 +182,6 @@ async function displayPlayerHeader(player) {
                     <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3">
                         <span class="px-3 py-1 bg-faceit-orange/20 border border-faceit-orange/50 rounded-full text-sm font-medium flex items-center">
                             <img src="${getCountryFlagUrl(country)}" alt="${country}" class="w-4 h-4 mr-2">
-                            ${getCountryName(country) || country}
                         </span>
                         <span class="px-3 py-1 bg-blue-500/20 border border-blue-500/50 rounded-full text-sm font-medium">
                             <i class="fas fa-globe mr-2"></i>${region}
