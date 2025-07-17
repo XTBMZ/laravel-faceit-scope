@@ -6,7 +6,7 @@ use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\ComparisonController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\TournamentController;
-use App\Http\Controllers\MatchController; // Nouveau contrôleur
+use App\Http\Controllers\MatchController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +20,7 @@ Route::get('/comparison', [ComparisonController::class, 'index'])->name('compari
 Route::get('/leaderboards', [LeaderboardController::class, 'index'])->name('leaderboards');
 Route::get('/tournaments', [TournamentController::class, 'index'])->name('tournaments');
 
-// Nouvelle route pour l'analyse de match
+// Route pour l'analyse de match
 Route::get('/match', [MatchController::class, 'index'])->name('match');
 
 // Routes API pour les données FACEIT
@@ -29,12 +29,11 @@ Route::prefix('api')->group(function () {
     Route::get('/player/search/{nickname}', [PlayerController::class, 'searchByNickname'])->name('api.player.search');
     Route::get('/player/{playerId}', [PlayerController::class, 'getPlayer'])->name('api.player.get');
     Route::get('/player/{playerId}/stats', [PlayerController::class, 'getPlayerStats'])->name('api.player.stats');
-    Route::get('/match/{matchId}', [PlayerController::class, 'getMatch'])->name('api.match.get');
     
-    // Nouvelles routes pour l'analyse de match
-    Route::get('/match/{matchId}', [PlayerController::class, 'getMatch']);
-    Route::get('/match/{matchId}/data', [MatchController::class, 'getMatchData']);
-    Route::get('/match/{matchId}/stats', [MatchController::class, 'getMatchStats']);
+    // Routes pour l'analyse de match
+    Route::get('/match/{matchId}', [PlayerController::class, 'getMatch'])->name('api.match.get');
+    Route::get('/match/{matchId}/data', [MatchController::class, 'getMatchData'])->name('api.match.data');
+    Route::get('/match/{matchId}/stats', [MatchController::class, 'getMatchStats'])->name('api.match.stats');
     
     // Routes pour la comparaison
     Route::post('/compare', [ComparisonController::class, 'compare'])->name('api.compare');
@@ -47,9 +46,6 @@ Route::prefix('api')->group(function () {
     
     // Routes pour les championnats FACEIT
     Route::prefix('tournaments')->group(function () {
-        // Page principale des tournois
-        Route::get('/', [TournamentController::class, 'index'])->name('tournaments.index');
-        
         // API Routes basées sur l'API FACEIT officielle
         Route::prefix('api')->group(function () {
             // Récupérer tous les championnats d'un jeu

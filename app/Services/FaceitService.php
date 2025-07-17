@@ -76,13 +76,165 @@ class FaceitService
         ]);
     }
 
-    public function getPlayerMatches($playerId, $type = 'all', $offset = 0, $limit = 20)
+    // ===============================================
+    // MÉTHODES MATCHES - CORRIGÉES SELON L'API FACEIT
+    // ===============================================
+
+    public function getMatch($matchId)
     {
-        return $this->makeRequest("players/{$playerId}/matches", [
-            'type' => $type,
-            'offset' => $offset,
-            'limit' => $limit
-        ]);
+        return $this->makeRequest("matches/{$matchId}");
+    }
+
+    public function getMatchStats($matchId)
+    {
+        return $this->makeRequest("matches/{$matchId}/stats");
+    }
+
+    // ===============================================
+    // MÉTHODES UTILITAIRES POUR LES MATCHES - AMÉLIORÉES
+    // ===============================================
+
+    /**
+     * Extrait l'ID d'un match à partir d'une URL ou d'un ID FACEIT
+     * Gère les différents formats d'URL et d'ID FACEIT
+     */
+    public function extractMatchId($input)
+    {
+        if (!$input) {
+            throw new \InvalidArgumentException('Input vide pour l\'extraction de l\'ID de match');
+        }
+
+        $input = trim($input);
+        Log::info("Extraction de l'ID de match depuis: {$input}");
+
+        // Si c'est déjà un ID de match valide (différents formats possibles)
+        if ($this->isValidMatchId($input)) {
+            Log::info("ID de match déjà valide: {$input}");
+            return $input;
+        }
+
+        // Si c'est une URL FACEIT, extraire l'ID
+        if (strpos($input, 'faceit.com') !== false || strpos($input, 'www.faceit.com') !== false) {
+            $extractedId = $this->extractIdFromFaceitUrl($input);
+            if ($extractedId) {
+                Log::info("ID extrait de l'URL: {$extractedId}");
+                return $extractedId;
+            }
+        }
+
+        // Dernière tentative : nettoyer et valider
+        $cleanedInput = $this->cleanMatchInput($input);
+        if ($this->isValidMatchId($cleanedInput)) {
+            Log::info("ID nettoyé valide: {$cleanedInput}");
+            return $cleanedInput;
+        }
+
+        throw new \InvalidArgumentException("Format d'ID ou d'URL de match non reconnu: {$input}");
+    }
+
+    /**
+     * Extrait l'ID depuis une URL FACEIT
+     */
+    private function extractIdFromFaceitUrl($url)
+    {
+        // Patterns pour différents formats d'URL FACEIT
+        $patterns = [
+            // Format moderne: /room/{id}
+            '/\/room\/([a-f0-9\-]+)/i',
+            // Format classique: /match/{id}
+            '/\/match\/([a-f0-9\-]+)/i',
+            // Format avec paramètres: ?matchId={id}
+            '/[\?&]matchId=([a-f0-9\-]+)/i',
+            // Format général UUID dans l'URL
+            '/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i',
+            // Format avec préfixe numérique: 1-{uuid}
+            '/(\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i'
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $url, $matches)) {
+                return $matches[1];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Nettoie l'input du match
+     */
+    private function cleanMatchInput($input)
+    {
+        // Supprimer les espaces
+        $input = trim($input);
+        
+        // Supprimer les paramètres d'URL
+        $input = explode('?', $input)[0];
+        $input = explode('#', $input)[0];
+        
+        // Supprimer les slashes de fin
+        $input = rtrim($input, '/');
+        
+        // Supprimer les suffixes communs
+        $suffixes = ['/scoreboard', '/stats', '/overview'];
+        foreach ($suffixes as $suffix) {
+            if (str_ends_with($input, $suffix)) {
+                $input = substr($input, 0, -strlen($suffix));
+            }
+        }
+        
+        return $input;
+    }
+
+    /**
+     * Valide si un ID de match est au bon format
+     */
+    public function isValidMatchId($matchId)
+    {
+        if (!$matchId) return false;
+        
+        // Format UUID standard
+        if (preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i', $matchId)) {
+            return true;
+        }
+        
+        // Format avec préfixe numérique (ex: 1-uuid)
+        if (preg_match('/^\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i', $matchId)) {
+            return true;
+        }
+        
+        // Format court FACEIT (parfois utilisé)
+        if (preg_match('/^[a-f0-9]{24}$/i', $matchId)) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Recherche optimisée d'un match avec validation
+     */
+    public function searchMatch($input)
+    {
+        try {
+            $matchId = $this->extractMatchId($input);
+            $match = $this->getMatch($matchId);
+            
+            // Vérifier que le match est valide
+            if (!$match || !isset($match['match_id'])) {
+                throw new \Exception("Match non trouvé ou invalide");
+            }
+            
+            return [
+                'match' => $match,
+                'match_id' => $matchId,
+                'found' => true
+            ];
+            
+        } catch (\Exception $e) {
+            Log::error("Erreur recherche match: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     // ===============================================
@@ -179,20 +331,6 @@ class FaceitService
     }
 
     // ===============================================
-    // MÉTHODES MATCHES
-    // ===============================================
-
-    public function getMatch($matchId)
-    {
-        return $this->makeRequest("matches/{$matchId}");
-    }
-
-    public function getMatchStats($matchId)
-    {
-        return $this->makeRequest("matches/{$matchId}/stats");
-    }
-
-    // ===============================================
     // MÉTHODES SEARCH
     // ===============================================
 
@@ -247,15 +385,6 @@ class FaceitService
         return $this->makeRequest("teams/{$teamId}/stats/{$gameId}");
     }
 
-    public function getTeamMatches($teamId, $type = 'all', $offset = 0, $limit = 20)
-    {
-        return $this->makeRequest("teams/{$teamId}/matches", [
-            'type' => $type,
-            'offset' => $offset,
-            'limit' => $limit
-        ]);
-    }
-
     // ===============================================
     // MÉTHODES TOURNAMENTS
     // ===============================================
@@ -282,24 +411,6 @@ class FaceitService
         }
     }
 
-    public function getTournamentDetails($tournamentId, $expanded = null)
-    {
-        $params = [];
-        if ($expanded) {
-            $params['expanded'] = is_array($expanded) ? implode(',', $expanded) : $expanded;
-        }
-        
-        try {
-            return $this->makeRequest("tournaments/{$tournamentId}", $params);
-        } catch (\Exception $e) {
-            Log::error('Erreur API FACEIT getTournamentDetails', [
-                'tournamentId' => $tournamentId,
-                'error' => $e->getMessage()
-            ]);
-            throw $e;
-        }
-    }
-
     // ===============================================
     // MÉTHODES CHAMPIONSHIPS
     // ===============================================
@@ -320,120 +431,6 @@ class FaceitService
                 'type' => $type,
                 'offset' => $offset,
                 'limit' => $limit,
-                'error' => $e->getMessage()
-            ]);
-            throw $e;
-        }
-    }
-
-    public function getChampionshipDetails($championshipId, $expanded = null)
-    {
-        $params = [];
-        if ($expanded) {
-            $params['expanded'] = is_array($expanded) ? implode(',', $expanded) : $expanded;
-        }
-        
-        try {
-            return $this->makeRequest("championships/{$championshipId}", $params);
-        } catch (\Exception $e) {
-            Log::error('Erreur API FACEIT getChampionshipDetails', [
-                'championshipId' => $championshipId,
-                'error' => $e->getMessage()
-            ]);
-            throw $e;
-        }
-    }
-
-    // ===============================================
-    // MÉTHODES HUBS
-    // ===============================================
-
-    public function getHubDetails($hubId, $expanded = null)
-    {
-        $params = [];
-        if ($expanded) {
-            $params['expanded'] = is_array($expanded) ? implode(',', $expanded) : $expanded;
-        }
-        
-        try {
-            return $this->makeRequest("hubs/{$hubId}", $params);
-        } catch (\Exception $e) {
-            Log::error('Erreur API FACEIT getHubDetails', [
-                'hubId' => $hubId,
-                'error' => $e->getMessage()
-            ]);
-            throw $e;
-        }
-    }
-
-    public function getHubMatches($hubId, $type = 'all', $offset = 0, $limit = 20)
-    {
-        $params = [
-            'type' => $type,
-            'offset' => $offset,
-            'limit' => $limit
-        ];
-        
-        try {
-            return $this->makeRequest("hubs/{$hubId}/matches", $params);
-        } catch (\Exception $e) {
-            Log::error('Erreur API FACEIT getHubMatches', [
-                'hubId' => $hubId,
-                'type' => $type,
-                'error' => $e->getMessage()
-            ]);
-            throw $e;
-        }
-    }
-
-    public function getHubStats($hubId, $offset = 0, $limit = 20)
-    {
-        $params = [
-            'offset' => $offset,
-            'limit' => $limit
-        ];
-        
-        try {
-            return $this->makeRequest("hubs/{$hubId}/stats", $params);
-        } catch (\Exception $e) {
-            Log::error('Erreur API FACEIT getHubStats', [
-                'hubId' => $hubId,
-                'error' => $e->getMessage()
-            ]);
-            throw $e;
-        }
-    }
-
-    // ===============================================
-    // MÉTHODES ORGANIZERS
-    // ===============================================
-
-    public function getOrganizers($offset = 0, $limit = 20)
-    {
-        $params = [
-            'offset' => $offset,
-            'limit' => $limit
-        ];
-        
-        try {
-            return $this->makeRequest('organizers', $params);
-        } catch (\Exception $e) {
-            Log::error('Erreur API FACEIT getOrganizers', [
-                'offset' => $offset,
-                'limit' => $limit,
-                'error' => $e->getMessage()
-            ]);
-            throw $e;
-        }
-    }
-
-    public function getOrganizerDetails($organizerId)
-    {
-        try {
-            return $this->makeRequest("organizers/{$organizerId}");
-        } catch (\Exception $e) {
-            Log::error('Erreur API FACEIT getOrganizerDetails', [
-                'organizerId' => $organizerId,
                 'error' => $e->getMessage()
             ]);
             throw $e;
@@ -526,58 +523,5 @@ class FaceitService
             Log::error("Erreur recherche joueur avec ranking: " . $e->getMessage());
             throw $e;
         }
-    }
-
-    
-// ===============================================
-    // MÉTHODES UTILITAIRES POUR LES MATCHES
-    // ===============================================
-
-    /**
-     * Extrait l'ID d'un match à partir d'une URL ou d'un ID FACEIT
-     */
-    public function extractMatchId($input)
-    {
-        if (!$input) {
-            throw new \InvalidArgumentException('Input vide pour l\'extraction de l\'ID de match');
-        }
-
-        $input = trim($input);
-
-        // Si c'est déjà un ID de match (format UUID)
-        if (preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i', $input)) {
-            return $input;
-        }
-
-        // Si c'est une URL FACEIT
-        if (strpos($input, 'faceit.com') !== false) {
-            // Différents formats d'URL FACEIT
-            $patterns = [
-                '/\/match\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i',
-                '/\/room\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i',
-                '/\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i'
-            ];
-
-            foreach ($patterns as $pattern) {
-                if (preg_match($pattern, $input, $matches)) {
-                    return $matches[1];
-                }
-            }
-        }
-
-        // Si c'est un ID court ou autre format, on essaie quand même
-        if (strlen($input) === 36 && substr_count($input, '-') === 4) {
-            return $input;
-        }
-
-        throw new \InvalidArgumentException('Format d\'ID ou d\'URL de match non reconnu: ' . $input);
-    }
-
-    /**
-     * Valide si un ID de match est au bon format
-     */
-    public function isValidMatchId($matchId)
-    {
-        return preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i', $matchId);
     }
 }

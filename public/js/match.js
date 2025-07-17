@@ -1,857 +1,1018 @@
 /**
- * Script pour la page d'analyse de match - Faceit Scope
+ * Script pour l'analyse de match - Faceit Scope
  */
 
-// Variables globales
-let currentMatchId = null;
-let matchData = null;
-let team1Players = [];
-let team2Players = [];
-let teamAnalysis = null;
-let mapRecommendations = null;
-let matchPredictions = null;
-let isCompareMode = false;
-let selectedPlayers = [];
+let currentMatchData = null;
+let selectedPlayersForComparison = [];
 
-// Initialisation
 document.addEventListener('DOMContentLoaded', function() {
     if (window.matchData && window.matchData.matchId) {
-        currentMatchId = window.matchData.matchId;
-        updateLoadingText();
-        setupEventListeners();
-        loadMatchData();
+        initializeMatchAnalysis();
     } else {
-        showError("ID de match manquant");
+        showError('Aucun ID de match fourni');
     }
+    
+    setupEventListeners();
 });
 
-function setupEventListeners() {
-    // Mode comparaison
-    const compareModeBtn = document.getElementById('compareMode');
-    if (compareModeBtn) {
-        compareModeBtn.addEventListener('click', toggleCompareMode);
+function initializeMatchAnalysis() {
+    const matchId = window.matchData.matchId;
+    
+    if (!matchId) {
+        showError('ID de match manquant');
+        return;
     }
+    
+    console.log(`🎮 Initialisation de l'analyse du match: ${matchId}`);
+    loadMatchData(matchId);
 }
 
-function updateLoadingText() {
-    const messages = [
-        "Récupération des données du match",
-        "Analyse des joueurs",
-        "Calcul des performances",
-        "Génération des prédictions IA",
-        "Finalisation..."
+async function loadMatchData(matchId) {
+    const progressSteps = [
+        'Récupération des données du match...',
+        'Analyse des profils joueurs...',
+        'Calcul des statistiques avancées...',
+        'Génération des prédictions IA...',
+        'Finalisation de l\'analyse...'
     ];
     
-    let index = 0;
-    const loadingText = document.getElementById('loadingText');
+    let currentStep = 0;
     
-    const interval = setInterval(() => {
-        if (loadingText && index < messages.length) {
-            loadingText.textContent = messages[index];
-            index++;
-        } else {
-            clearInterval(interval);
+    const progressInterval = setInterval(() => {
+        if (currentStep < progressSteps.length) {
+            updateLoadingProgress(progressSteps[currentStep], (currentStep + 1) * 20);
+            currentStep++;
         }
-    }, 1000);
-}
-
-async function loadMatchData() {
+    }, 800);
+    
     try {
-        console.log("Chargement des données du match:", currentMatchId);
+        const response = await fetch(`/api/match/${encodeURIComponent(matchId)}/data`);
         
-        const response = await fetch(`/api/match/${currentMatchId}/data`);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
         const data = await response.json();
         
-        if (!data.success) {
-            throw new Error(data.error || 'Erreur lors du chargement du match');
-        }
+        clearInterval(progressInterval);
+        updateLoadingProgress('Analyse terminée !', 100);
         
-        matchData = data.match;
-        team1Players = data.team1Players;
-        team2Players = data.team2Players;
-        teamAnalysis = data.teamAnalysis;
-        mapRecommendations = data.mapRecommendations;
-        matchPredictions = data.matchPredictions;
-        
-        console.log("Données chargées:", data);
-        
-        // Affichage progressif des sections
-        await displayMatchHeader();
-        await displayTeamsLobby();
-        await displayMapRecommendations();
-        await displayMatchPredictions();
-        
-        // Afficher les stats si le match est terminé
-        if (matchData.status === 'FINISHED' && data.matchStats) {
-            await displayMatchStats(data.matchStats);
-        }
-        
-        // Afficher le contenu principal
-        document.getElementById('loadingState').classList.add('hidden');
-        document.getElementById('mainContent').classList.remove('hidden');
+        setTimeout(() => {
+            if (data.success) {
+                currentMatchData = data;
+                displayMatchAnalysis(data);
+                hideLoading();
+            } else {
+                throw new Error(data.error || 'Erreur lors de l\'analyse du match');
+            }
+        }, 500);
         
     } catch (error) {
-        console.error('Erreur lors du chargement:', error);
-        showError("Erreur lors du chargement du match: " + error.message);
+        clearInterval(progressInterval);
+        console.error('❌ Erreur lors du chargement du match:', error);
+        showError(error.message);
     }
 }
 
-async function displayMatchHeader() {
-    const headerContainer = document.getElementById('matchHeader');
-    const status = getMatchStatus(matchData.status);
-    const map = matchData.voting?.map?.pick || 'Carte non définie';
-    const competition = matchData.competition_name || 'Match personnalisé';
-    const region = matchData.region || 'Global';
+function updateLoadingProgress(text, percentage) {
+    const loadingText = document.getElementById('loadingText');
+    const progressBar = document.getElementById('progressBar');
     
-    // Calculer le score si disponible
-    let scoreDisplay = '';
-    if (matchData.results && matchData.results.score) {
-        const scores = Object.values(matchData.results.score);
-        scoreDisplay = `<div class="text-3xl font-black text-faceit-orange">${scores.join(' - ')}</div>`;
-    }
-    
-    headerContainer.innerHTML = `
-        <div class="space-y-4">
-            <div class="flex items-center justify-center space-x-4">
-                <span class="px-4 py-2 rounded-full text-sm font-bold ${status.bgColor} ${status.textColor} border ${status.borderColor}">
-                    <i class="${status.icon} mr-2"></i>${status.text}
-                </span>
-                <span class="px-3 py-1 bg-gray-700/80 rounded-full text-sm font-medium text-gray-200">
-                    <i class="fas fa-globe mr-2"></i>${region}
-                </span>
-            </div>
-            
-            <div>
-                <h1 class="text-4xl font-black mb-2 bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
-                    ${competition}
-                </h1>
-                <div class="flex items-center justify-center space-x-6 text-gray-300">
-                    <span class="flex items-center text-lg">
-                        <i class="fas fa-map mr-2 text-faceit-orange"></i>
-                        <span class="font-semibold">${map}</span>
-                    </span>
-                    ${matchData.started_at ? `
-                        <span class="flex items-center">
-                            <i class="fas fa-calendar mr-2 text-blue-400"></i>
-                            ${formatDate(matchData.started_at)}
-                        </span>
-                    ` : ''}
-                </div>
-                ${scoreDisplay}
-            </div>
-        </div>
-    `;
+    if (loadingText) loadingText.textContent = text;
+    if (progressBar) progressBar.style.width = `${percentage}%`;
 }
 
-async function displayTeamsLobby() {
-    // Afficher les noms et stats des équipes
-    document.getElementById('team1Name').innerHTML = `
-        <i class="fas fa-users mr-2"></i>${matchData.teams.faction1.name || 'Équipe 1'}
-    `;
-    document.getElementById('team2Name').innerHTML = `
-        <i class="fas fa-users mr-2"></i>${matchData.teams.faction2.name || 'Équipe 2'}
-    `;
-    
-    // Afficher les stats des équipes
-    if (teamAnalysis && teamAnalysis.team1 && teamAnalysis.team2) {
-        displayTeamStats('team1Stats', teamAnalysis.team1);
-        displayTeamStats('team2Stats', teamAnalysis.team2);
-    }
-    
-    // Afficher les joueurs
-    displayTeamPlayers('team1Players', team1Players, 'blue', 'team1');
-    displayTeamPlayers('team2Players', team2Players, 'red', 'team2');
-    
-    // Afficher les infos du match
-    displayMatchInfo();
+function hideLoading() {
+    document.getElementById('loadingState').classList.add('hidden');
+    document.getElementById('mainContent').classList.remove('hidden');
 }
 
-function displayTeamStats(containerId, teamData) {
-    const container = document.getElementById(containerId);
-    const threatLevel = getThreatLevelInfo(teamData.threatLevel);
+function displayMatchAnalysis(data) {
+    const { match, analysis } = data;
     
-    container.innerHTML = `
-        <div class="flex items-center justify-center space-x-4 text-xs">
-            <span>ELO: <strong>${teamData.averageElo}</strong></span>
-            <span>K/D: <strong>${teamData.averageKD}</strong></span>
-            <span class="${threatLevel.textColor}">
-                <i class="${threatLevel.icon} mr-1"></i>${threatLevel.text}
-            </span>
-        </div>
-    `;
+    console.log('📊 Affichage de l\'analyse du match:', match);
+    
+    // Afficher le header du match
+    displayMatchHeader(match);
+    
+    // Afficher le lobby
+    displayMatchLobby(match, analysis);
+    
+    // Afficher l'analyse des équipes
+    displayTeamAnalysis(analysis.teams, match.teams);
+    
+    // Afficher les recommandations de maps
+    displayMapRecommendations(analysis.map_recommendations);
+    
+    // Afficher les prédictions
+    displayPredictions(analysis.predictions, match.teams);
+    
+    // Afficher les joueurs clés
+    displayKeyPlayers(match, analysis);
 }
 
-function displayTeamPlayers(containerId, players, teamColor, teamId) {
-    const container = document.getElementById(containerId);
+function displayMatchHeader(match) {
+    const container = document.getElementById('matchHeader');
+    if (!container) return;
     
-    container.innerHTML = players.map((player, index) => 
-        createPlayerCard(player, teamColor, teamId, index)
-    ).join('');
-}
-
-function createPlayerCard(player, teamColor, teamId, index) {
-    if (player.error) {
-        return `
-            <div class="p-4 text-center text-gray-500">
-                <i class="fas fa-exclamation-triangle mr-2"></i>
-                Données non disponibles
-            </div>
-        `;
-    }
-    
-    const avatar = player.avatar || getDefaultAvatar();
-    const country = player.country || 'EU';
-    const level = player.games?.cs2?.skill_level || player.games?.csgo?.skill_level || 1;
-    const elo = player.games?.cs2?.faceit_elo || player.games?.csgo?.faceit_elo || 'N/A';
-    
-    // Calculer les meilleures et pires cartes
-    const { bestMap, worstMap, avgStats } = calculatePlayerMapStats(player);
-    
-    // Calculer le threat level individuel
-    const threatLevel = calculateIndividualThreatLevel(elo, avgStats.kd, avgStats.winRate);
-    const threatInfo = getThreatLevelInfo(threatLevel);
-    
-    const isSelected = selectedPlayers.some(p => p.player_id === player.player_id);
-    const canSelect = isCompareMode && (selectedPlayers.length < 2 || isSelected);
-    const borderClass = isSelected ? `border-l-4 border-${teamColor}-400` : '';
-    
-    return `
-        <div class="player-card p-4 hover:bg-faceit-elevated/50 transition-all cursor-pointer ${borderClass}" 
-             data-player-id="${player.player_id}" 
-             data-nickname="${player.nickname}"
-             onclick="handlePlayerClick('${player.player_id}', '${player.nickname}', '${teamId}')">
-            
-            <div class="flex items-center space-x-3 mb-3">
-                ${isCompareMode ? `
-                    <button class="compare-select-btn ${canSelect ? `bg-${teamColor}-500 hover:bg-${teamColor}-600` : 'bg-gray-600 cursor-not-allowed'} w-6 h-6 rounded-full flex items-center justify-center transition-colors flex-shrink-0" 
-                            ${canSelect ? `onclick="event.stopPropagation(); togglePlayerSelection('${player.player_id}', '${player.nickname}', '${teamId}')"` : 'disabled'}>
-                        <i class="fas ${isSelected ? 'fa-check' : 'fa-plus'} text-white text-xs"></i>
-                    </button>
-                ` : ''}
-                
-                <div class="relative flex-shrink-0">
-                    <img src="${avatar}" alt="Avatar" class="w-12 h-12 rounded-xl border-2 border-gray-600">
-                    <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-faceit-dark rounded-full border-2 border-gray-600 flex items-center justify-center">
-                        <img src="${getRankIconUrl(level)}" alt="Rank" class="w-4 h-4">
-                    </div>
-                </div>
-                
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center space-x-2 mb-1">
-                        <h4 class="font-bold text-white truncate">${player.nickname}</h4>
-                        <img src="${getCountryFlagUrl(country)}" alt="${country}" class="w-4 h-4 flex-shrink-0">
-                    </div>
-                    <div class="flex items-center space-x-3 text-xs text-gray-400">
-                        <span>ELO: <span class="text-faceit-orange font-medium">${elo}</span></span>
-                        <span class="${threatInfo.textColor}">
-                            <i class="${threatInfo.icon} mr-1"></i>${threatInfo.text}
-                        </span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-3 text-xs">
-                <div class="bg-faceit-elevated/60 rounded-lg p-2">
-                    <div class="text-gray-400 mb-1">Meilleure carte</div>
-                    <div class="font-semibold text-green-400">${bestMap.name}</div>
-                    <div class="text-green-300">${bestMap.winRate}% WR</div>
-                </div>
-                <div class="bg-faceit-elevated/60 rounded-lg p-2">
-                    <div class="text-gray-400 mb-1">Pire carte</div>
-                    <div class="font-semibold text-red-400">${worstMap.name}</div>
-                    <div class="text-red-300">${worstMap.winRate}% WR</div>
-                </div>
-            </div>
-            
-            <div class="mt-3 grid grid-cols-3 gap-2 text-xs text-center">
-                <div>
-                    <div class="text-gray-400">K/D</div>
-                    <div class="font-semibold ${avgStats.kd >= 1.1 ? 'text-green-400' : avgStats.kd >= 0.9 ? 'text-yellow-400' : 'text-red-400'}">${avgStats.kd}</div>
-                </div>
-                <div>
-                    <div class="text-gray-400">WR</div>
-                    <div class="font-semibold ${avgStats.winRate >= 55 ? 'text-green-400' : avgStats.winRate >= 45 ? 'text-yellow-400' : 'text-red-400'}">${avgStats.winRate}%</div>
-                </div>
-                <div>
-                    <div class="text-gray-400">HS</div>
-                    <div class="font-semibold text-purple-400">${avgStats.headshots}%</div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function calculatePlayerMapStats(player) {
-    let bestMap = { name: 'N/A', winRate: 0, kd: 0 };
-    let worstMap = { name: 'N/A', winRate: 100, kd: 999 };
-    let avgStats = { kd: 0, winRate: 0, headshots: 0 };
-    
-    if (player.stats && player.stats.lifetime) {
-        const lifetime = player.stats.lifetime;
-        avgStats = {
-            kd: parseFloat(lifetime['Average K/D Ratio'] || 0).toFixed(2),
-            winRate: parseFloat(lifetime['Win Rate %'] || 0).toFixed(0),
-            headshots: parseFloat(lifetime['Average Headshots %'] || 0).toFixed(0)
-        };
-        
-        // Analyser les cartes
-        if (player.stats.segments) {
-            const mapSegments = player.stats.segments.filter(segment => 
-                segment.type === 'Map' && parseInt(segment.stats?.['Matches'] || 0) >= 3
-            );
-            
-            mapSegments.forEach(segment => {
-                const mapName = getCleanMapName(segment.label || '');
-                const matches = parseInt(segment.stats?.['Matches'] || 0);
-                const wins = parseInt(segment.stats?.['Wins'] || 0);
-                const winRate = matches > 0 ? Math.round((wins / matches) * 100) : 0;
-                const kd = parseFloat(segment.stats?.['Average K/D Ratio'] || 0);
-                
-                // Score combiné pour déterminer la meilleure/pire carte
-                const combinedScore = (winRate * 0.6) + (kd * 20 * 0.4);
-                
-                if (combinedScore > (bestMap.winRate * 0.6) + (bestMap.kd * 20 * 0.4)) {
-                    bestMap = { name: mapName, winRate, kd: kd.toFixed(2) };
-                }
-                
-                if (combinedScore < (worstMap.winRate * 0.6) + (worstMap.kd * 20 * 0.4)) {
-                    worstMap = { name: mapName, winRate, kd: kd.toFixed(2) };
-                }
-            });
-        }
-    }
-    
-    return { bestMap, worstMap, avgStats };
-}
-
-function calculateIndividualThreatLevel(elo, kd, winRate) {
-    let score = 0;
-    
-    const eloNum = typeof elo === 'number' ? elo : parseInt(elo) || 1000;
-    const kdNum = parseFloat(kd) || 0;
-    const winRateNum = parseFloat(winRate) || 0;
-    
-    // ELO
-    if (eloNum >= 2000) score += 3;
-    else if (eloNum >= 1500) score += 2;
-    else if (eloNum >= 1200) score += 1;
-    
-    // K/D
-    if (kdNum >= 1.3) score += 3;
-    else if (kdNum >= 1.1) score += 2;
-    else if (kdNum >= 0.9) score += 1;
-    
-    // Win Rate
-    if (winRateNum >= 65) score += 3;
-    else if (winRateNum >= 55) score += 2;
-    else if (winRateNum >= 45) score += 1;
-    
-    if (score >= 7) return 'extreme';
-    if (score >= 5) return 'high';
-    if (score >= 3) return 'medium';
-    return 'low';
-}
-
-function getThreatLevelInfo(level) {
-    const levels = {
-        'extreme': {
-            text: 'EXTRÊME',
-            icon: 'fas fa-skull',
-            textColor: 'text-red-500',
-            bgColor: 'bg-red-500/20',
-            borderColor: 'border-red-500'
-        },
-        'high': {
-            text: 'ÉLEVÉ',
-            icon: 'fas fa-fire',
-            textColor: 'text-orange-400',
-            bgColor: 'bg-orange-500/20',
-            borderColor: 'border-orange-500'
-        },
-        'medium': {
-            text: 'MOYEN',
-            icon: 'fas fa-exclamation',
-            textColor: 'text-yellow-400',
-            bgColor: 'bg-yellow-500/20',
-            borderColor: 'border-yellow-500'
-        },
-        'low': {
-            text: 'FAIBLE',
-            icon: 'fas fa-shield',
-            textColor: 'text-green-400',
-            bgColor: 'bg-green-500/20',
-            borderColor: 'border-green-500'
-        }
+    const competitionName = match.competition_name || 'Match FACEIT';
+    const status = match.status || 'unknown';
+    const statusColors = {
+        'FINISHED': 'text-green-400',
+        'ONGOING': 'text-blue-400',
+        'READY': 'text-yellow-400',
+        'VOTING': 'text-purple-400'
     };
     
-    return levels[level] || levels['low'];
+    container.innerHTML = `
+        <div class="space-y-4">
+            <div class="text-center">
+                <h1 class="text-4xl font-black mb-2 bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+                    Analyse de Match
+                </h1>
+                <p class="text-xl text-gray-400">${competitionName}</p>
+            </div>
+            
+            <div class="flex items-center justify-center space-x-6 text-sm">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-calendar text-faceit-orange"></i>
+                    <span>${formatDate(match.configured_at)}</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-circle ${statusColors[status] || 'text-gray-400'} text-xs"></i>
+                    <span class="${statusColors[status] || 'text-gray-400'}">${getStatusLabel(status)}</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-gamepad text-faceit-orange"></i>
+                    <span>CS2 • Best of ${match.best_of || 1}</span>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
-function displayMatchInfo() {
-    const container = document.getElementById('matchInfo');
-    const gameMode = matchData.game || 'CS2';
-    const bestOf = matchData.best_of || '?';
+function displayMatchLobby(match, analysis) {
+    const container = document.getElementById('matchLobby');
+    if (!container) return;
+    
+    const teams = Object.keys(match.teams);
+    const team1 = match.teams[teams[0]];
+    const team2 = match.teams[teams[1]];
+    
+    // Récupérer les infos des cartes d'équipe
+    const team1Maps = analysis.teams[teams[0]]?.team_maps || {};
+    const team2Maps = analysis.teams[teams[1]]?.team_maps || {};
     
     container.innerHTML = `
-        <div class="space-y-2">
-            <div class="text-lg font-semibold text-gray-200">
-                <i class="fas fa-gamepad mr-2 text-faceit-orange"></i>
-                ${gameMode} • BO${bestOf}
+        <div class="p-8">
+            <!-- Desktop Layout -->
+            <div class="hidden lg:block">
+                <div class="grid grid-cols-3 gap-8 items-start">
+                    <!-- Team 1 -->
+                    <div class="space-y-4">
+                        <div class="text-center mb-6">
+                            <h3 class="text-2xl font-bold text-blue-400 mb-2">${team1.name || 'Équipe 1'}</h3>
+                            <div class="flex items-center justify-center space-x-4 text-sm text-gray-400 mb-2">
+                                <span>ELO moyen: ${analysis.teams[teams[0]]?.average_stats?.elo || 'N/A'}</span>
+                                <span>Niveau: ${analysis.teams[teams[0]]?.average_stats?.level || 'N/A'}</span>
+                            </div>
+                            <div class="flex items-center justify-center space-x-4 text-xs">
+                                <span class="text-green-400">
+                                    <i class="fas fa-thumbs-up mr-1"></i>${team1Maps.preferred || 'N/A'}
+                                </span>
+                                <span class="text-red-400">
+                                    <i class="fas fa-thumbs-down mr-1"></i>${team1Maps.avoid || 'N/A'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            ${team1.roster.map(player => createPlayerCard(player, 'blue')).join('')}
+                        </div>
+                    </div>
+                    
+                    <!-- VS Divider -->
+                    <div class="flex items-center justify-center min-h-full">
+                        <div class="text-center">
+                            <div class="relative mb-4">
+                                <div class="w-24 h-24 bg-gradient-to-br from-faceit-orange/20 to-red-500/20 rounded-full flex items-center justify-center border-2 border-faceit-orange/50 mx-auto">
+                                    <span class="text-3xl font-black text-faceit-orange">VS</span>
+                                </div>
+                                <div class="absolute inset-0 bg-gradient-to-br from-faceit-orange/10 to-red-500/10 rounded-full animate-pulse"></div>
+                            </div>
+                            <div class="text-sm text-gray-400 font-medium">AFFRONTEMENT</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Team 2 -->
+                    <div class="space-y-4">
+                        <div class="text-center mb-6">
+                            <h3 class="text-2xl font-bold text-red-400 mb-2">${team2.name || 'Équipe 2'}</h3>
+                            <div class="flex items-center justify-center space-x-4 text-sm text-gray-400 mb-2">
+                                <span>ELO moyen: ${analysis.teams[teams[1]]?.average_stats?.elo || 'N/A'}</span>
+                                <span>Niveau: ${analysis.teams[teams[1]]?.average_stats?.level || 'N/A'}</span>
+                            </div>
+                            <div class="flex items-center justify-center space-x-4 text-xs">
+                                <span class="text-green-400">
+                                    <i class="fas fa-thumbs-up mr-1"></i>${team2Maps.preferred || 'N/A'}
+                                </span>
+                                <span class="text-red-400">
+                                    <i class="fas fa-thumbs-down mr-1"></i>${team2Maps.avoid || 'N/A'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            ${team2.roster.map(player => createPlayerCard(player, 'red')).join('')}
+                        </div>
+                    </div>
+                </div>
             </div>
-            ${matchData.scheduled_at ? `
-                <div class="text-sm text-gray-400">
-                    Programmé: ${formatDate(matchData.scheduled_at)}
+            
+            <!-- Mobile/Tablet Layout -->
+            <div class="lg:hidden space-y-8">
+                <!-- Team 1 -->
+                <div class="space-y-4">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-blue-400 mb-2">${team1.name || 'Équipe 1'}</h3>
+                        <div class="flex items-center justify-center space-x-4 text-sm text-gray-400 mb-2">
+                            <span>ELO moyen: ${analysis.teams[teams[0]]?.average_stats?.elo || 'N/A'}</span>
+                            <span>Niveau: ${analysis.teams[teams[0]]?.average_stats?.level || 'N/A'}</span>
+                        </div>
+                        <div class="flex items-center justify-center space-x-4 text-xs">
+                            <span class="text-green-400">
+                                <i class="fas fa-thumbs-up mr-1"></i>${team1Maps.preferred || 'N/A'}
+                            </span>
+                            <span class="text-red-400">
+                                <i class="fas fa-thumbs-down mr-1"></i>${team1Maps.avoid || 'N/A'}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        ${team1.roster.map(player => createPlayerCard(player, 'blue')).join('')}
+                    </div>
+                </div>
+                
+                <!-- Mobile VS -->
+                <div class="text-center py-6">
+                    <div class="relative inline-block">
+                        <div class="w-20 h-20 bg-gradient-to-br from-faceit-orange/20 to-red-500/20 rounded-full flex items-center justify-center border-2 border-faceit-orange/50">
+                            <span class="text-2xl font-black text-faceit-orange">VS</span>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-br from-faceit-orange/10 to-red-500/10 rounded-full animate-pulse"></div>
+                    </div>
+                    <div class="text-sm text-gray-400 font-medium mt-2">AFFRONTEMENT</div>
+                </div>
+                
+                <!-- Team 2 -->
+                <div class="space-y-4">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-red-400 mb-2">${team2.name || 'Équipe 2'}</h3>
+                        <div class="flex items-center justify-center space-x-4 text-sm text-gray-400 mb-2">
+                            <span>ELO moyen: ${analysis.teams[teams[1]]?.average_stats?.elo || 'N/A'}</span>
+                            <span>Niveau: ${analysis.teams[teams[1]]?.average_stats?.level || 'N/A'}</span>
+                        </div>
+                        <div class="flex items-center justify-center space-x-4 text-xs">
+                            <span class="text-green-400">
+                                <i class="fas fa-thumbs-up mr-1"></i>${team2Maps.preferred || 'N/A'}
+                            </span>
+                            <span class="text-red-400">
+                                <i class="fas fa-thumbs-down mr-1"></i>${team2Maps.avoid || 'N/A'}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        ${team2.roster.map(player => createPlayerCard(player, 'red')).join('')}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function createPlayerCard(player, teamColor) {
+    if (!player.full_data || !player.analysis || player.analysis.error) {
+        return createSimplePlayerCard(player, teamColor);
+    }
+    
+    const playerData = player.full_data;
+    const analysis = player.analysis;
+    const cs2Data = playerData.games?.cs2 || {};
+    
+    const threatLevel = analysis.threat_level || { score: 0, level: 'Minimal', color: 'gray' };
+    const bestMap = analysis.best_map?.name || 'N/A';
+    const worstMap = analysis.worst_map?.name || 'N/A';
+    
+    const colorClasses = {
+        blue: 'border-blue-500/30 hover:border-blue-500/60',
+        red: 'border-red-500/30 hover:border-red-500/60'
+    };
+    
+    return `
+        <div class="player-card bg-faceit-elevated/50 backdrop-blur-sm rounded-xl p-4 border-2 ${colorClasses[teamColor]} transition-all duration-300" 
+             onclick="showPlayerDetails('${player.player_id}')" 
+             data-player-id="${player.player_id}">
+            <div class="flex items-center space-x-4">
+                <!-- Avatar -->
+                <div class="relative">
+                    <img src="${playerData.avatar || '/images/default-avatar.jpg'}" 
+                         alt="${playerData.nickname}" 
+                         class="w-16 h-16 rounded-xl object-cover">
+                    <img src="${getCountryFlagUrl(playerData.country)}" 
+                         alt="${playerData.country}" 
+                         class="absolute -bottom-1 -right-1 w-6 h-4 rounded border border-gray-600">
+                </div>
+                
+                <!-- Player Info -->
+                <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-1">
+                        <h4 class="text-lg font-bold text-white">${playerData.nickname}</h4>
+                        <img src="${getRankIconUrl(cs2Data.skill_level)}" 
+                             alt="Level ${cs2Data.skill_level}" 
+                             class="w-6 h-6">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-400">ELO:</span>
+                            <span class="text-white font-semibold ml-1">${cs2Data.faceit_elo || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400">K/D:</span>
+                            <span class="text-white font-semibold ml-1">${analysis.key_stats?.kd_ratio?.toFixed(2) || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400">Meilleure:</span>
+                            <span class="text-green-400 font-semibold ml-1">${bestMap}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400">Pire:</span>
+                            <span class="text-red-400 font-semibold ml-1">${worstMap}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Threat Level -->
+                <div class="text-center">
+                    <div class="threat-level-${threatLevel.color} px-3 py-2 rounded-lg text-sm font-bold mb-1">
+                        ${threatLevel.score}/100
+                    </div>
+                    <div class="text-xs text-gray-400">${threatLevel.level}</div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function createSimplePlayerCard(player, teamColor) {
+    const colorClasses = {
+        blue: 'border-blue-500/30',
+        red: 'border-red-500/30'
+    };
+    
+    return `
+        <div class="bg-faceit-elevated/50 backdrop-blur-sm rounded-xl p-4 border-2 ${colorClasses[teamColor]}">
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 bg-gray-700 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-user text-gray-400 text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <h4 class="text-lg font-bold text-white">${player.nickname || 'Joueur'}</h4>
+                    <p class="text-sm text-gray-400">Données non disponibles</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function displayTeamAnalysis(teamAnalysis, teams) {
+    const container = document.getElementById('teamAnalysis');
+    if (!container) return;
+    
+    const teamIds = Object.keys(teamAnalysis);
+    const teamNames = Object.keys(teams);
+    
+    container.innerHTML = teamIds.map((teamId, index) => {
+        const analysis = teamAnalysis[teamId];
+        const teamName = teams[teamNames[index]]?.name || `Équipe ${index + 1}`;
+        const teamColor = index === 0 ? 'blue' : 'red';
+        
+        return createTeamAnalysisCard(analysis, teamName, teamColor);
+    }).join('');
+}
+
+function createTeamAnalysisCard(analysis, teamName, teamColor) {
+    const colorClasses = {
+        blue: 'from-blue-500/20 to-blue-600/5 border-blue-500/30',
+        red: 'from-red-500/20 to-red-600/5 border-red-500/30'
+    };
+    
+    const avgStats = analysis.average_stats || {};
+    const teamMaps = analysis.team_maps || {};
+    
+    return `
+        <div class="glass-effect rounded-2xl p-6 bg-gradient-to-br ${colorClasses[teamColor]} border">
+            <h3 class="text-xl font-bold mb-6 text-center ${teamColor === 'blue' ? 'text-blue-400' : 'text-red-400'}">
+                ${teamName}
+            </h3>
+            
+            <!-- Team Stats -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-white">${avgStats.elo || 'N/A'}</div>
+                    <div class="text-sm text-gray-400">ELO Moyen</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-white">${avgStats.threat_score?.toFixed(1) || 'N/A'}</div>
+                    <div class="text-sm text-gray-400">Menace Moy.</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-white">${avgStats.kd?.toFixed(2) || 'N/A'}</div>
+                    <div class="text-sm text-gray-400">K/D Moyen</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-white">${avgStats.win_rate?.toFixed(1) || 'N/A'}%</div>
+                    <div class="text-sm text-gray-400">Taux Victoire</div>
+                </div>
+            </div>
+            
+            <!-- Map Preferences -->
+            <div class="border-t border-gray-700/50 pt-4">
+                <h4 class="font-semibold mb-3 text-center">Préférences de cartes</h4>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Préférée:</span>
+                        <span class="text-green-400 font-semibold">${teamMaps.preferred || 'N/A'}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">À éviter:</span>
+                        <span class="text-red-400 font-semibold">${teamMaps.avoid || 'N/A'}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team Strength -->
+            <div class="mt-4 text-center">
+                <div class="text-lg font-bold text-white">${analysis.team_strength?.toFixed(1) || 'N/A'}/100</div>
+                <div class="text-xs text-gray-400">Force d'équipe</div>
+            </div>
+        </div>
+    `;
+}
+
+function displayMapRecommendations(recommendations) {
+    const container = document.getElementById('mapRecommendations');
+    if (!container) return;
+    
+    if (!recommendations) {
+        container.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-map text-gray-400 text-3xl mb-4"></i>
+                <p class="text-gray-400">Recommandations de cartes non disponibles</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = `
+        <div class="space-y-6">
+            <div class="text-center mb-8">
+                <h3 class="text-xl font-bold mb-2">Stratégie de Map Pool</h3>
+                <p class="text-gray-400">Recommandations basées sur l'analyse des performances</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Team 1 Recommendations -->
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-blue-400 text-center">Équipe 1</h4>
+                    <div class="space-y-3">
+                        <div class="map-recommendation recommended bg-faceit-elevated/50 rounded-lg p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="font-semibold">Devrait choisir:</span>
+                                <span class="text-green-400 font-bold">${recommendations.team1_should_pick || 'N/A'}</span>
+                            </div>
+                        </div>
+                        <div class="map-recommendation avoid bg-faceit-elevated/50 rounded-lg p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="font-semibold">Devrait bannir:</span>
+                                <span class="text-red-400 font-bold">${recommendations.team1_should_ban || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Team 2 Recommendations -->
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-red-400 text-center">Équipe 2</h4>
+                    <div class="space-y-3">
+                        <div class="map-recommendation recommended bg-faceit-elevated/50 rounded-lg p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="font-semibold">Devrait choisir:</span>
+                                <span class="text-green-400 font-bold">${recommendations.team2_should_pick || 'N/A'}</span>
+                            </div>
+                        </div>
+                        <div class="map-recommendation avoid bg-faceit-elevated/50 rounded-lg p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="font-semibold">Devrait bannir:</span>
+                                <span class="text-red-400 font-bold">${recommendations.team2_should_ban || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Balanced Maps -->
+            ${recommendations.balanced_maps && recommendations.balanced_maps.length > 0 ? `
+                <div class="border-t border-gray-700/50 pt-6">
+                    <h4 class="font-semibold mb-4 text-center">Cartes équilibrées</h4>
+                    <div class="flex flex-wrap justify-center gap-3">
+                        ${recommendations.balanced_maps.map(map => `
+                            <span class="bg-faceit-elevated/50 px-4 py-2 rounded-lg text-sm font-semibold border border-gray-600/50">
+                                ${map}
+                            </span>
+                        `).join('')}
+                    </div>
                 </div>
             ` : ''}
         </div>
     `;
 }
 
-async function displayMapRecommendations() {
-    if (!teamAnalysis || !mapRecommendations) return;
+function displayPredictions(predictions, teams) {
+    displayWinnerPrediction(predictions, teams);
+    displayMVPPrediction(predictions);
+    displayKeyFactors(predictions.key_factors);
+}
+
+function displayWinnerPrediction(predictions, teams) {
+    const container = document.getElementById('winnerPrediction');
+    if (!container) return;
     
-    // Meilleures cartes équipe 1
-    const team1BestContainer = document.getElementById('team1BestMapsList');
-    team1BestContainer.innerHTML = teamAnalysis.team1.bestMaps.map(map => `
-        <div class="flex justify-between items-center p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-            <span class="font-medium text-blue-300">${map.name}</span>
-            <div class="text-right text-sm">
-                <div class="text-blue-400 font-bold">${map.avgWinRate}%</div>
-                <div class="text-gray-400">K/D: ${map.avgKD}</div>
-            </div>
-        </div>
-    `).join('');
-    
-    // Meilleures cartes équipe 2
-    const team2BestContainer = document.getElementById('team2BestMapsList');
-    team2BestContainer.innerHTML = teamAnalysis.team2.bestMaps.map(map => `
-        <div class="flex justify-between items-center p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-            <span class="font-medium text-red-300">${map.name}</span>
-            <div class="text-right text-sm">
-                <div class="text-red-400 font-bold">${map.avgWinRate}%</div>
-                <div class="text-gray-400">K/D: ${map.avgKD}</div>
-            </div>
-        </div>
-    `).join('');
-    
-    // Recommandations stratégiques
-    const recommendationsContainer = document.getElementById('mapRecommendationsList');
-    if (mapRecommendations && mapRecommendations.length > 0) {
-        recommendationsContainer.innerHTML = mapRecommendations.slice(0, 3).map(rec => {
-            const teamColor = rec.recommendedFor === 'team1' ? 'blue' : 'red';
-            const teamName = rec.recommendedFor === 'team1' ? 'Équipe 1' : 'Équipe 2';
-            
-            return `
-                <div class="p-3 bg-${teamColor}-500/10 border border-${teamColor}-500/30 rounded-lg">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="font-bold text-${teamColor}-300">${rec.map}</span>
-                        <span class="text-xs bg-${teamColor}-500/20 px-2 py-1 rounded text-${teamColor}-300">
-                            ${rec.confidence.toFixed(0)}% confiance
-                        </span>
-                    </div>
-                    <div class="text-sm text-gray-300">
-                        Recommandé pour <span class="text-${teamColor}-400 font-medium">${teamName}</span>
-                    </div>
-                    <div class="text-xs text-gray-400 mt-1">
-                        Avantage: ${Math.abs(rec.advantage).toFixed(1)} points
-                    </div>
-                </div>
-            `;
-        }).join('');
-    } else {
-        recommendationsContainer.innerHTML = `
-            <div class="text-center text-gray-400 py-4">
-                <i class="fas fa-info-circle mr-2"></i>
-                Pas assez de données pour des recommandations précises
+    if (!predictions || !predictions.winner) {
+        container.innerHTML = `
+            <div class="text-center">
+                <i class="fas fa-question-circle text-gray-400 text-3xl mb-4"></i>
+                <p class="text-gray-400">Prédiction non disponible</p>
             </div>
         `;
-    }
-}
-
-async function displayMatchPredictions() {
-    if (!matchPredictions) return;
-    
-    // Prédiction du gagnant
-    displayWinnerPrediction();
-    
-    // Prédiction MVP
-    displayMVPPrediction();
-    
-    // Joueurs clés
-    displayKeyPlayers();
-}
-
-function displayWinnerPrediction() {
-    const container = document.getElementById('winnerPredictionContent');
-    const prediction = matchPredictions.winner;
-    
-    if (!prediction) {
-        container.innerHTML = '<div class="text-gray-400">Prédiction non disponible</div>';
         return;
     }
     
-    const winnerTeam = prediction.winner === 'team1' ? 'Équipe 1' : 'Équipe 2';
-    const winnerColor = prediction.winner === 'team1' ? 'blue' : 'red';
+    const winner = predictions.winner;
+    const probabilities = predictions.probabilities;
+    const teamNames = Object.keys(teams);
+    const winnerTeam = winner.team === 'faction1' ? teamNames[0] : teamNames[1];
+    const winnerName = teams[winnerTeam]?.name || `Équipe ${winner.team === 'faction1' ? '1' : '2'}`;
+    
+    const confidenceClass = getConfidenceClass(winner.confidence);
     
     container.innerHTML = `
-        <div class="text-center mb-4">
-            <div class="w-16 h-16 bg-${winnerColor}-500/20 border-2 border-${winnerColor}-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                <i class="fas fa-trophy text-${winnerColor}-400 text-2xl"></i>
-            </div>
-            <h4 class="text-xl font-bold text-${winnerColor}-400 mb-1">${winnerTeam}</h4>
-            <div class="text-2xl font-black text-white">${prediction.confidence}%</div>
-            <div class="text-sm text-gray-400">de confiance</div>
-        </div>
-        
-        <div class="space-y-2 text-sm">
-            <div class="bg-faceit-elevated/50 rounded-lg p-3">
-                <div class="text-gray-300 mb-1">Raison principale:</div>
-                <div class="text-white font-medium">${prediction.reasoning}</div>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-2 text-xs">
-                <div class="text-center p-2 bg-blue-500/10 rounded">
-                    <div class="text-blue-300">Équipe 1</div>
-                    <div class="font-bold text-white">${prediction.team1Score}</div>
-                </div>
-                <div class="text-center p-2 bg-red-500/10 rounded">
-                    <div class="text-red-300">Équipe 2</div>
-                    <div class="font-bold text-white">${prediction.team2Score}</div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function displayMVPPrediction() {
-    const container = document.getElementById('mvpPredictionContent');
-    const mvp = matchPredictions.mvp;
-    
-    if (!mvp) {
-        container.innerHTML = '<div class="text-gray-400">Prédiction MVP non disponible</div>';
-        return;
-    }
-    
-    container.innerHTML = `
-        <div class="text-center mb-4">
-            <div class="w-16 h-16 bg-yellow-500/20 border-2 border-yellow-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                <i class="fas fa-star text-yellow-400 text-2xl"></i>
-            </div>
-            <h4 class="text-xl font-bold text-yellow-400 mb-1">${mvp.nickname}</h4>
-            <div class="text-sm text-gray-400">MVP prédit</div>
-        </div>
-        
-        <div class="space-y-2 text-sm">
-            <div class="grid grid-cols-3 gap-2 text-xs text-center">
-                <div class="p-2 bg-faceit-elevated/50 rounded">
-                    <div class="text-gray-400">ELO</div>
-                    <div class="font-bold text-faceit-orange">${mvp.elo}</div>
-                </div>
-                <div class="p-2 bg-faceit-elevated/50 rounded">
-                    <div class="text-gray-400">K/D</div>
-                    <div class="font-bold text-white">${mvp.kd}</div>
-                </div>
-                <div class="p-2 bg-faceit-elevated/50 rounded">
-                    <div class="text-gray-400">WR</div>
-                    <div class="font-bold text-white">${mvp.winRate}%</div>
-                </div>
-            </div>
-            
-            <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3 text-center">
-                <div class="text-yellow-300 font-medium">Score MVP</div>
-                <div class="text-2xl font-black text-yellow-400">${mvp.mvpScore.toFixed(0)}</div>
-            </div>
-        </div>
-    `;
-}
-
-function displayKeyPlayers() {
-    const container = document.getElementById('keyPlayersContent');
-    const keyPlayers = matchPredictions.keyPlayers;
-    
-    if (!keyPlayers || (!keyPlayers.team1.length && !keyPlayers.team2.length)) {
-        container.innerHTML = '<div class="text-gray-400">Joueurs clés non identifiés</div>';
-        return;
-    }
-    
-    let html = '';
-    
-    // Joueurs clés équipe 1
-    if (keyPlayers.team1.length > 0) {
-        html += `
+        <div class="text-center">
             <div class="mb-4">
-                <h5 class="text-sm font-bold text-blue-400 mb-2 flex items-center">
-                    <i class="fas fa-users mr-2"></i>Équipe 1
-                </h5>
-                <div class="space-y-2">
-                    ${keyPlayers.team1.map(player => `
-                        <div class="flex justify-between items-center p-2 bg-blue-500/10 border border-blue-500/30 rounded">
-                            <div>
-                                <div class="font-medium text-blue-300">${player.nickname}</div>
-                                <div class="text-xs text-gray-400">${player.role}</div>
-                            </div>
-                            <div class="text-right text-xs">
-                                <div class="text-blue-400 font-bold">${player.influence.toFixed(0)}</div>
-                                <div class="text-gray-400">influence</div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
+                <i class="fas fa-trophy text-faceit-orange text-3xl mb-3"></i>
+                <h3 class="text-xl font-bold mb-2">Prédiction de victoire</h3>
             </div>
-        `;
-    }
-    
-    // Joueurs clés équipe 2
-    if (keyPlayers.team2.length > 0) {
-        html += `
-            <div>
-                <h5 class="text-sm font-bold text-red-400 mb-2 flex items-center">
-                    <i class="fas fa-users mr-2"></i>Équipe 2
-                </h5>
-                <div class="space-y-2">
-                    ${keyPlayers.team2.map(player => `
-                        <div class="flex justify-between items-center p-2 bg-red-500/10 border border-red-500/30 rounded">
-                            <div>
-                                <div class="font-medium text-red-300">${player.nickname}</div>
-                                <div class="text-xs text-gray-400">${player.role}</div>
-                            </div>
-                            <div class="text-right text-xs">
-                                <div class="text-red-400 font-bold">${player.influence.toFixed(0)}</div>
-                                <div class="text-gray-400">influence</div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-    }
-    
-    container.innerHTML = html;
-}
-
-async function displayMatchStats(matchStats) {
-    if (!matchStats || !matchStats.rounds || matchStats.rounds.length === 0) return;
-    
-    const section = document.getElementById('matchStatsSection');
-    const content = document.getElementById('matchStatsContent');
-    
-    const roundStats = matchStats.rounds[0];
-    if (roundStats && roundStats.teams) {
-        let html = '<div class="grid md:grid-cols-2 gap-6">';
-        
-        Object.entries(roundStats.teams).forEach(([teamId, teamData]) => {
-            const teamName = teamData.team_stats?.Team || `Équipe ${teamId}`;
             
-            html += `
-                <div class="bg-faceit-elevated/50 rounded-xl p-4">
-                    <h4 class="font-bold text-lg mb-4 text-center">${teamName}</h4>
-                    <div class="space-y-2">
-                        ${teamData.players ? teamData.players.map(playerStats => `
-                            <div class="flex justify-between items-center py-2 border-b border-gray-700 last:border-b-0">
-                                <span class="font-medium text-white">${playerStats.nickname}</span>
-                                <div class="flex space-x-3 text-sm">
-                                    <span class="text-green-400 font-bold">${playerStats.player_stats?.Kills || 0}</span>
-                                    <span class="text-red-400 font-bold">${playerStats.player_stats?.Deaths || 0}</span>
-                                    <span class="text-blue-400 font-bold">${playerStats.player_stats?.Assists || 0}</span>
-                                    <span class="text-faceit-orange font-bold">${playerStats.player_stats?.["K/D Ratio"] || '0.00'}</span>
-                                </div>
-                            </div>
-                        `).join('') : '<p class="text-gray-400 text-center">Pas de statistiques disponibles</p>'}
+            <div class="space-y-4">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-faceit-orange mb-1">${winnerName}</div>
+                    <div class="text-lg font-semibold text-white">${winner.probability}% de chances</div>
+                </div>
+                
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span>${teams[teamNames[0]]?.name || 'Équipe 1'}</span>
+                        <span class="font-semibold">${probabilities.faction1}%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-blue-500 h-2 rounded-full" style="width: ${probabilities.faction1}%"></div>
                     </div>
                 </div>
-            `;
-        });
-        
-        html += '</div>';
-        content.innerHTML = html;
-        section.classList.remove('hidden');
-    }
+                
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span>${teams[teamNames[1]]?.name || 'Équipe 2'}</span>
+                        <span class="font-semibold">${probabilities.faction2}%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-red-500 h-2 rounded-full" style="width: ${probabilities.faction2}%"></div>
+                    </div>
+                </div>
+                
+                <div class="pt-2 border-t border-gray-700/50">
+                    <div class="text-xs text-gray-400">Confiance</div>
+                    <div class="text-sm font-semibold ${confidenceClass}">${winner.confidence}</div>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
-function toggleCompareMode() {
-    isCompareMode = !isCompareMode;
-    selectedPlayers = [];
+function displayMVPPrediction(predictions) {
+    const container = document.getElementById('mvpPrediction');
+    if (!container) return;
     
-    const button = document.getElementById('compareMode');
-    const instructions = document.getElementById('compareInstructions');
-    
-    if (isCompareMode) {
-        button.innerHTML = '<i class="fas fa-times mr-2"></i>Annuler';
-        button.className = 'bg-red-500 hover:bg-red-600 px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105';
-        instructions.classList.remove('hidden');
-    } else {
-        button.innerHTML = '<i class="fas fa-balance-scale mr-2"></i>Mode Comparaison';
-        button.className = 'bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105';
-        instructions.classList.add('hidden');
-    }
-    
-    // Recharger l'affichage des équipes
-    displayTeamPlayers('team1Players', team1Players, 'blue', 'team1');
-    displayTeamPlayers('team2Players', team2Players, 'red', 'team2');
-}
-
-function handlePlayerClick(playerId, nickname, teamId) {
-    if (isCompareMode) {
-        togglePlayerSelection(playerId, nickname, teamId);
-    } else {
-        // Rediriger vers la page de profil du joueur
-        window.location.href = `/advanced?playerNickname=${encodeURIComponent(nickname)}`;
-    }
-}
-
-function togglePlayerSelection(playerId, nickname, teamId) {
-    if (!isCompareMode) return;
-    
-    const existingIndex = selectedPlayers.findIndex(p => p.player_id === playerId);
-    
-    if (existingIndex !== -1) {
-        // Désélectionner le joueur
-        selectedPlayers.splice(existingIndex, 1);
-    } else if (selectedPlayers.length < 2) {
-        // Sélectionner le joueur
-        selectedPlayers.push({ player_id: playerId, nickname, teamId });
-    } else {
-        // Déjà 2 joueurs sélectionnés
-        showNotification('Vous ne pouvez sélectionner que 2 joueurs maximum', 'warning');
+    if (!predictions || !predictions.mvp_prediction) {
+        container.innerHTML = `
+            <div class="text-center">
+                <i class="fas fa-star text-gray-400 text-3xl mb-4"></i>
+                <p class="text-gray-400">Prédiction MVP non disponible</p>
+            </div>
+        `;
         return;
     }
     
-    updateSelectedPlayersDisplay();
+    const mvp = predictions.mvp_prediction;
+    const player = mvp.player;
+    const playerData = player.full_data;
     
-    // Recharger l'affichage des équipes
-    displayTeamPlayers('team1Players', team1Players, 'blue', 'team1');
-    displayTeamPlayers('team2Players', team2Players, 'red', 'team2');
+    container.innerHTML = `
+        <div class="text-center">
+            <div class="mb-4">
+                <i class="fas fa-star text-yellow-400 text-3xl mb-3"></i>
+                <h3 class="text-xl font-bold mb-2">MVP Prédit</h3>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex items-center justify-center space-x-3">
+                    <img src="${playerData.avatar || '/images/default-avatar.jpg'}" 
+                         alt="${playerData.nickname}" 
+                         class="w-12 h-12 rounded-lg object-cover">
+                    <div>
+                        <div class="text-lg font-bold text-white">${playerData.nickname}</div>
+                        <div class="text-sm text-gray-400">Score MVP: ${mvp.mvp_score.toFixed(1)}</div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div class="text-center">
+                        <div class="text-lg font-bold text-white">${playerData.games?.cs2?.faceit_elo || 'N/A'}</div>
+                        <div class="text-xs text-gray-400">ELO</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-lg font-bold text-white">${player.analysis?.key_stats?.kd_ratio?.toFixed(2) || 'N/A'}</div>
+                        <div class="text-xs text-gray-400">K/D Ratio</div>
+                    </div>
+                </div>
+                
+                <div class="pt-2 border-t border-gray-700/50">
+                    <div class="text-xs text-gray-400">Équipe</div>
+                    <div class="text-sm font-semibold text-faceit-orange">${mvp.team === 'faction1' ? 'Équipe 1' : 'Équipe 2'}</div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function displayKeyFactors(keyFactors) {
+    const container = document.getElementById('keyFactors');
+    if (!container) return;
     
-    // Si 2 joueurs sélectionnés, rediriger vers la comparaison
-    if (selectedPlayers.length === 2) {
-        setTimeout(() => {
-            const player1 = selectedPlayers[0];
-            const player2 = selectedPlayers[1];
-            window.location.href = `/compare?player1=${encodeURIComponent(player1.nickname)}&player2=${encodeURIComponent(player2.nickname)}`;
-        }, 1000);
+    container.innerHTML = `
+        <div class="text-center">
+            <div class="mb-4">
+                <i class="fas fa-exclamation-triangle text-orange-400 text-3xl mb-3"></i>
+                <h3 class="text-xl font-bold mb-2">Facteurs Clés</h3>
+            </div>
+            
+            <div class="space-y-3">
+                ${keyFactors && keyFactors.length > 0 ? keyFactors.map(factor => `
+                    <div class="bg-faceit-elevated/50 rounded-lg p-3 text-left">
+                        <div class="font-semibold text-sm ${getImpactColor(factor.impact)} mb-1">
+                            ${factor.factor}
+                        </div>
+                        <div class="text-xs text-gray-400">${factor.description}</div>
+                    </div>
+                `).join('') : `
+                    <div class="text-gray-400 text-sm">
+                        Match équilibré
+                        <br>
+                        <span class="text-xs">Aucun facteur décisif identifié</span>
+                    </div>
+                `}
+            </div>
+        </div>
+    `;
+}
+
+function displayKeyPlayers(match, analysis) {
+    const container = document.getElementById('keyPlayersGrid');
+    if (!container) return;
+    
+    const keyPlayers = [];
+    
+    // Extraire les joueurs clés de chaque équipe
+    Object.keys(match.teams).forEach((teamId, teamIndex) => {
+        const team = match.teams[teamId];
+        const teamAnalysis = analysis.teams[Object.keys(analysis.teams)[teamIndex]];
+        
+        if (teamAnalysis?.top_fragger) {
+            keyPlayers.push({
+                ...teamAnalysis.top_fragger,
+                role: 'Top Fragger',
+                icon: 'fas fa-crosshairs',
+                color: 'text-red-400'
+            });
+        }
+        
+        if (teamAnalysis?.support_player && teamAnalysis.support_player.player_id !== teamAnalysis.top_fragger?.player_id) {
+            keyPlayers.push({
+                ...teamAnalysis.support_player,
+                role: 'Joueur Support',
+                icon: 'fas fa-shield-alt',
+                color: 'text-blue-400'
+            });
+        }
+    });
+    
+    // Ajouter le MVP prédit s'il n'est pas déjà dans la liste
+    if (analysis.predictions?.mvp_prediction) {
+        const mvp = analysis.predictions.mvp_prediction.player;
+        if (!keyPlayers.find(p => p.player_id === mvp.player_id)) {
+            keyPlayers.push({
+                ...mvp,
+                role: 'MVP Prédit',
+                icon: 'fas fa-star',
+                color: 'text-yellow-400'
+            });
+        }
+    }
+    
+    container.innerHTML = keyPlayers.slice(0, 6).map(player => createKeyPlayerCard(player)).join('');
+}
+
+function createKeyPlayerCard(player) {
+    const playerData = player.full_data;
+    const analysis = player.analysis;
+    
+    if (!playerData || !analysis || analysis.error) {
+        return '';
+    }
+    
+    const cs2Data = playerData.games?.cs2 || {};
+    const threatLevel = analysis.threat_level || { score: 0, level: 'Minimal' };
+    
+    return `
+        <div class="glass-effect rounded-xl p-4 hover:scale-105 transition-all duration-300 cursor-pointer"
+             onclick="showPlayerDetails('${player.player_id}')">
+            <div class="text-center space-y-3">
+                <div class="relative inline-block">
+                    <img src="${playerData.avatar || '/images/default-avatar.jpg'}" 
+                         alt="${playerData.nickname}" 
+                         class="w-16 h-16 rounded-xl object-cover mx-auto">
+                    <div class="absolute -top-2 -right-2 ${player.color} bg-faceit-card rounded-full p-1">
+                        <i class="${player.icon} text-xs"></i>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-white">${playerData.nickname}</h4>
+                    <p class="text-sm ${player.color}">${player.role}</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                        <div class="text-gray-400">ELO</div>
+                        <div class="font-semibold">${cs2Data.faceit_elo || 'N/A'}</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-400">Menace</div>
+                        <div class="font-semibold">${threatLevel.score}/100</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function setupEventListeners() {
+    // Boutons d'action
+    document.getElementById('comparePlayersBtn')?.addEventListener('click', showComparisonModal);
+    document.getElementById('newMatchBtn')?.addEventListener('click', () => window.location.href = '/');
+    document.getElementById('shareAnalysisBtn')?.addEventListener('click', shareAnalysis);
+    
+    // Modal de comparaison
+    document.getElementById('cancelComparisonBtn')?.addEventListener('click', hideComparisonModal);
+    document.getElementById('startComparisonBtn')?.addEventListener('click', startComparison);
+    
+    // Fermeture des modales
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'playerDetailsModal') {
+            hidePlayerDetails();
+        }
+        if (e.target.id === 'comparisonModal') {
+            hideComparisonModal();
+        }
+        if (e.target.id === 'errorModal') {
+            hideError();
+        }
+    });
+    
+    // Boutons d'erreur
+    document.getElementById('retryBtn')?.addEventListener('click', () => {
+        hideError();
+        location.reload();
+    });
+    
+    document.getElementById('homeBtn')?.addEventListener('click', () => {
+        window.location.href = '/';
+    });
+}
+
+function showPlayerDetails(playerId) {
+    if (!currentMatchData) return;
+    
+    // Redirection vers la page advanced du joueur
+    window.open(`/advanced?playerId=${playerId}`, '_blank');
+}
+
+function showComparisonModal() {
+    if (!currentMatchData) return;
+    
+    const modal = document.getElementById('comparisonModal');
+    const grid = document.getElementById('playerSelectionGrid');
+    
+    if (!modal || !grid) return;
+    
+    // Réinitialiser la sélection
+    selectedPlayersForComparison = [];
+    
+    // Créer les boutons de sélection pour tous les joueurs
+    const allPlayers = [];
+    Object.values(currentMatchData.match.teams).forEach(team => {
+        team.roster.forEach(player => {
+            if (player.full_data) {
+                allPlayers.push(player);
+            }
+        });
+    });
+    
+    grid.innerHTML = allPlayers.map(player => createPlayerSelectionButton(player)).join('');
+    
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function createPlayerSelectionButton(player) {
+    const playerData = player.full_data;
+    const cs2Data = playerData.games?.cs2 || {};
+    
+    return `
+        <button class="player-selection-btn bg-faceit-elevated/50 rounded-xl p-4 text-left transition-all"
+                onclick="togglePlayerSelection('${player.player_id}')"
+                data-player-id="${player.player_id}">
+            <div class="flex items-center space-x-3">
+                <img src="${playerData.avatar || '/images/default-avatar.jpg'}" 
+                     alt="${playerData.nickname}" 
+                     class="w-12 h-12 rounded-lg object-cover">
+                <div>
+                    <div class="font-semibold text-white">${playerData.nickname}</div>
+                    <div class="text-sm text-gray-400">ELO: ${cs2Data.faceit_elo || 'N/A'}</div>
+                </div>
+            </div>
+        </button>
+    `;
+}
+
+function togglePlayerSelection(playerId) {
+    const button = document.querySelector(`[data-player-id="${playerId}"]`);
+    const startButton = document.getElementById('startComparisonBtn');
+    
+    if (!button || !startButton) return;
+    
+    if (selectedPlayersForComparison.includes(playerId)) {
+        // Désélectionner
+        selectedPlayersForComparison = selectedPlayersForComparison.filter(id => id !== playerId);
+        button.classList.remove('selected');
+    } else if (selectedPlayersForComparison.length < 2) {
+        // Sélectionner
+        selectedPlayersForComparison.push(playerId);
+        button.classList.add('selected');
+    }
+    
+    // Activer/désactiver le bouton de comparaison
+    startButton.disabled = selectedPlayersForComparison.length !== 2;
+}
+
+function startComparison() {
+    if (selectedPlayersForComparison.length !== 2) return;
+    
+    const player1 = getPlayerNickname(selectedPlayersForComparison[0]);
+    const player2 = getPlayerNickname(selectedPlayersForComparison[1]);
+    
+    if (player1 && player2) {
+        window.location.href = `/comparison?player1=${encodeURIComponent(player1)}&player2=${encodeURIComponent(player2)}`;
     }
 }
 
-function updateSelectedPlayersDisplay() {
-    const container = document.getElementById('selectedPlayers');
+function getPlayerNickname(playerId) {
+    if (!currentMatchData) return null;
     
-    container.innerHTML = selectedPlayers.map((player, index) => `
-        <div class="flex items-center space-x-2 px-3 py-2 bg-purple-500/20 border border-purple-500/30 rounded-lg">
-            <span class="text-sm font-medium text-purple-200">${player.nickname}</span>
-            <button onclick="togglePlayerSelection('${player.player_id}', '${player.nickname}', '${player.teamId}')" 
-                    class="w-4 h-4 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center">
-                <i class="fas fa-times text-white text-xs"></i>
-            </button>
-        </div>
-    `).join('');
+    for (const team of Object.values(currentMatchData.match.teams)) {
+        for (const player of team.roster) {
+            if (player.player_id === playerId && player.full_data) {
+                return player.full_data.nickname;
+            }
+        }
+    }
+    return null;
+}
+
+function hideComparisonModal() {
+    const modal = document.getElementById('comparisonModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    selectedPlayersForComparison = [];
+}
+
+function hidePlayerDetails() {
+    const modal = document.getElementById('playerDetailsModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+function shareAnalysis() {
+    if (!currentMatchData) return;
     
-    // Afficher le message de progression
-    if (selectedPlayers.length === 1) {
-        container.innerHTML += '<div class="text-xs text-purple-300 mt-1">Sélectionnez un deuxième joueur</div>';
-    } else if (selectedPlayers.length === 2) {
-        container.innerHTML += '<div class="text-xs text-green-300 mt-1">Redirection vers la comparaison...</div>';
+    const matchId = currentMatchData.match.match_id;
+    const url = `${window.location.origin}/match?matchId=${matchId}`;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: 'Analyse de Match - Faceit Scope',
+            text: 'Découvrez cette analyse détaillée de match CS2',
+            url: url
+        });
+    } else {
+        // Fallback pour les navigateurs qui ne supportent pas Web Share API
+        navigator.clipboard.writeText(url).then(() => {
+            showSuccess('Lien copié dans le presse-papiers !');
+        }).catch(() => {
+            // Fallback final
+            const textArea = document.createElement('textarea');
+            textArea.value = url;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showSuccess('Lien copié dans le presse-papiers !');
+        });
+    }
+}
+
+function showError(message) {
+    const modal = document.getElementById('errorModal');
+    const messageElement = document.getElementById('errorMessage');
+    
+    if (modal && messageElement) {
+        messageElement.textContent = message;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    
+    // Cacher le loading et montrer le contenu principal
+    document.getElementById('loadingState')?.classList.add('hidden');
+    document.getElementById('mainContent')?.classList.remove('hidden');
+}
+
+function hideError() {
+    const modal = document.getElementById('errorModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
     }
 }
 
 // Fonctions utilitaires
-function getMatchStatus(status) {
-    const statusMap = {
-        'FINISHED': {
-            text: 'TERMINÉ',
-            icon: 'fas fa-flag-checkered',
-            textColor: 'text-white',
-            bgColor: 'bg-green-500/20',
-            borderColor: 'border-green-500/50'
-        },
-        'ONGOING': {
-            text: 'EN COURS',
-            icon: 'fas fa-play',
-            textColor: 'text-white',
-            bgColor: 'bg-red-500/20',
-            borderColor: 'border-red-500/50'
-        },
-        'READY': {
-            text: 'PRÊT',
-            icon: 'fas fa-clock',
-            textColor: 'text-white',
-            bgColor: 'bg-blue-500/20',
-            borderColor: 'border-blue-500/50'
-        },
-        'CAPTAIN_PICK': {
-            text: 'SÉLECTION',
-            icon: 'fas fa-user-tie',
-            textColor: 'text-white',
-            bgColor: 'bg-purple-500/20',
-            borderColor: 'border-purple-500/50'
-        },
-        'VOTING': {
-            text: 'VOTE CARTES',
-            icon: 'fas fa-vote-yea',
-            textColor: 'text-white',
-            bgColor: 'bg-yellow-500/20',
-            borderColor: 'border-yellow-500/50'
-        },
-        'CANCELLED': {
-            text: 'ANNULÉ',
-            icon: 'fas fa-times',
-            textColor: 'text-white',
-            bgColor: 'bg-gray-500/20',
-            borderColor: 'border-gray-500/50'
-        }
+function getStatusLabel(status) {
+    const labels = {
+        'FINISHED': 'Terminé',
+        'ONGOING': 'En cours',
+        'READY': 'Prêt',
+        'VOTING': 'Vote des cartes',
+        'CONFIGURING': 'Configuration'
     };
-    
-    return statusMap[status] || {
-        text: status || 'INCONNU',
-        icon: 'fas fa-question',
-        textColor: 'text-white',
-        bgColor: 'bg-gray-500/20',
-        borderColor: 'border-gray-500/50'
-    };
+    return labels[status] || status;
 }
 
-function getCleanMapName(mapLabel) {
-    if (!mapLabel) return 'Inconnue';
-    
-    const mapName = mapLabel.replace('de_', '').toLowerCase();
-    return mapName.charAt(0).toUpperCase() + mapName.slice(1);
+function getConfidenceClass(confidence) {
+    switch(confidence) {
+        case 'Élevée': return 'confidence-high';
+        case 'Modérée': return 'confidence-moderate';
+        case 'Faible': return 'confidence-low';
+        default: return 'text-gray-400';
+    }
 }
 
-function getDefaultAvatar() {
-    return 'https://d50m6q67g4bn3.cloudfront.net/avatars/101f7b39-7130-4919-8d2d-13a87add102c_1516883786781';
+function getImpactColor(impact) {
+    switch(impact) {
+        case 'high': return 'text-red-400';
+        case 'medium': return 'text-yellow-400';
+        case 'low': return 'text-blue-400';
+        default: return 'text-gray-400';
+    }
 }
 
-function formatDate(timestamp) {
-    if (!timestamp) return 'Date inconnue';
-    
-    const date = new Date(timestamp * 1000);
-    return date.toLocaleDateString('fr-FR', {
-        day: 'numeric',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-}
-
-function showError(message) {
-    document.getElementById('loadingState').innerHTML = `
-        <div class="min-h-screen flex items-center justify-center">
-            <div class="text-center max-w-md mx-auto">
-                <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
-                </div>
-                <h2 class="text-2xl font-bold mb-4">Erreur</h2>
-                <p class="text-gray-400 mb-6">${message}</p>
-                <a href="/" class="inline-block gradient-orange px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105">
-                    <i class="fas fa-home mr-2"></i>Retour à l'accueil
-                </a>
-            </div>
-        </div>
-    `;
-}
-
-// Export pour usage global
-window.togglePlayerSelection = togglePlayerSelection;
-window.handlePlayerClick = handlePlayerClick;
-window.toggleCompareMode = toggleCompareMode;
-
-console.log('🎮 Script de la page match chargé avec succès!');
+console.log('🎮 Script d\'analyse de match chargé avec succès');

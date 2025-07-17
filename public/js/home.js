@@ -36,7 +36,7 @@ function setupSearchEventListeners() {
         });
     }
 
-    // Recherche de match
+    // Recherche de match - MISE À JOUR
     const matchSearchButton = document.getElementById('matchSearchButton');
     const matchSearchInput = document.getElementById('matchSearchInput');
     
@@ -155,22 +155,31 @@ async function searchMatch(matchInput) {
     button.disabled = true;
     
     try {
-        console.log(`🔍 Recherche du match: ${matchInput}`);
+        console.log(`🎮 Recherche du match: ${matchInput}`);
         
-        // Extraction de l'ID du match
-        let matchId = faceitService.extractMatchId(matchInput);
-        console.log(`📝 ID du match extrait: ${matchId}`);
+        // Test de validation de l'URL/ID avant l'appel API
+        const validationResult = faceitService.testMatchUrl(matchInput);
+        if (!validationResult.valid) {
+            throw new Error(`Format invalide: ${validationResult.error}`);
+        }
         
-        // Vérifier si le match existe
-        const match = await faceitService.getMatch(matchId);
-        console.log('✅ Match trouvé:', match);
+        console.log(`📝 ID du match validé: ${validationResult.extractedId}`);
+        
+        // Vérifier si le match existe via l'API
+        const searchResult = await faceitService.searchMatch(matchInput);
+        console.log('✅ Match trouvé:', searchResult);
+        
+        if (!searchResult.found) {
+            throw new Error('Match non trouvé');
+        }
         
         // Sauvegarder dans l'historique
-        saveMatchSearch(match);
+        saveMatchSearch(searchResult.match);
         
         // Redirection vers la page d'analyse de match
-        console.log(`🚀 Redirection vers: /match?matchId=${matchId}`);
-        window.location.href = `/match?matchId=${matchId}`;
+        const cleanMatchId = searchResult.match_id;
+        console.log(`🚀 Redirection vers: /match?matchId=${cleanMatchId}`);
+        window.location.href = `/match?matchId=${encodeURIComponent(cleanMatchId)}`;
         
     } catch (error) {
         console.error('❌ Erreur lors de la recherche de match:', error);
@@ -183,6 +192,8 @@ async function searchMatch(matchInput) {
             errorMessage = "Trop de requêtes. Veuillez patienter un moment.";
         } else if (error.message.includes('403')) {
             errorMessage = "Accès interdit. Problème avec la clé API.";
+        } else if (error.message.includes('Format invalide')) {
+            errorMessage = "Format d'ID ou d'URL de match invalide. Exemples valides:\n• 1-73d82823-9d7b-477a-88c4-5ba16045f051\n• https://www.faceit.com/fr/cs2/room/1-73d82823-9d7b-477a-88c4-5ba16045f051";
         } else {
             errorMessage += " Vérifiez l'ID ou l'URL.";
         }
@@ -258,11 +269,13 @@ function showError(message) {
     errorElement.className = 'bg-red-500/20 border border-red-500/50 rounded-xl p-4 backdrop-blur-sm animate-fade-in';
     errorElement.innerHTML = `
         <div class="flex items-center justify-between">
-            <div class="flex items-center">
-                <i class="fas fa-exclamation-triangle text-red-400 mr-3"></i>
-                <span class="text-red-200">${message}</span>
+            <div class="flex items-start">
+                <i class="fas fa-exclamation-triangle text-red-400 mr-3 mt-1"></i>
+                <div>
+                    <span class="text-red-200">${message.replace(/\n/g, '<br>')}</span>
+                </div>
             </div>
-            <button onclick="clearError()" class="text-red-400 hover:text-red-300 ml-4">
+            <button onclick="clearError()" class="text-red-400 hover:text-red-300 ml-4 flex-shrink-0">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -270,10 +283,11 @@ function showError(message) {
     
     errorContainer.appendChild(errorElement);
     
-    // Auto-hide après 8 secondes
+    // Auto-hide après 10 secondes pour les erreurs de format
+    const hideDelay = message.includes('Format') ? 12000 : 8000;
     setTimeout(() => {
         clearError();
-    }, 8000);
+    }, hideDelay);
     
     console.error('❌ Erreur affichée:', message);
 }
@@ -285,9 +299,23 @@ function clearError() {
     }
 }
 
+// Fonction d'aide pour les exemples d'URLs
+function showMatchExamples() {
+    const examples = [
+        '1-73d82823-9d7b-477a-88c4-5ba16045f051',
+        'https://www.faceit.com/fr/cs2/room/1-73d82823-9d7b-477a-88c4-5ba16045f051',
+        'https://faceit.com/en/match/73d82823-9d7b-477a-88c4-5ba16045f051'
+    ];
+    
+    const exampleText = examples.join('\n');
+    
+    showError(`Formats d'ID/URL de match acceptés:\n\n${exampleText}`);
+}
+
 // Export pour usage global
 window.searchPlayer = searchPlayer;
 window.searchMatch = searchMatch;
 window.clearError = clearError;
+window.showMatchExamples = showMatchExamples;
 
-console.log('🏠 Script de la page d\'accueil chargé avec succès');
+console.log('🏠 Script de la page d\'accueil mis à jour avec succès');
