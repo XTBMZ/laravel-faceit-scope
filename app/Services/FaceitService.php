@@ -527,4 +527,57 @@ class FaceitService
             throw $e;
         }
     }
+
+    
+// ===============================================
+    // MÉTHODES UTILITAIRES POUR LES MATCHES
+    // ===============================================
+
+    /**
+     * Extrait l'ID d'un match à partir d'une URL ou d'un ID FACEIT
+     */
+    public function extractMatchId($input)
+    {
+        if (!$input) {
+            throw new \InvalidArgumentException('Input vide pour l\'extraction de l\'ID de match');
+        }
+
+        $input = trim($input);
+
+        // Si c'est déjà un ID de match (format UUID)
+        if (preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i', $input)) {
+            return $input;
+        }
+
+        // Si c'est une URL FACEIT
+        if (strpos($input, 'faceit.com') !== false) {
+            // Différents formats d'URL FACEIT
+            $patterns = [
+                '/\/match\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i',
+                '/\/room\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i',
+                '/\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i'
+            ];
+
+            foreach ($patterns as $pattern) {
+                if (preg_match($pattern, $input, $matches)) {
+                    return $matches[1];
+                }
+            }
+        }
+
+        // Si c'est un ID court ou autre format, on essaie quand même
+        if (strlen($input) === 36 && substr_count($input, '-') === 4) {
+            return $input;
+        }
+
+        throw new \InvalidArgumentException('Format d\'ID ou d\'URL de match non reconnu: ' . $input);
+    }
+
+    /**
+     * Valide si un ID de match est au bon format
+     */
+    public function isValidMatchId($matchId)
+    {
+        return preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i', $matchId);
+    }
 }

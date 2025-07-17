@@ -52,10 +52,13 @@ class PlayerController extends Controller
         }
     }
 
+
     public function getMatch($matchId)
     {
         try {
-            $match = $this->faceitService->getMatch($matchId);
+            // Extraire l'ID du match si c'est une URL
+            $cleanMatchId = $this->faceitService->extractMatchId($matchId);
+            $match = $this->faceitService->getMatch($cleanMatchId);
             return response()->json($match);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 404);

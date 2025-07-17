@@ -32,8 +32,9 @@ Route::prefix('api')->group(function () {
     Route::get('/match/{matchId}', [PlayerController::class, 'getMatch'])->name('api.match.get');
     
     // Nouvelles routes pour l'analyse de match
-    Route::get('/match/{matchId}/analysis', [MatchController::class, 'getMatchAnalysis'])->name('api.match.analysis');
-    Route::post('/match/compare-players', [MatchController::class, 'compareMatchPlayers'])->name('api.match.compare');
+    Route::get('/match/{matchId}', [PlayerController::class, 'getMatch']);
+    Route::get('/match/{matchId}/data', [MatchController::class, 'getMatchData']);
+    Route::get('/match/{matchId}/stats', [MatchController::class, 'getMatchStats']);
     
     // Routes pour la comparaison
     Route::post('/compare', [ComparisonController::class, 'compare'])->name('api.compare');
