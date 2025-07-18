@@ -25,6 +25,13 @@ Route::get('/leaderboards', [LeaderboardController::class, 'index'])->name('lead
 Route::get('/tournaments', [TournamentController::class, 'index'])->name('tournaments');
 Route::get('/match', [MatchController::class, 'index'])->name('match');
 
+Route::middleware('faceit.auth')->group(function () {
+    // Page des amis
+    Route::get('/friends', [FriendsController::class, 'index'])->name('friends');
+});
+
+
+
 // Routes d'authentification FACEIT
 Route::prefix('auth/faceit')->name('auth.faceit.')->group(function () {
     // Redirection vers FACEIT
@@ -40,8 +47,6 @@ Route::prefix('auth/faceit')->name('auth.faceit.')->group(function () {
     // Popup de connexion (pour JavaScript)
     Route::get('/popup', [FaceitAuthController::class, 'loginPopup'])->name('popup');
     Route::get('/popup/callback', [FaceitAuthController::class, 'popupCallback'])->name('popup.callback');
-    Route::get('/friends', [FriendsController::class, 'index'])->name('friends');
-
 });
 
 // Routes de profil et amis (nécessitent une authentification)
@@ -88,13 +93,14 @@ Route::prefix('api')->group(function () {
         });
     });
 
+    // Récupérer la liste des amis
     Route::get('/friends', [FriendsController::class, 'getFriends'])->name('api.friends.list');
     
-    // Rechercher dans les amis
-    Route::get('/friends/search', [FriendsController::class, 'searchFriends'])->name('api.friends.search');
+    // Récupérer les statistiques des amis
+    Route::get('/friends/stats', [FriendsController::class, 'getFriendsStats'])->name('api.friends.stats');
     
-    // Comparer avec un ami
-    Route::get('/friends/{friendId}/compare', [FriendsController::class, 'compareFriend'])->name('api.friends.compare');
+    // Comparer avec les amis
+    Route::get('/friends/compare', [FriendsController::class, 'compareWithFriends'])->name('api.friends.compare');
 
 });
 

@@ -3,404 +3,220 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\FaceitOAuthService;
 use App\Services\FaceitService;
-use Illuminate\Support\Facades\Log;
+use App\Services\FaceitOAuthService;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class FriendsController extends Controller
 {
-    protected $faceitOAuth;
     protected $faceitService;
+    protected $faceitOAuth;
 
-    public function __construct(FaceitOAuthService $faceitOAuth, FaceitService $faceitService)
+    public function __construct(FaceitService $faceitService, FaceitOAuthService $faceitOAuth)
     {
-        $this->faceitOAuth = $faceitOAuth;
         $this->faceitService = $faceitService;
+        $this->faceitOAuth = $faceitOAuth;
+        $this->middleware('faceit.auth');
     }
 
     /**
-     * Page principale des amis
+     * Affiche la page des amis
      */
     public function index()
     {
-        if (!$this->faceitOAuth->isAuthenticated()) {
-            return redirect()->route('auth.faceit.login')
-                ->with('error', 'Vous devez être connecté pour voir vos amis FACEIT');
-        }
-
         return view('friends');
     }
 
     /**
-     * API: Récupère la liste des amis du joueur connecté
+     * API - Récupère la liste des amis du joueur connecté
      */
     public function getFriends(Request $request)
     {
         try {
             $user = $this->faceitOAuth->getAuthenticatedUser();
             
-            if (!$user) {
+            if (!$user || !isset($user['player_data'])) {
                 return response()->json([
                     'success' => false,
-                    'error' => 'Non authentifié'
-                ], 401);
+                    'error' => 'Données utilisateur non disponibles'
+                ], 400);
             }
 
-            $playerId = $user['id'];
+            $playerId = $user['player_data']['player_id'];
             $cacheKey = "friends_list_{$playerId}";
             
-            // Cache de 10 minutes pour éviter les appels répétés
-            $friendsData = Cache::remember($cacheKey, 600, function () use ($playerId) {
-                return $this->fetchFriendsData($playerId);
-            });
+            // Vérifier le cache (2 minutes)
+            if (!$request->has('_refresh')) {
+                $cachedFriends = Cache::get($cacheKey);
+                if ($cachedFriends) {
+                    return response()->json([
+                        'success' => true,
+                        'friends' => $cachedFriends,
+                        'cached' => true
+                    ]);
+                }
+            }
 
-            return response()->json([
-                'success' => true,
-                'friends' => $friendsData['friends'],
-                'stats' => $friendsData['stats'],
-                'cached' => Cache::has($cacheKey)
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Erreur récupération amis:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'error' => 'Erreur lors de la récupération des amis'
-            ], 500);
-        }
-    }
-
-    /**
-     * Récupère les données des amis avec traitement par batch
-     */
-    private function fetchFriendsData($playerId)
-    {
-        try {
-            // 1. Récupérer les données du joueur principal
+            // Récupérer les données du joueur pour avoir la liste d'amis
             $playerData = $this->faceitService->getPlayer($playerId);
             
             if (!$playerData || !isset($playerData['friends_ids'])) {
-                return [
+                return response()->json([
+                    'success' => true,
                     'friends' => [],
-                    'stats' => [
-                        'total' => 0,
-                        'online' => 0,
-                        'cs2_players' => 0,
-                        'average_level' => 0
-                    ]
-                ];
+                    'message' => 'Aucun ami trouvé'
+                ]);
             }
 
             $friendIds = $playerData['friends_ids'];
             
             if (empty($friendIds)) {
-                return [
+                return response()->json([
+                    'success' => true,
                     'friends' => [],
-                    'stats' => [
-                        'total' => 0,
-                        'online' => 0,
-                        'cs2_players' => 0,
-                        'average_level' => 0
-                    ]
-                ];
+                    'message' => 'Aucun ami trouvé'
+                ]);
             }
 
-            // 2. Traitement par batch pour éviter de surcharger l'API
-            $friends = [];
-            $batchSize = 5; // Traiter 5 amis à la fois
-            $batches = array_chunk($friendIds, $batchSize);
+            // Récupérer les détails des amis (optimisé)
+            $friends = $this->fetchFriendsDetails($friendIds);
             
-            foreach ($batches as $batch) {
-                $batchFriends = $this->processFriendsBatch($batch);
-                $friends = array_merge($friends, $batchFriends);
-                
-                // Petite pause entre les batches pour respecter les rate limits
-                usleep(100000); // 100ms
-            }
+            // Mettre en cache
+            Cache::put($cacheKey, $friends, 120); // 2 minutes
 
-            // 3. Trier les amis par statut et niveau
-            $friends = $this->sortFriends($friends);
-
-            // 4. Calculer les statistiques
-            $stats = $this->calculateFriendsStats($friends);
-
-            return [
+            return response()->json([
+                'success' => true,
                 'friends' => $friends,
-                'stats' => $stats
-            ];
+                'cached' => false
+            ]);
 
         } catch (\Exception $e) {
-            Log::error('Erreur fetchFriendsData:', [
-                'error' => $e->getMessage(),
-                'player_id' => $playerId
-            ]);
+            Log::error('Erreur lors de la récupération des amis: ' . $e->getMessage());
             
-            return [
-                'friends' => [],
-                'stats' => [
-                    'total' => 0,
-                    'online' => 0,
-                    'cs2_players' => 0,
-                    'average_level' => 0
-                ]
-            ];
+            return response()->json([
+                'success' => false,
+                'error' => 'Erreur lors du chargement des amis'
+            ], 500);
         }
     }
 
     /**
-     * Traite un batch d'amis
+     * API - Récupère les statistiques rapides des amis
      */
-    private function processFriendsBatch($friendIds)
-    {
-        $friends = [];
-        
-        foreach ($friendIds as $friendId) {
-            try {
-                // Récupérer les données de l'ami
-                $friendData = $this->faceitService->getPlayer($friendId);
-                
-                if (!$friendData) {
-                    continue;
-                }
-
-                // Enrichir avec des données calculées
-                $enrichedFriend = $this->enrichFriendData($friendData);
-                $friends[] = $enrichedFriend;
-
-            } catch (\Exception $e) {
-                Log::warning('Erreur récupération ami:', [
-                    'friend_id' => $friendId,
-                    'error' => $e->getMessage()
-                ]);
-                continue;
-            }
-        }
-
-        return $friends;
-    }
-
-    /**
-     * Enrichit les données d'un ami
-     */
-    private function enrichFriendData($friendData)
-    {
-        $cs2Game = $friendData['games']['cs2'] ?? null;
-        $csgoGame = $friendData['games']['csgo'] ?? null;
-        $primaryGame = $cs2Game ?: $csgoGame;
-
-        // Calculer le statut d'activité (basé sur la date d'activation)
-        $lastSeen = $this->calculateLastSeen($friendData);
-        $isOnline = $this->isPlayerOnline($friendData);
-
-        return [
-            'player_id' => $friendData['player_id'],
-            'nickname' => $friendData['nickname'],
-            'avatar' => $friendData['avatar'] ?? null,
-            'country' => $friendData['country'] ?? null,
-            'verified' => $friendData['verified'] ?? false,
-            'membership_type' => $friendData['membership_type'] ?? 'free',
-            'faceit_url' => $friendData['faceit_url'] ?? null,
-            
-            // Données de jeu
-            'has_cs2' => $cs2Game !== null,
-            'has_csgo' => $csgoGame !== null,
-            'level' => $primaryGame['skill_level'] ?? 0,
-            'elo' => $primaryGame['faceit_elo'] ?? 0,
-            'region' => $primaryGame['region'] ?? 'EU',
-            
-            // Statut
-            'is_online' => $isOnline,
-            'last_seen' => $lastSeen,
-            'status_text' => $this->getStatusText($isOnline, $lastSeen),
-            
-            // Métadonnées
-            'enriched_at' => time(),
-            'game_priority' => $cs2Game ? 'cs2' : ($csgoGame ? 'csgo' : 'none')
-        ];
-    }
-
-    /**
-     * Calcule la dernière fois vu (approximation)
-     */
-    private function calculateLastSeen($playerData)
-    {
-        // FACEIT ne fournit pas de données de "dernière connexion" précises
-        // On utilise la date d'activation comme approximation
-        $activatedAt = $playerData['activated_at'] ?? null;
-        
-        if ($activatedAt) {
-            return strtotime($activatedAt);
-        }
-        
-        return null;
-    }
-
-    /**
-     * Détermine si un joueur est "en ligne" (heuristique)
-     */
-    private function isPlayerOnline($playerData)
-    {
-        // Logique simple : considérer comme "en ligne" si le compte est vérifié
-        // et a une activité récente (heuristique basée sur les données disponibles)
-        $verified = $playerData['verified'] ?? false;
-        $hasPremium = in_array($playerData['membership_type'] ?? 'free', ['premium', 'unlimited']);
-        
-        // Approximation basée sur le statut du compte
-        return $verified && $hasPremium;
-    }
-
-    /**
-     * Génère le texte de statut
-     */
-    private function getStatusText($isOnline, $lastSeen)
-    {
-        if ($isOnline) {
-            return 'En ligne';
-        }
-        
-        if ($lastSeen) {
-            $now = time();
-            $diff = $now - $lastSeen;
-            
-            if ($diff < 3600) { // 1 heure
-                return 'Il y a ' . round($diff / 60) . ' min';
-            } elseif ($diff < 86400) { // 24 heures
-                return 'Il y a ' . round($diff / 3600) . 'h';
-            } elseif ($diff < 604800) { // 7 jours
-                return 'Il y a ' . round($diff / 86400) . 'j';
-            } else {
-                return 'Inactif';
-            }
-        }
-        
-        return 'Hors ligne';
-    }
-
-    /**
-     * Trie la liste des amis
-     */
-    private function sortFriends($friends)
-    {
-        usort($friends, function($a, $b) {
-            // 1. En ligne d'abord
-            if ($a['is_online'] !== $b['is_online']) {
-                return $b['is_online'] <=> $a['is_online'];
-            }
-            
-            // 2. Joueurs CS2 d'abord
-            if ($a['has_cs2'] !== $b['has_cs2']) {
-                return $b['has_cs2'] <=> $a['has_cs2'];
-            }
-            
-            // 3. Par niveau descendant
-            if ($a['level'] !== $b['level']) {
-                return $b['level'] <=> $a['level'];
-            }
-            
-            // 4. Par ELO descendant
-            return $b['elo'] <=> $a['elo'];
-        });
-        
-        return $friends;
-    }
-
-    /**
-     * Calcule les statistiques des amis
-     */
-    private function calculateFriendsStats($friends)
-    {
-        $total = count($friends);
-        $online = 0;
-        $cs2Players = 0;
-        $totalLevel = 0;
-        $levelCount = 0;
-        
-        foreach ($friends as $friend) {
-            if ($friend['is_online']) {
-                $online++;
-            }
-            
-            if ($friend['has_cs2']) {
-                $cs2Players++;
-            }
-            
-            if ($friend['level'] > 0) {
-                $totalLevel += $friend['level'];
-                $levelCount++;
-            }
-        }
-        
-        return [
-            'total' => $total,
-            'online' => $online,
-            'cs2_players' => $cs2Players,
-            'average_level' => $levelCount > 0 ? round($totalLevel / $levelCount, 1) : 0,
-            'regions' => $this->getRegionDistribution($friends),
-            'membership_types' => $this->getMembershipDistribution($friends)
-        ];
-    }
-
-    /**
-     * Distribution par région
-     */
-    private function getRegionDistribution($friends)
-    {
-        $regions = [];
-        
-        foreach ($friends as $friend) {
-            $region = $friend['region'];
-            $regions[$region] = ($regions[$region] ?? 0) + 1;
-        }
-        
-        arsort($regions);
-        return $regions;
-    }
-
-    /**
-     * Distribution par type de membership
-     */
-    private function getMembershipDistribution($friends)
-    {
-        $memberships = [];
-        
-        foreach ($friends as $friend) {
-            $type = $friend['membership_type'];
-            $memberships[$type] = ($memberships[$type] ?? 0) + 1;
-        }
-        
-        return $memberships;
-    }
-
-    /**
-     * API: Compare avec un ami
-     */
-    public function compareFriend(Request $request, $friendId)
+    public function getFriendsStats(Request $request)
     {
         try {
             $user = $this->faceitOAuth->getAuthenticatedUser();
             
-            if (!$user) {
+            if (!$user || !isset($user['player_data'])) {
                 return response()->json([
                     'success' => false,
-                    'error' => 'Non authentifié'
-                ], 401);
+                    'error' => 'Données utilisateur non disponibles'
+                ], 400);
             }
 
-            $userNickname = $user['nickname'];
-            $friendData = $this->faceitService->getPlayer($friendId);
-            $friendNickname = $friendData['nickname'];
+            $playerId = $user['player_data']['player_id'];
+            $cacheKey = "friends_stats_{$playerId}";
+            
+            // Vérifier le cache (5 minutes)
+            if (!$request->has('_refresh')) {
+                $cachedStats = Cache::get($cacheKey);
+                if ($cachedStats) {
+                    return response()->json([
+                        'success' => true,
+                        'stats' => $cachedStats,
+                        'cached' => true
+                    ]);
+                }
+            }
+
+            // Récupérer les amis
+            $friendsResponse = $this->getFriends($request);
+            $friendsData = $friendsResponse->getData(true);
+            
+            if (!$friendsData['success']) {
+                return $friendsResponse;
+            }
+
+            $friends = $friendsData['friends'];
+            $stats = $this->calculateFriendsStats($friends);
+            
+            // Mettre en cache
+            Cache::put($cacheKey, $stats, 300); // 5 minutes
 
             return response()->json([
                 'success' => true,
-                'redirect_url' => "/comparison?player1=" . urlencode($userNickname) . "&player2=" . urlencode($friendNickname)
+                'stats' => $stats,
+                'cached' => false
             ]);
 
         } catch (\Exception $e) {
+            Log::error('Erreur lors de la récupération des stats amis: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'error' => 'Erreur lors du chargement des statistiques'
+            ], 500);
+        }
+    }
+
+    /**
+     * API - Compare le joueur avec ses amis
+     */
+    public function compareWithFriends(Request $request)
+    {
+        try {
+            $user = $this->faceitOAuth->getAuthenticatedUser();
+            
+            if (!$user || !isset($user['player_data'])) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Données utilisateur non disponibles'
+                ], 400);
+            }
+
+            $playerId = $user['player_data']['player_id'];
+            $cacheKey = "friends_comparison_{$playerId}";
+            
+            // Vérifier le cache (10 minutes)
+            if (!$request->has('_refresh')) {
+                $cachedComparison = Cache::get($cacheKey);
+                if ($cachedComparison) {
+                    return response()->json([
+                        'success' => true,
+                        'comparison' => $cachedComparison,
+                        'cached' => true
+                    ]);
+                }
+            }
+
+            // Récupérer les données du joueur
+            $playerStats = $this->faceitService->getPlayerStats($playerId);
+            
+            // Récupérer les amis
+            $friendsResponse = $this->getFriends($request);
+            $friendsData = $friendsResponse->getData(true);
+            
+            if (!$friendsData['success']) {
+                return $friendsResponse;
+            }
+
+            $friends = $friendsData['friends'];
+            $comparison = $this->generateFriendsComparison($playerStats, $friends);
+            
+            // Mettre en cache
+            Cache::put($cacheKey, $comparison, 600); // 10 minutes
+
+            return response()->json([
+                'success' => true,
+                'comparison' => $comparison,
+                'cached' => false
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la comparaison avec les amis: ' . $e->getMessage());
+            
             return response()->json([
                 'success' => false,
                 'error' => 'Erreur lors de la comparaison'
@@ -409,77 +225,230 @@ class FriendsController extends Controller
     }
 
     /**
-     * API: Recherche d'amis
+     * Récupère les détails des amis de manière optimisée
      */
-    public function searchFriends(Request $request)
+    private function fetchFriendsDetails(array $friendIds)
     {
-        try {
-            $user = $this->faceitOAuth->getAuthenticatedUser();
+        $friends = [];
+        $batchSize = 10; // Traiter par lots pour éviter la surcharge
+        
+        // Limiter le nombre d'amis pour éviter les timeouts
+        $friendIds = array_slice($friendIds, 0, 50);
+        
+        foreach (array_chunk($friendIds, $batchSize) as $batch) {
+            $batchPromises = [];
             
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Non authentifié'
-                ], 401);
-            }
-
-            $query = $request->get('query', '');
-            $filter = $request->get('filter', 'all'); // all, online, cs2, high_level
-            
-            $playerId = $user['id'];
-            $cacheKey = "friends_list_{$playerId}";
-            
-            $friendsData = Cache::get($cacheKey);
-            
-            if (!$friendsData) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Données non disponibles, veuillez rafraîchir'
-                ], 404);
-            }
-
-            $friends = $friendsData['friends'];
-            
-            // Filtrage par recherche
-            if (!empty($query)) {
-                $friends = array_filter($friends, function($friend) use ($query) {
-                    return stripos($friend['nickname'], $query) !== false ||
-                           stripos($friend['country'], $query) !== false;
-                });
-            }
-            
-            // Filtrage par type
-            switch ($filter) {
-                case 'online':
-                    $friends = array_filter($friends, function($friend) {
-                        return $friend['is_online'];
-                    });
-                    break;
+            foreach ($batch as $friendId) {
+                try {
+                    $friend = $this->faceitService->getPlayer($friendId);
                     
-                case 'cs2':
-                    $friends = array_filter($friends, function($friend) {
-                        return $friend['has_cs2'];
-                    });
-                    break;
-                    
-                case 'high_level':
-                    $friends = array_filter($friends, function($friend) {
-                        return $friend['level'] >= 7;
-                    });
-                    break;
+                    if ($friend && isset($friend['games']['cs2'])) {
+                        $friends[] = [
+                            'player_id' => $friend['player_id'],
+                            'nickname' => $friend['nickname'],
+                            'avatar' => $friend['avatar'],
+                            'country' => $friend['country'],
+                            'level' => $friend['games']['cs2']['skill_level'] ?? 1,
+                            'elo' => $friend['games']['cs2']['faceit_elo'] ?? 1000,
+                            'region' => $friend['games']['cs2']['region'] ?? 'EU',
+                            'faceit_url' => $friend['faceit_url'] ?? null,
+                            'verified' => $friend['verified'] ?? false,
+                            'last_seen' => $this->calculateLastSeen($friend),
+                            'game_data' => $friend['games']['cs2']
+                        ];
+                    }
+                } catch (\Exception $e) {
+                    Log::warning("Erreur lors de la récupération de l'ami {$friendId}: " . $e->getMessage());
+                    continue;
+                }
             }
-
-            return response()->json([
-                'success' => true,
-                'friends' => array_values($friends),
-                'total' => count($friends)
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => 'Erreur lors de la recherche'
-            ], 500);
+            
+            // Petite pause entre les lots
+            if (count($batch) === $batchSize) {
+                usleep(100000); // 100ms
+            }
         }
+        
+        // Trier par ELO descendant
+        usort($friends, function($a, $b) {
+            return $b['elo'] - $a['elo'];
+        });
+        
+        return $friends;
+    }
+
+    /**
+     * Calcule les statistiques des amis
+     */
+    private function calculateFriendsStats(array $friends)
+    {
+        if (empty($friends)) {
+            return [
+                'total_friends' => 0,
+                'average_elo' => 0,
+                'average_level' => 0,
+                'highest_elo' => 0,
+                'lowest_elo' => 0,
+                'level_distribution' => [],
+                'country_distribution' => [],
+                'region_distribution' => []
+            ];
+        }
+
+        $totalFriends = count($friends);
+        $totalElo = array_sum(array_column($friends, 'elo'));
+        $totalLevel = array_sum(array_column($friends, 'level'));
+        
+        $levelDistribution = [];
+        $countryDistribution = [];
+        $regionDistribution = [];
+        
+        foreach ($friends as $friend) {
+            // Distribution par niveau
+            $level = $friend['level'];
+            if (!isset($levelDistribution[$level])) {
+                $levelDistribution[$level] = 0;
+            }
+            $levelDistribution[$level]++;
+            
+            // Distribution par pays
+            $country = $friend['country'] ?? 'Unknown';
+            if (!isset($countryDistribution[$country])) {
+                $countryDistribution[$country] = 0;
+            }
+            $countryDistribution[$country]++;
+            
+            // Distribution par région
+            $region = $friend['region'] ?? 'Unknown';
+            if (!isset($regionDistribution[$region])) {
+                $regionDistribution[$region] = 0;
+            }
+            $regionDistribution[$region]++;
+        }
+        
+        // Trier les distributions
+        arsort($levelDistribution);
+        arsort($countryDistribution);
+        arsort($regionDistribution);
+        
+        return [
+            'total_friends' => $totalFriends,
+            'average_elo' => round($totalElo / $totalFriends),
+            'average_level' => round($totalLevel / $totalFriends, 1),
+            'highest_elo' => max(array_column($friends, 'elo')),
+            'lowest_elo' => min(array_column($friends, 'elo')),
+            'level_distribution' => $levelDistribution,
+            'country_distribution' => array_slice($countryDistribution, 0, 5, true),
+            'region_distribution' => $regionDistribution
+        ];
+    }
+
+    /**
+     * Génère une comparaison avec les amis
+     */
+    private function generateFriendsComparison(array $playerStats, array $friends)
+    {
+        $playerElo = 1000; // Valeur par défaut
+        $playerLevel = 1;
+        $playerWinRate = 0;
+        $playerKD = 0;
+        
+        // Extraire les stats du joueur
+        if (isset($playerStats['lifetime'])) {
+            $playerWinRate = floatval($playerStats['lifetime']['Win Rate %'] ?? 0);
+            $playerKD = floatval($playerStats['lifetime']['Average K/D Ratio'] ?? 0);
+        }
+        
+        // Comparaisons
+        $betterThanCount = 0;
+        $sameEloCount = 0;
+        $worseThanCount = 0;
+        
+        foreach ($friends as $friend) {
+            if ($friend['elo'] < $playerElo) {
+                $betterThanCount++;
+            } elseif ($friend['elo'] === $playerElo) {
+                $sameEloCount++;
+            } else {
+                $worseThanCount++;
+            }
+        }
+        
+        $totalFriends = count($friends);
+        $ranking = $betterThanCount + 1;
+        
+        return [
+            'player_ranking' => $ranking,
+            'total_friends' => $totalFriends,
+            'better_than_percentage' => $totalFriends > 0 ? round(($betterThanCount / $totalFriends) * 100, 1) : 0,
+            'top_friends' => array_slice($friends, 0, 3),
+            'closest_friends' => $this->findClosestFriends($friends, $playerElo, 3),
+            'improvement_potential' => $this->calculateImprovementPotential($playerStats, $friends)
+        ];
+    }
+
+    /**
+     * Trouve les amis les plus proches en terme d'ELO
+     */
+    private function findClosestFriends(array $friends, int $playerElo, int $limit = 3)
+    {
+        $friendsWithDistance = array_map(function($friend) use ($playerElo) {
+            $friend['elo_distance'] = abs($friend['elo'] - $playerElo);
+            return $friend;
+        }, $friends);
+        
+        usort($friendsWithDistance, function($a, $b) {
+            return $a['elo_distance'] - $b['elo_distance'];
+        });
+        
+        return array_slice($friendsWithDistance, 0, $limit);
+    }
+
+    /**
+     * Calcule le potentiel d'amélioration
+     */
+    private function calculateImprovementPotential(array $playerStats, array $friends)
+    {
+        $averageElo = array_sum(array_column($friends, 'elo')) / count($friends);
+        $maxElo = max(array_column($friends, 'elo'));
+        
+        return [
+            'average_gap' => max(0, $averageElo - 1000),
+            'max_gap' => max(0, $maxElo - 1000),
+            'next_target' => $this->findNextTarget($friends, 1000)
+        ];
+    }
+
+    /**
+     * Trouve le prochain objectif d'ELO
+     */
+    private function findNextTarget(array $friends, int $playerElo)
+    {
+        $higherEloFriends = array_filter($friends, function($friend) use ($playerElo) {
+            return $friend['elo'] > $playerElo;
+        });
+        
+        if (empty($higherEloFriends)) {
+            return null;
+        }
+        
+        usort($higherEloFriends, function($a, $b) {
+            return $a['elo'] - $b['elo'];
+        });
+        
+        return $higherEloFriends[0];
+    }
+
+    /**
+     * Calcule la dernière activité approximative
+     */
+    private function calculateLastSeen(array $player)
+    {
+        // Utiliser la date d'activation comme approximation
+        if (isset($player['activated_at'])) {
+            return $player['activated_at'];
+        }
+        
+        return null;
     }
 }
