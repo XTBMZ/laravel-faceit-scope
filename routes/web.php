@@ -75,10 +75,7 @@ Route::prefix('api')->group(function () {
     Route::post('/compare', [ComparisonController::class, 'compare'])->name('api.compare');
     
     // Routes pour les classements
-    Route::get('/leaderboard', [LeaderboardController::class, 'getLeaderboard'])->name('api.leaderboard');
-    Route::get('/leaderboard/search-player', [LeaderboardController::class, 'searchPlayer'])->name('api.leaderboard.search');
     Route::get('/leaderboard/top-players', [LeaderboardController::class, 'getTopPlayers'])->name('api.leaderboard.top');
-    Route::get('/leaderboard/region-stats', [LeaderboardController::class, 'getRegionStats'])->name('api.leaderboard.stats');
     
     // Routes pour les championnats FACEIT
     Route::prefix('tournaments')->group(function () {
