@@ -146,6 +146,160 @@
         .stat-card:hover .clickable-indicator {
             opacity: 1;
         }
+
+        /* Styles pour l'avatar utilisateur */
+        .user-avatar {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .user-avatar::after {
+            content: '';
+            position: absolute;
+            -bottom-1 -right-1;
+            width: 12px;
+            height: 12px;
+            background: #10b981;
+            border: 2px solid #0f0f0f;
+            border-radius: 50%;
+        }
+
+        .auth-button {
+            transition: all 0.3s ease;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(255, 85, 0, 0.3);
+        }
+        
+        /* Alignement parfait de la navigation */
+        .nav-container {
+            display: flex;
+            align-items: center;
+            height: 64px; /* h-16 = 64px */
+        }
+        
+        /* Assurer que tous les éléments de navigation ont la même hauteur */
+        .nav-link, .auth-button, .user-section {
+            height: 40px; /* h-10 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Bouton de connexion aligné */
+        #faceitLogin, #authSection button {
+            height: 40px !important;
+            min-height: 40px;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 8px 16px;
+        }
+        
+        /* Section utilisateur connecté alignée */
+        #authSection {
+            height: 40px;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Avatar utilisateur aligné */
+        .user-avatar-container {
+            display: flex;
+            align-items: center;
+            height: 40px;
+        }
+        
+        /* Menu déroulant positionné correctement */
+        .user-dropdown {
+            top: 100%;
+            margin-top: 8px;
+            z-index: 50;
+        }
+        
+        /* Links de navigation alignés */
+        nav a {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+        }
+        
+        /* Mobile menu aligné */
+        #mobileAuthSection {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        /* Séparateur vertical aligné */
+        .nav-separator {
+            height: 24px;
+            width: 1px;
+            background-color: rgba(75, 85, 99, 1); /* gray-600 */
+            margin: 0 8px;
+        }
+        
+        /* Animation smooth pour les transitions */
+        .auth-transition {
+            transition: all 0.3s ease;
+        }
+        
+        /* Responsive fixes */
+        @media (max-width: 768px) {
+            .nav-container {
+                height: auto;
+                min-height: 64px;
+            }
+            
+            #authSection, .user-section {
+                height: auto;
+            }
+        }
+        
+        /* Fixes spécifiques pour l'alignement vertical */
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .h-nav {
+            height: 40px;
+        }
+        
+        /* Animation hover pour l'avatar */
+        .user-avatar {
+            transition: all 0.3s ease;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.1);
+            border-color: white;
+        }
+        
+        /* Dropdown arrow animation */
+        .dropdown-arrow {
+            transition: transform 0.2s ease;
+        }
+        
+        .dropdown-open .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+        
+        /* Notification dot pour l'avatar */
+        .online-indicator {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            background-color: #10b981; /* green-500 */
+            border: 2px solid #0f0f0f; /* faceit-dark */
+            border-radius: 50%;
+        }
     </style>
     
     @stack('styles')
@@ -165,7 +319,32 @@
     <!-- Scripts JavaScript -->
     <script src="{{ asset('js/faceit-service.js') }}"></script>
     <script src="{{ asset('js/common.js') }}"></script>
+    <script src="{{ asset('js/faceit-auth.js') }}"></script>
     
     @stack('scripts')
+
+    <script>
+        // Initialisation générale après chargement complet
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Application initialisée');
+            
+            // Afficher les messages flash de session
+            @if(session('success'))
+                showNotification("{{ session('success') }}", 'success');
+            @endif
+
+            @if(session('error'))
+                showNotification("{{ session('error') }}", 'error');
+            @endif
+
+            @if(session('warning'))
+                showNotification("{{ session('warning') }}", 'warning');
+            @endif
+
+            @if(session('info'))
+                showNotification("{{ session('info') }}", 'info');
+            @endif
+        });
+    </script>
 </body>
 </html>

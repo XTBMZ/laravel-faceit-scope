@@ -7,6 +7,8 @@ use App\Http\Controllers\ComparisonController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\TournamentController;
 use App\Http\Controllers\MatchController;
+use App\Http\Controllers\Auth\FaceitAuthController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,14 +16,39 @@ use App\Http\Controllers\MatchController;
 |--------------------------------------------------------------------------
 */
 
+// Routes publiques
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/advanced', [PlayerController::class, 'advanced'])->name('advanced');
 Route::get('/comparison', [ComparisonController::class, 'index'])->name('comparison');
 Route::get('/leaderboards', [LeaderboardController::class, 'index'])->name('leaderboards');
 Route::get('/tournaments', [TournamentController::class, 'index'])->name('tournaments');
-
-// Route pour l'analyse de match
 Route::get('/match', [MatchController::class, 'index'])->name('match');
+
+// Routes d'authentification FACEIT
+Route::prefix('auth/faceit')->name('auth.faceit.')->group(function () {
+    // Redirection vers FACEIT
+    Route::get('/login', [FaceitAuthController::class, 'redirectToFaceit'])->name('login');
+    
+    // Callback après authentification FACEIT
+    Route::get('/callback', [FaceitAuthController::class, 'handleFaceitCallback'])->name('callback');
+    
+    // Déconnexion
+    Route::post('/logout', [FaceitAuthController::class, 'logout'])->name('logout');
+    Route::get('/logout', [FaceitAuthController::class, 'logout'])->name('logout.get');
+    
+    // Popup de connexion (pour JavaScript)
+    Route::get('/popup', [FaceitAuthController::class, 'loginPopup'])->name('popup');
+    Route::get('/popup/callback', [FaceitAuthController::class, 'popupCallback'])->name('popup.callback');
+});
+
+// Routes de profil (nécessitent une authentification)
+Route::middleware('faceit.auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/sync-faceit', [ProfileController::class, 'syncFaceitData'])->name('profile.sync');
+    Route::get('/profile/export', [ProfileController::class, 'exportData'])->name('profile.export');
+    Route::get('/profile/match-history', [ProfileController::class, 'getMatchHistory'])->name('profile.history');
+});
 
 // Routes API pour les données FACEIT
 Route::prefix('api')->group(function () {
@@ -46,28 +73,31 @@ Route::prefix('api')->group(function () {
     
     // Routes pour les championnats FACEIT
     Route::prefix('tournaments')->group(function () {
-        // API Routes basées sur l'API FACEIT officielle
         Route::prefix('api')->group(function () {
-            // Récupérer tous les championnats d'un jeu
             Route::get('/championships', [TournamentController::class, 'getChampionships'])->name('api.championships.list');
-            
-            // Récupérer les détails d'un championnat
             Route::get('/championships/{id}', [TournamentController::class, 'getChampionshipDetails'])->name('api.championships.details');
-            
-            // Récupérer tous les matches d'un championnat
             Route::get('/championships/{id}/matches', [TournamentController::class, 'getChampionshipMatches'])->name('api.championships.matches');
-            
-            // Récupérer tous les résultats d'un championnat
             Route::get('/championships/{id}/results', [TournamentController::class, 'getChampionshipResults'])->name('api.championships.results');
-            
-            // Récupérer toutes les inscriptions d'un championnat
             Route::get('/championships/{id}/subscriptions', [TournamentController::class, 'getChampionshipSubscriptions'])->name('api.championships.subscriptions');
-            
-            // Recherche de championnats
             Route::get('/championships/search', [TournamentController::class, 'searchChampionships'])->name('api.championships.search');
-            
-            // Statistiques globales
             Route::get('/stats', [TournamentController::class, 'getGlobalStats'])->name('api.championships.stats');
         });
     });
+});
+
+// API pour vérifier l'authentification
+Route::prefix('api/auth')->name('api.auth.')->group(function () {
+    Route::get('/user', [FaceitAuthController::class, 'getCurrentUser'])->name('user');
+    Route::get('/status', [FaceitAuthController::class, 'checkAuthStatus'])->name('status');
+});
+
+// Routes de test (à supprimer en production)
+Route::prefix('test')->group(function () {
+    Route::get('/auth', function () {
+        return view('test.auth');
+    })->name('test.auth');
+    
+    Route::get('/popup', function () {
+        return view('test.popup');
+    })->name('test.popup');
 });
