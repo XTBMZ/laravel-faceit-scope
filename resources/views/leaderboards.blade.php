@@ -12,7 +12,7 @@
                 Classements Globaux CS2
             </h1>
             <p class="text-xl text-gray-300 max-w-2xl mx-auto">
-                Chargement direct via API FACEIT optimisé - Données en temps réel
+                Chargement direct via API FACEIT - Données en temps réel
             </p>
             <div class="flex flex-wrap justify-center items-center gap-6 text-gray-400 mt-6">
                 <div class="flex items-center space-x-2">
@@ -189,7 +189,7 @@
                 <i class="fas fa-trophy text-faceit-orange text-2xl animate-pulse"></i>
             </div>
         </div>
-        <h2 class="text-2xl font-bold mb-4">Chargement ultra-rapide...</h2>
+        <h2 class="text-2xl font-bold mb-4">Chargement...</h2>
         <p id="loadingProgress" class="text-gray-400 animate-pulse">Connexion directe à l'API FACEIT</p>
     </div>
 
@@ -219,10 +219,6 @@
                         <div class="text-sm text-gray-400">
                             <i class="fas fa-clock mr-2"></i>
                             <span id="lastUpdated">Mis à jour maintenant</span>
-                        </div>
-                        <div class="text-sm text-green-400">
-                            <i class="fas fa-bolt mr-1"></i>
-                            <span id="loadTime">-</span>
                         </div>
                     </div>
                 </div>
@@ -324,7 +320,6 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🏆 Leaderboards ULTRA OPTIMISÉ chargé');
     setupEventListeners();
     loadLeaderboardOptimized();
 });
@@ -364,7 +359,6 @@ async function getLeaderboardBase(region, country, offset, limit) {
     const cached = leaderboardCache.get(cacheKey);
     
     if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
-        console.log('📦 Classement depuis cache');
         return cached.data;
     }
     
@@ -374,7 +368,6 @@ async function getLeaderboardBase(region, country, offset, limit) {
             endpoint += `&country=${country}`;
         }
         
-        console.log(`🌐 API FACEIT Rankings: ${endpoint}`);
         const data = await faceitApiCall(endpoint);
         
         leaderboardCache.set(cacheKey, {
@@ -398,8 +391,6 @@ async function enrichPlayersData(players) {
         return players; // Retourner les données de base si enrichissement désactivé
     }
     
-    console.log(`🚀 ENRICHISSEMENT ULTRA AGRESSIF: ${players.length} joueurs`);
-    
     // Diviser en lots pour l'enrichissement
     const batches = [];
     for (let i = 0; i < players.length; i += FACEIT_API.MAX_CONCURRENT_ENRICHMENT) {
@@ -410,8 +401,7 @@ async function enrichPlayersData(players) {
     
     for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
         const batch = batches[batchIndex];
-        console.log(`⚡ Enrichissement lot ${batchIndex + 1}/${batches.length} (${batch.length} joueurs)`);
-        
+
         // Traitement parallèle TOTAL du lot
         const enrichPromises = batch.map(async (player) => {
             try {
@@ -426,8 +416,6 @@ async function enrichPlayersData(players) {
         const batchResults = await Promise.allSettled(enrichPromises);
         const endTime = performance.now();
         
-        console.log(`⚡ Lot ${batchIndex + 1} traité en ${Math.round(endTime - startTime)}ms`);
-        
         const validResults = batchResults
             .filter(result => result.status === 'fulfilled')
             .map(result => result.value);
@@ -438,7 +426,6 @@ async function enrichPlayersData(players) {
         updateProgressiveLeaderboard(enrichedPlayers);
     }
     
-    console.log(`✅ ${enrichedPlayers.length}/${players.length} joueurs enrichis`);
     return enrichedPlayers;
 }
 
@@ -495,6 +482,8 @@ async function enrichSinglePlayer(player) {
         ...player,
         avatar: playerData?.avatar || null,
         country: playerData?.country || player.country || 'EU',
+        // CORRECTION : Utiliser game_skill_level du classement FACEIT Rankings
+        skill_level: player.game_skill_level || player.skill_level || 1,
         win_rate: extractWinRate(statsData),
         kd_ratio: extractKDRatio(statsData),
         matches: extractMatches(statsData),
@@ -544,13 +533,16 @@ function calculateRecentForm(stats) {
     const recentResults = stats.lifetime['Recent Results'] || [];
     if (recentResults.length === 0) return 'unknown';
     
+    // Compter les victoires (résultat "1" = victoire)
     const wins = recentResults.filter(result => result === "1").length;
-    const winRate = (wins / recentResults.length) * 100;
     
-    if (winRate >= 80) return 'excellent';
-    if (winRate >= 60) return 'good';
-    if (winRate >= 40) return 'average';
-    return 'poor';
+    // Logique basée sur le nombre de victoires sur les 5 derniers matchs
+    if (wins === 5) return 'excellent';      // 5 victoires = Excellente
+    if (wins >= 3) return 'good';            // 3-4 victoires = Bonne  
+    if (wins === 2) return 'average';        // 2 victoires = Moyenne
+    if (wins <= 1) return 'poor';            // 0-1 victoire = Difficile
+    
+    return 'unknown';
 }
 
 /**
@@ -563,17 +555,9 @@ async function loadLeaderboardOptimized() {
         isLoading = true;
         showLoadingState();
         
-        console.log('🏆 Chargement classement optimisé:', {
-            region: currentRegion,
-            country: currentCountry,
-            offset: currentOffset,
-            limit: currentLimit
-        });
-        
         const startTime = performance.now();
         
         // 1. Récupération du classement de base
-        console.log('📊 Récupération classement FACEIT...');
         const leaderboardData = await getLeaderboardBase(currentRegion, currentCountry, currentOffset, currentLimit);
         
         if (!leaderboardData || !leaderboardData.items || leaderboardData.items.length === 0) {
@@ -581,16 +565,12 @@ async function loadLeaderboardOptimized() {
         }
         
         currentLeaderboard = leaderboardData.items;
-        console.log(`📋 ${currentLeaderboard.length} joueurs récupérés`);
         
         // 2. Enrichissement ultra-agressif
-        console.log('🚀 Début enrichissement ultra-agressif...');
         enrichedLeaderboard = await enrichPlayersData(currentLeaderboard);
         
         const endTime = performance.now();
         const loadTime = Math.round(endTime - startTime);
-        
-        console.log(`✅ Classement chargé en ${loadTime}ms`);
         
         // 3. Affichage
         displayLeaderboardOptimized();
@@ -613,7 +593,6 @@ async function loadLeaderboardOptimized() {
  * Recherche de joueur optimisée
  */
 async function searchPlayerOptimized(nickname) {
-    console.log('🔍 Recherche joueur optimisée:', nickname);
     
     const searchCacheKey = `search_${nickname}_${currentRegion}_${currentCountry}`;
     const cached = leaderboardCache.get(searchCacheKey);
@@ -624,7 +603,6 @@ async function searchPlayerOptimized(nickname) {
     
     try {
         // 1. Récupérer les données joueur
-        console.log('👤 Récupération données joueur...');
         const player = await faceitApiCall(`players?nickname=${encodeURIComponent(nickname)}`);
         
         if (!player || !player.games || !player.games[FACEIT_API.GAME_ID]) {
@@ -634,7 +612,6 @@ async function searchPlayerOptimized(nickname) {
         // 2. Récupérer sa position dans le classement
         let position = null;
         try {
-            console.log('📊 Récupération position classement...');
             let endpoint = `rankings/games/${FACEIT_API.GAME_ID}/regions/${currentRegion}/players/${player.player_id}?limit=20`;
             if (currentCountry) {
                 endpoint += `&country=${currentCountry}`;
@@ -643,7 +620,6 @@ async function searchPlayerOptimized(nickname) {
             const rankingData = await faceitApiCall(endpoint);
             position = rankingData.position;
         } catch (error) {
-            console.warn('⚠️ Position classement non disponible:', error.message);
         }
         
         // 3. Enrichir avec les stats
@@ -651,7 +627,9 @@ async function searchPlayerOptimized(nickname) {
             ...player,
             position: position,
             faceit_elo: player.games[FACEIT_API.GAME_ID].faceit_elo,
-            skill_level: player.games[FACEIT_API.GAME_ID].skill_level
+            // CORRECTION : Utiliser game_skill_level si disponible
+            skill_level: player.games[FACEIT_API.GAME_ID].skill_level,
+            game_skill_level: player.games[FACEIT_API.GAME_ID].skill_level
         });
         
         const result = { player: enrichedPlayer };
@@ -803,7 +781,8 @@ function displayPlayerSearchResult(player) {
     
     const avatar = player.avatar || getDefaultAvatar(player.nickname);
     const country = player.country || 'EU';
-    const level = player.skill_level || 1;
+    // CORRECTION : Utiliser game_skill_level du classement FACEIT Rankings
+    const level = player.game_skill_level || player.skill_level || 1;
     const elo = player.faceit_elo || 'N/A';
     const position = player.position || 'N/A';
     const winRate = player.win_rate || 0;
@@ -894,8 +873,6 @@ function displayLeaderboardOptimized() {
     const leaderboardTable = document.getElementById('leaderboardTable');
     if (!leaderboardTable) return;
     
-    console.log('🎯 Affichage optimisé:', enrichedLeaderboard.length, 'joueurs');
-    
     // Utiliser DocumentFragment pour performance
     const fragment = document.createDocumentFragment();
     
@@ -933,7 +910,8 @@ function createOptimizedPlayerRow(player, index) {
     const position = player.position;
     const avatar = player.avatar || getDefaultAvatar(player.nickname);
     const country = player.country || 'EU';
-    const level = player.skill_level || 1;
+    // CORRECTION : Utiliser game_skill_level du classement FACEIT Rankings
+    const level = player.game_skill_level || player.skill_level || 1;
     const elo = player.faceit_elo || 'N/A';
     const nickname = player.nickname || 'Joueur inconnu';
     const playerId = player.player_id || '';
@@ -1062,22 +1040,22 @@ function getFormConfig(form) {
         'excellent': {
             class: 'bg-green-500/20 text-green-400 border border-green-500/50',
             icon: 'fas fa-fire',
-            text: 'Excellente'
+            text: 'Excellente'  // 5 victoires
         },
         'good': {
             class: 'bg-blue-500/20 text-blue-400 border border-blue-500/50',
             icon: 'fas fa-thumbs-up',
-            text: 'Bonne'
+            text: 'Bonne'       // 3-4 victoires
         },
         'average': {
             class: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/50',
             icon: 'fas fa-minus',
-            text: 'Moyenne'
+            text: 'Moyenne'     // 2 victoires
         },
         'poor': {
             class: 'bg-red-500/20 text-red-400 border border-red-500/50',
             icon: 'fas fa-thumbs-down',
-            text: 'Difficile'
+            text: 'Difficile'   // 0-1 victoire
         },
         'unknown': {
             class: 'bg-gray-500/20 text-gray-400 border border-gray-500/50',
@@ -1150,7 +1128,8 @@ function calculateRegionStats() {
         const country = player.country || 'Unknown';
         countryCounts[country] = (countryCounts[country] || 0) + 1;
         
-        const level = player.skill_level || 1;
+        // CORRECTION : Utiliser game_skill_level du classement FACEIT Rankings
+        const level = player.game_skill_level || player.skill_level || 1;
         levelCounts[level] = (levelCounts[level] || 0) + 1;
     });
     
@@ -1298,14 +1277,12 @@ function showErrorState(message) {
 
 function navigateToPlayer(playerId) {
     if (playerId) {
-        console.log('🔗 Navigation vers joueur:', playerId);
         window.location.href = `/advanced?playerId=${playerId}`;
     }
 }
 
 function navigateToComparison(playerNickname) {
     if (playerNickname) {
-        console.log('⚖️ Navigation vers comparaison:', playerNickname);
         window.location.href = `/comparison?player1=${playerNickname}`;
     }
 }
@@ -1316,7 +1293,6 @@ function clearAllCaches() {
     leaderboardCache.clear();
     playerCache.clear();
     statsCache.clear();
-    console.log('🗑️ Tous les caches vidés');
 }
 
 function debounce(func, wait) {
@@ -1340,7 +1316,7 @@ function getRegionName(region) {
 }
 
 function getDefaultAvatar(nickname) {
-    return `https://via.placeholder.com/96x96/2a2a2a/ffffff?text=${nickname.charAt(0)}`;
+    return '/images/default-avatar.jpg';
 }
 
 // Export global des fonctions
@@ -1353,6 +1329,5 @@ window.addEventListener('beforeunload', function() {
     clearAllCaches();
 });
 
-console.log('⚡ Leaderboards ULTRA OPTIMISÉ chargé avec succès!');
 </script>
 @endpush
