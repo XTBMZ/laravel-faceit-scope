@@ -30,6 +30,8 @@ Route::middleware(['faceit.auth'])->group(function () {
     Route::get('/friends', [FriendsController::class, 'index'])->name('friends');
 });
 
+
+
 // Routes d'authentification FACEIT
 Route::prefix('auth/faceit')->name('auth.faceit.')->group(function () {
     // Redirection vers FACEIT
@@ -64,8 +66,19 @@ Route::prefix('api')->group(function () {
     Route::get('/player/{playerId}', [PlayerController::class, 'getPlayer'])->name('api.player.get');
     Route::get('/player/{playerId}/stats', [PlayerController::class, 'getPlayerStats'])->name('api.player.stats');
     
+    // Routes pour l'analyse de match
+    Route::get('/match/{matchId}', [PlayerController::class, 'getMatch'])->name('api.match.get');
+    Route::get('/match/{matchId}/data', [MatchController::class, 'getMatchData'])->name('api.match.data');
+    Route::get('/match/{matchId}/stats', [MatchController::class, 'getMatchStats'])->name('api.match.stats');
+    
     // Routes pour la comparaison
     Route::post('/compare', [ComparisonController::class, 'compare'])->name('api.compare');
+    
+    // Routes pour les classements
+    Route::get('/leaderboard', [LeaderboardController::class, 'getLeaderboard'])->name('api.leaderboard');
+    Route::get('/leaderboard/search-player', [LeaderboardController::class, 'searchPlayer'])->name('api.leaderboard.search');
+    Route::get('/leaderboard/top-players', [LeaderboardController::class, 'getTopPlayers'])->name('api.leaderboard.top');
+    Route::get('/leaderboard/region-stats', [LeaderboardController::class, 'getRegionStats'])->name('api.leaderboard.stats');
     
     // Routes pour les championnats FACEIT
     Route::prefix('tournaments')->group(function () {
