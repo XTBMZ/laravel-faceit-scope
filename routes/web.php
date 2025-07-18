@@ -51,15 +51,20 @@ Route::middleware('faceit.auth')->group(function () {
     Route::get('/profile/export', [ProfileController::class, 'exportData'])->name('profile.export');
     Route::get('/profile/match-history', [ProfileController::class, 'getMatchHistory'])->name('profile.history');
     
-    // Amis
-    Route::prefix('friends')->name('friends.')->group(function () {
-        Route::get('/', [FriendsController::class, 'index'])->name('index');
-        Route::post('/search', [FriendsController::class, 'searchPlayers'])->name('search');
-        Route::post('/add', [FriendsController::class, 'addFriend'])->name('add');
-        Route::post('/remove', [FriendsController::class, 'removeFriend'])->name('remove');
-        Route::post('/compare', [FriendsController::class, 'compareWithFriend'])->name('compare');
-        Route::post('/update-stats', [FriendsController::class, 'updateFriendsStats'])->name('update-stats');
-    });
+    Route::get('/friends', [FriendsController::class, 'index'])->name('friends');
+    
+    // API pour récupérer les amis
+    Route::get('/api/friends', [FriendsController::class, 'getFriends'])->name('api.friends');
+    
+    // API pour récupérer les amis en ligne
+    Route::get('/api/friends/online', [FriendsController::class, 'getOnlineFriends'])->name('api.friends.online');
+    
+    // API pour rechercher dans les amis
+    Route::get('/api/friends/search', [FriendsController::class, 'searchFriends'])->name('api.friends.search');
+    
+    // API pour comparer avec un ami
+    Route::get('/api/friends/{friendId}/compare', [FriendsController::class, 'compareWithFriend'])->name('api.friends.compare');
+
 });
 
 // Routes API pour les données FACEIT
