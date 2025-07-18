@@ -25,7 +25,7 @@ Route::get('/leaderboards', [LeaderboardController::class, 'index'])->name('lead
 Route::get('/tournaments', [TournamentController::class, 'index'])->name('tournaments');
 Route::get('/match', [MatchController::class, 'index'])->name('match');
 
-Route::middleware('faceit.auth')->group(function () {
+Route::middleware(['faceit.auth'])->group(function () {
     // Page des amis
     Route::get('/friends', [FriendsController::class, 'index'])->name('friends');
 });
@@ -93,14 +93,14 @@ Route::prefix('api')->group(function () {
         });
     });
 
-    // Récupérer la liste des amis
-    Route::get('/friends', [FriendsController::class, 'getFriends'])->name('api.friends.list');
+    Route::get('/friends', [FriendsController::class, 'getFriends']);
     
-    // Récupérer les statistiques des amis
-    Route::get('/friends/stats', [FriendsController::class, 'getFriendsStats'])->name('api.friends.stats');
+    // Rechercher dans les amis
+    Route::get('/friends/search', [FriendsController::class, 'searchFriends']);
     
-    // Comparer avec les amis
-    Route::get('/friends/compare', [FriendsController::class, 'compareWithFriends'])->name('api.friends.compare');
+    // Statistiques des amis
+    Route::get('/friends/stats', [FriendsController::class, 'getFriendsStats']);
+
 
 });
 

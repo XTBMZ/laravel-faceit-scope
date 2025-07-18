@@ -524,4 +524,167 @@ class FaceitService
             throw $e;
         }
     }
+
+    /**
+ * Récupère plusieurs joueurs en lot (optimisation pour les amis)
+ */
+public function getPlayersBatch(array $playerIds, int $batchSize = 5)
+{
+    $players = [];
+    $batches = array_chunk($playerIds, $batchSize);
+    
+    foreach ($batches as $batch) {
+        $batchPlayers = $this->processBatch($batch);
+        $players = array_merge($players, $batchPlayers);
+        
+        // Pause entre les lots pour respecter le rate limiting
+        if (count($batches) > 1) {
+            usleep(200000); // 200ms
+        }
+    }
+    
+    return $players;
+}
+
+/**
+ * Traite un lot de joueurs
+ */
+private function processBatch(array $playerIds)
+{
+    $players = [];
+    
+    foreach ($playerIds as $playerId) {
+        try {
+            $player = $this->getPlayer($playerId);
+            if ($player) {
+                $players[] = $player;
+            }
+        } catch (\Exception $e) {
+            Log::warning('Erreur récupération joueur en lot', [
+                'player_id' => $playerId,
+                'error' => $e->getMessage()
+            ]);
+            continue;
+        }
+    }
+    
+    return $players;
+}
+
+/**
+ * Récupère les données d'un joueur avec cache optimisé
+ */
+public function getPlayerCached($playerId, int $cacheMinutes = 10)
+{
+    $cacheKey = "player_data_{$playerId}";
+    
+    return Cache::remember($cacheKey, $cacheMinutes * 60, function () use ($playerId) {
+        return $this->getPlayer($playerId);
+    });
+}
+
+/**
+ * Validation rapide d'un joueur (sans récupérer toutes les données)
+ */
+public function validatePlayer($playerId)
+{
+    try {
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->apiKey,
+            'Content-Type' => 'application/json'
+        ])->timeout(5)->get($this->baseUrl . "players/{$playerId}");
+
+        return $response->successful();
+    } catch (\Exception $e) {
+        return false;
+    }
+}
+
+/**
+ * Récupère uniquement les informations de base d'un joueur (optimisé)
+ */
+public function getPlayerBasicInfo($playerId)
+{
+    try {
+        $player = $this->getPlayerCached($playerId, 15); // Cache plus long pour les infos de base
+        
+        if (!$player) {
+            return null;
+        }
+        
+        // Retourner seulement les infos essentielles
+        return [
+            'player_id' => $player['player_id'],
+            'nickname' => $player['nickname'],
+            'avatar' => $player['avatar'] ?? null,
+            'country' => $player['country'] ?? null,
+            'activated_at' => $player['activated_at'] ?? null,
+            'games' => $player['games'] ?? [],
+            'faceit_url' => $player['faceit_url'] ?? null
+        ];
+        
+    } catch (\Exception $e) {
+        Log::error('Erreur récupération infos de base joueur', [
+            'player_id' => $playerId,
+            'error' => $e->getMessage()
+        ]);
+        return null;
+    }
+}
+
+/**
+ * Nettoie le cache d'un joueur
+ */
+public function clearPlayerCache($playerId)
+{
+    $cacheKeys = [
+        "player_data_{$playerId}",
+        "player_stats_{$playerId}",
+        "player_history_{$playerId}"
+    ];
+    
+    foreach ($cacheKeys as $key) {
+        Cache::forget($key);
+    }
+}
+
+/**
+ * Récupère les amis d'un joueur avec optimisations
+ */
+public function getPlayerFriends($playerId, int $limit = 50)
+{
+    try {
+        // 1. Récupérer le joueur principal
+        $player = $this->getPlayerCached($playerId);
+        
+        if (!$player || !isset($player['friends_ids'])) {
+            return [];
+        }
+        
+        $friendIds = array_slice($player['friends_ids'], 0, $limit);
+        
+        if (empty($friendIds)) {
+            return [];
+        }
+        
+        // 2. Récupérer les amis par lots
+        $friends = $this->getPlayersBatch($friendIds, 3); // Lots plus petits pour les amis
+        
+        // 3. Filtrer et enrichir
+        $validFriends = array_filter($friends, function($friend) {
+            return $friend && 
+                   isset($friend['nickname']) && 
+                   (isset($friend['games']['cs2']) || isset($friend['games']['csgo']));
+        });
+        
+        return array_values($validFriends);
+        
+    } catch (\Exception $e) {
+        Log::error('Erreur récupération amis joueur', [
+            'player_id' => $playerId,
+            'error' => $e->getMessage()
+        ]);
+        return [];
+    }
+}
 }
