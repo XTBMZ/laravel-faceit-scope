@@ -228,18 +228,19 @@
                     <div class="col-span-1 text-center">
                         <i class="fas fa-medal mr-1"></i>Position
                     </div>
-                    <div class="col-span-5">
+                    <div class="col-span-4">
                         <i class="fas fa-user mr-1"></i>Joueur
                     </div>
                     <div class="col-span-2 text-center">
-                        <i class="fas fa-fire mr-1"></i>ELO
+                        <i class="fas fa-fire mr-1"></i>ELO FACEIT
                     </div>
                     <div class="col-span-2 text-center">
                         <i class="fas fa-star mr-1"></i>Niveau
                     </div>
                     <div class="col-span-2 text-center">
-                        <i class="fas fa-chart-line mr-1"></i>Actions
+                        <i class="fas fa-chart-line mr-1"></i>Stats & Forme
                     </div>
+                    <div class="col-span-1 text-center">Actions</div>
                 </div>
             </div>
             
@@ -338,8 +339,8 @@ function updateSelectValues() {
     if (limitSelect) limitSelect.value = currentLimit;
 }
 
-// API optimisée
-async function faceitApiCall(endpoint) {
+// API optimisée avec retry
+async function faceitApiCall(endpoint, retries = 2) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), FACEIT_API.TIMEOUT);
     
@@ -354,18 +355,176 @@ async function faceitApiCall(endpoint) {
         
         clearTimeout(timeoutId);
         
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        if (!response.ok) {
+            if (retries > 0 && (response.status === 429 || response.status >= 500)) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                return faceitApiCall(endpoint, retries - 1);
+            }
+            throw new Error(`HTTP ${response.status}`);
+        }
         return await response.json();
         
     } catch (error) {
         clearTimeout(timeoutId);
         if (error.name === 'AbortError') throw new Error('Timeout API');
+        if (retries > 0) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            return faceitApiCall(endpoint, retries - 1);
+        }
         throw error;
     }
 }
 
+// Récupération enrichie des données joueur
+async function getEnrichedPlayerData(playerId) {
+    const cacheKey = `enriched_${playerId}`;
+    if (leaderboardCache.has(cacheKey)) {
+        const cached = leaderboardCache.get(cacheKey);
+        if (Date.now() - cached.timestamp < CACHE_DURATION) {
+            return cached.data;
+        }
+    }
+    
+    try {
+        // Récupérer le joueur et ses stats en parallèle
+        const [player, stats] = await Promise.allSettled([
+            faceitApiCall(`players/${playerId}`),
+            faceitApiCall(`players/${playerId}/stats/${FACEIT_API.GAME_ID}`)
+        ]);
+        
+        const playerData = player.status === 'fulfilled' ? player.value : null;
+        const statsData = stats.status === 'fulfilled' ? stats.value : null;
+        
+        const enrichedData = {
+            avatar: playerData?.avatar || null,
+            win_rate: extractWinRate(statsData),
+            kd_ratio: extractKDRatio(statsData),
+            matches: extractMatches(statsData),
+            recent_form: calculateRecentForm(statsData)
+        };
+        
+        // Cache les données enrichies
+        leaderboardCache.set(cacheKey, {
+            data: enrichedData,
+            timestamp: Date.now()
+        });
+        
+        return enrichedData;
+        
+    } catch (error) {
+        console.warn(`⚠️ Impossible d'enrichir ${playerId}:`, error.message);
+        return {
+            avatar: null,
+            win_rate: 0,
+            kd_ratio: 0,
+            matches: 0,
+            recent_form: 'unknown'
+        };
+    }
+}
+
+// Enrichissement des joueurs du classement en lots
+async function enrichPlayersInBatches(players) {
+    console.log(`🔍 Enrichissement de ${players.length} joueurs...`);
+    
+    // Traiter par lots pour éviter de surcharger l'API
+    const batches = [];
+    for (let i = 0; i < players.length; i += FACEIT_API.BATCH_SIZE) {
+        batches.push(players.slice(i, i + FACEIT_API.BATCH_SIZE));
+    }
+    
+    const enrichedPlayers = [...players];
+    
+    for (let i = 0; i < batches.length; i++) {
+        const batch = batches[i];
+        console.log(`⚡ Enrichissement lot ${i + 1}/${batches.length} (${batch.length} joueurs)...`);
+        
+        // Enrichir tous les joueurs du lot en parallèle
+        const enrichmentPromises = batch.map(async (player, batchIndex) => {
+            const globalIndex = i * FACEIT_API.BATCH_SIZE + batchIndex;
+            const enrichedData = await getEnrichedPlayerData(player.player_id);
+            
+            // Fusionner les données enrichies
+            enrichedPlayers[globalIndex] = {
+                ...player,
+                avatar: enrichedData.avatar,
+                win_rate: enrichedData.win_rate,
+                kd_ratio: enrichedData.kd_ratio,
+                matches: enrichedData.matches,
+                recent_form: enrichedData.recent_form
+            };
+            
+            return enrichedPlayers[globalIndex];
+        });
+        
+        await Promise.allSettled(enrichmentPromises);
+        
+        // Affichage progressif après chaque lot
+        updateProgressiveDisplay(enrichedPlayers.slice(0, (i + 1) * FACEIT_API.BATCH_SIZE));
+        
+        // Petit délai entre les lots pour être gentil avec l'API
+        if (i < batches.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+    }
+    
+    console.log(`✅ ${enrichedPlayers.length} joueurs enrichis avec avatar, stats et forme`);
+    return enrichedPlayers;
+}
+
+// Fonctions d'extraction des stats (comme dans l'ancien code)
+function extractWinRate(stats) {
+    if (!stats || !stats.lifetime) return 0;
+    
+    const winRate = stats.lifetime['Win Rate %'];
+    if (winRate !== undefined) return round(parseFloat(winRate), 1);
+    
+    const matches = parseInt(stats.lifetime.Matches || 0);
+    const wins = parseInt(stats.lifetime.Wins || 0);
+    
+    if (matches > 0) return round((wins / matches) * 100, 1);
+    return 0;
+}
+
+function extractKDRatio(stats) {
+    if (!stats || !stats.lifetime) return 0;
+    
+    const kd = stats.lifetime['Average K/D Ratio'];
+    if (kd !== undefined) return round(parseFloat(kd), 2);
+    
+    const kills = parseInt(stats.lifetime.Kills || 0);
+    const deaths = parseInt(stats.lifetime.Deaths || 0);
+    
+    if (deaths > 0) return round(kills / deaths, 2);
+    return 0;
+}
+
+function extractMatches(stats) {
+    if (!stats || !stats.lifetime) return 0;
+    return parseInt(stats.lifetime.Matches || 0);
+}
+
+function calculateRecentForm(stats) {
+    if (!stats || !stats.lifetime) return 'unknown';
+    
+    const recentResults = stats.lifetime['Recent Results'] || [];
+    if (recentResults.length === 0) return 'unknown';
+    
+    const wins = recentResults.filter(result => result === "1").length;
+    const winRate = (wins / recentResults.length) * 100;
+    
+    if (winRate >= 80) return 'excellent';
+    if (winRate >= 60) return 'good'; 
+    if (winRate >= 40) return 'average';
+    return 'poor';
+}
+
+function round(num, decimals) {
+    return Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
+}
+
 async function loadLeaderboardOptimized(forceRefresh = false) {
-    console.log('🚀 Chargement classement ultra optimisé:', {
+    console.log('🚀 Chargement classement ultra optimisé avec enrichissement:', {
         region: currentRegion,
         country: currentCountry,
         page: currentPage,
@@ -376,49 +535,56 @@ async function loadLeaderboardOptimized(forceRefresh = false) {
     
     try {
         const offset = currentPage * currentLimit;
-        const cacheKey = `rankings_${currentRegion}_${currentCountry}_${currentLimit}_${offset}`;
+        const cacheKey = `rankings_enriched_${currentRegion}_${currentCountry}_${currentLimit}_${offset}`;
         
-        // Vérifier le cache en mémoire
+        // Vérifier le cache en mémoire pour les données enrichies
         if (!forceRefresh && leaderboardCache.has(cacheKey)) {
             const cachedData = leaderboardCache.get(cacheKey);
             if (Date.now() - cachedData.timestamp < CACHE_DURATION) {
-                console.log('📦 Données depuis cache mémoire');
-                currentLeaderboard = cachedData.data.items;
+                console.log('📦 Données enrichies depuis cache mémoire');
+                currentLeaderboard = cachedData.data;
                 displayLeaderboard();
                 return;
             }
         }
         
-        // Construire l'endpoint API FACEIT Rankings
+        // 1. Récupérer le classement de base
         let endpoint = `rankings/games/${FACEIT_API.GAME_ID}/regions/${currentRegion}?offset=${offset}&limit=${currentLimit}`;
         if (currentCountry) {
             endpoint += `&country=${currentCountry}`;
         }
         
-        console.time('⚡ API FACEIT Rankings Direct');
-        console.log('🌐 Appel direct:', endpoint);
-        
-        // Appel direct à l'API FACEIT
+        console.time('⚡ API FACEIT Rankings Base');
         const rankingData = await faceitApiCall(endpoint);
-        
-        console.timeEnd('⚡ API FACEIT Rankings Direct');
+        console.timeEnd('⚡ API FACEIT Rankings Base');
         
         if (!rankingData || !rankingData.items) {
             throw new Error('Aucune donnée de classement disponible');
         }
         
-        // Cache en mémoire
+        console.log(`📋 ${rankingData.items.length} joueurs récupérés, début enrichissement...`);
+        
+        // Afficher le classement de base immédiatement
+        currentLeaderboard = rankingData.items;
+        displayLeaderboard();
+        updatePagination(rankingData);
+        
+        // 2. Enrichir avec avatars, stats et forme en arrière-plan
+        const enrichedPlayers = await enrichPlayersInBatches(rankingData.items);
+        
+        // 3. Mettre à jour avec les données enrichies
+        currentLeaderboard = enrichedPlayers;
+        
+        // Cache les données enrichies
         leaderboardCache.set(cacheKey, {
-            data: rankingData,
+            data: enrichedPlayers,
             timestamp: Date.now()
         });
         
-        currentLeaderboard = rankingData.items;
-        
-        console.log(`✅ ${currentLeaderboard.length} joueurs chargés`);
-        
+        // Affichage final avec toutes les données
         displayLeaderboard();
-        updatePagination(rankingData);
+        
+        console.log('🎉 Classement complet avec avatars, stats et forme!');
         
     } catch (error) {
         console.error('❌ Erreur:', error);
@@ -427,14 +593,14 @@ async function loadLeaderboardOptimized(forceRefresh = false) {
 }
 
 async function searchPlayerOptimized(playerName) {
-    console.log('🔍 Recherche joueur ultra optimisée:', playerName);
+    console.log('🔍 Recherche joueur ultra optimisée avec enrichissement:', playerName);
     
     const searchResult = document.getElementById('playerSearchResult');
     const searchButton = document.getElementById('searchPlayerButton');
     
     if (!searchResult || !searchButton) return;
     
-    const cacheKey = `search_${playerName}_${currentRegion}`;
+    const cacheKey = `search_enriched_${playerName}_${currentRegion}`;
     if (leaderboardCache.has(cacheKey)) {
         const cachedData = leaderboardCache.get(cacheKey);
         if (Date.now() - cachedData.timestamp < CACHE_DURATION) {
@@ -450,12 +616,12 @@ async function searchPlayerOptimized(playerName) {
     searchResult.innerHTML = `
         <div class="flex items-center justify-center py-4 bg-faceit-elevated/50 rounded-lg">
             <i class="fas fa-spinner fa-spin text-faceit-orange mr-2"></i>
-            <span class="text-gray-300">Recherche directe API...</span>
+            <span class="text-gray-300">Recherche avec enrichissement complet...</span>
         </div>
     `;
     
     try {
-        console.time('🔍 Recherche API Direct');
+        console.time('🔍 Recherche API Enrichie');
         
         // 1. Chercher le joueur par nickname via API directe
         const player = await faceitApiCall(`players?nickname=${encodeURIComponent(playerName)}`);
@@ -464,34 +630,35 @@ async function searchPlayerOptimized(playerName) {
             throw new Error("Ce joueur n'a pas de profil CS2");
         }
         
-        // 2. Chercher sa position dans le classement
-        let position = null;
-        try {
-            const playerRanking = await faceitApiCall(
-                `rankings/games/${FACEIT_API.GAME_ID}/regions/${currentRegion}/players/${player.player_id}?limit=20${currentCountry ? `&country=${currentCountry}` : ''}`
-            );
-            position = playerRanking.position;
-        } catch (e) {
-            console.warn('Position dans classement non trouvée:', e.message);
-        }
+        // 2. Récupérer position + stats + avatar en parallèle
+        const [rankingResult, enrichedData] = await Promise.allSettled([
+            // Position dans le classement
+            faceitApiCall(`rankings/games/${FACEIT_API.GAME_ID}/regions/${currentRegion}/players/${player.player_id}?limit=20${currentCountry ? `&country=${currentCountry}` : ''}`),
+            // Stats et avatar
+            getEnrichedPlayerData(player.player_id)
+        ]);
         
-        console.timeEnd('🔍 Recherche API Direct');
+        const position = rankingResult.status === 'fulfilled' ? rankingResult.value.position : null;
+        const enriched = enrichedData.status === 'fulfilled' ? enrichedData.value : {};
         
-        // Enrichir les données
+        console.timeEnd('🔍 Recherche API Enrichie');
+        
+        // 3. Construire le résultat complet
         const enrichedPlayer = {
             player_id: player.player_id,
             nickname: player.nickname,
-            avatar: player.avatar,
+            avatar: enriched.avatar || player.avatar,
             country: player.country || currentRegion,
             skill_level: player.games.cs2.skill_level || 1,
             faceit_elo: player.games.cs2.faceit_elo || 1000,
             position: position || 'N/A',
-            win_rate: 0, // Sera estimé si pas de stats
-            kd_ratio: 0,
-            recent_form: 'unknown'
+            win_rate: enriched.win_rate || 0,
+            kd_ratio: enriched.kd_ratio || 0,
+            matches: enriched.matches || 0,
+            recent_form: enriched.recent_form || 'unknown'
         };
         
-        // Cache en mémoire
+        // Cache les données enrichies
         leaderboardCache.set(cacheKey, {
             data: enrichedPlayer,
             timestamp: Date.now()
@@ -500,7 +667,7 @@ async function searchPlayerOptimized(playerName) {
         displayPlayerSearchResult(enrichedPlayer);
         
     } catch (error) {
-        console.error('❌ Erreur recherche:', error);
+        console.error('❌ Erreur recherche enrichie:', error);
         handleSearchError(error, playerName, searchResult);
     } finally {
         searchButton.innerHTML = originalText;
@@ -606,7 +773,28 @@ function setupEventListeners() {
     }
 }
 
-function displayLeaderboard() {
+// Affichage progressif pendant l'enrichissement
+function updateProgressiveDisplay(partialPlayers) {
+    if (!partialPlayers || partialPlayers.length === 0) return;
+    
+    const loadingProgress = document.getElementById('loadingProgress');
+    if (loadingProgress) {
+        loadingProgress.textContent = `${partialPlayers.length}/${currentLimit} joueurs enrichis...`;
+    }
+    
+    // Mettre à jour l'affichage partiel si on est en mode loading
+    const loadingState = document.getElementById('loadingState');
+    if (loadingState && !loadingState.classList.contains('hidden')) {
+        // Passer en mode affichage intermédiaire
+        currentLeaderboard = partialPlayers;
+        displayLeaderboard();
+        
+        // Remettre l'indicateur de progression
+        if (loadingProgress) {
+            loadingProgress.textContent = `Enrichissement en cours... ${partialPlayers.length}/${currentLimit}`;
+        }
+    }
+}
     hideLoading();
     const leaderboardContainer = document.getElementById('leaderboardContainer');
     if (leaderboardContainer) {
@@ -663,6 +851,12 @@ function createOptimizedPlayerRow(player) {
     const nickname = player.nickname || 'Joueur inconnu';
     const playerId = player.player_id || '';
     
+    // Données enrichies (avatar, stats, forme)
+    const winRate = player.win_rate || 0;
+    const kdRatio = player.kd_ratio || 0;
+    const matches = player.matches || 0;
+    const recentForm = player.recent_form || 'unknown';
+    
     // Couleurs spéciales pour le podium
     let positionClass = 'text-gray-300';
     let positionIcon = '';
@@ -686,6 +880,8 @@ function createOptimizedPlayerRow(player) {
         row.className += ' ' + rowExtraClass;
     }
     
+    const formConfig = getFormConfig(recentForm);
+    
     row.innerHTML = `
         <div class="grid grid-cols-12 gap-4 items-center">
             <div class="col-span-1 text-center">
@@ -694,7 +890,7 @@ function createOptimizedPlayerRow(player) {
                 </span>
             </div>
             
-            <div class="col-span-5 flex items-center space-x-4">
+            <div class="col-span-4 flex items-center space-x-4">
                 <div class="relative">
                     <img src="${avatar}" alt="Avatar" 
                          class="w-12 h-12 rounded-lg border-2 border-gray-600 hover:border-faceit-orange transition-all duration-300 shadow-lg" 
@@ -722,6 +918,7 @@ function createOptimizedPlayerRow(player) {
                     <i class="fas fa-fire text-faceit-orange"></i>
                     <span class="text-lg font-bold text-faceit-orange">${formatNumber(elo)}</span>
                 </div>
+                <div class="text-xs text-gray-500 mt-1">ELO officiel</div>
             </div>
             
             <div class="col-span-2 text-center">
@@ -732,6 +929,32 @@ function createOptimizedPlayerRow(player) {
             </div>
             
             <div class="col-span-2 text-center">
+                ${winRate > 0 || kdRatio > 0 ? `
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="text-xs">
+                            <span class="text-gray-500">WR:</span>
+                            <span class="text-blue-400 font-semibold">${winRate}%</span>
+                        </div>
+                        <div class="text-xs">
+                            <span class="text-gray-500">K/D:</span>
+                            <span class="text-green-400 font-semibold">${kdRatio}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-center mt-1">
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${formConfig.class}">
+                            <i class="${formConfig.icon} mr-1"></i>
+                            ${formConfig.text}
+                        </span>
+                    </div>
+                ` : `
+                    <div class="text-xs text-gray-500">
+                        <i class="fas fa-spinner fa-spin mr-1"></i>
+                        Chargement...
+                    </div>
+                `}
+            </div>
+            
+            <div class="col-span-1 text-center">
                 <button onclick="event.stopPropagation(); navigateToPlayer('${playerId}')" 
                         class="bg-gradient-to-r from-faceit-orange to-red-500 hover:from-faceit-orange-dark hover:to-red-600 p-2 rounded-lg text-sm transition-all transform hover:scale-110 shadow-lg"
                         title="Voir les statistiques">
@@ -754,6 +977,12 @@ function displayPlayerSearchResult(player) {
     const level = player.skill_level || 1;
     const elo = player.faceit_elo || 'N/A';
     const position = player.position || 'N/A';
+    const winRate = player.win_rate || 0;
+    const kdRatio = player.kd_ratio || 0;
+    const matches = player.matches || 0;
+    const recentForm = player.recent_form || 'unknown';
+    
+    const formConfig = getFormConfig(recentForm);
     
     searchResult.innerHTML = `
         <div class="bg-gradient-to-r from-faceit-elevated to-faceit-card rounded-xl p-6 border border-gray-700 shadow-lg animate-scale-in">
@@ -776,6 +1005,26 @@ function displayPlayerSearchResult(player) {
                             </div>
                             <span>•</span>
                             <span class="${getRankColor(level)} font-semibold">${formatNumber(elo)} ELO</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-4 mt-3">
+                            <div class="text-center p-2 bg-black/20 rounded-lg">
+                                <div class="text-sm font-semibold text-blue-400">${winRate}%</div>
+                                <div class="text-xs text-gray-500">Win Rate</div>
+                            </div>
+                            <div class="text-center p-2 bg-black/20 rounded-lg">
+                                <div class="text-sm font-semibold text-green-400">${kdRatio}</div>
+                                <div class="text-xs text-gray-500">K/D Ratio</div>
+                            </div>
+                            <div class="text-center p-2 bg-black/20 rounded-lg">
+                                <div class="text-sm font-semibold text-purple-400">${formatNumber(matches)}</div>
+                                <div class="text-xs text-gray-500">Matches</div>
+                            </div>
+                            <div class="text-center p-2 bg-black/20 rounded-lg">
+                                <div class="px-2 py-1 rounded-full text-xs font-semibold ${formConfig.class}">
+                                    <i class="${formConfig.icon} mr-1"></i>
+                                    ${formConfig.text}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -928,6 +1177,6 @@ function debounce(func, wait) {
 // Export global
 window.loadLeaderboardOptimized = loadLeaderboardOptimized;
 
-console.log('⚡ Leaderboards ultra optimisé - Direct API calls');
+console.log('⚡ Leaderboards ultra optimisé avec enrichissement complet - Direct API calls');
 </script>
 @endpush
