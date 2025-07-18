@@ -12,20 +12,20 @@
                 Classements Globaux CS2
             </h1>
             <p class="text-xl text-gray-300 max-w-2xl mx-auto">
-                Chargement direct API FACEIT Rankings - Ultra optimisé
+                Chargement direct via API FACEIT optimisé - Données en temps réel
             </p>
             <div class="flex flex-wrap justify-center items-center gap-6 text-gray-400 mt-6">
                 <div class="flex items-center space-x-2">
-                    <i class="fas fa-rocket text-faceit-orange"></i>
-                    <span>Appels directs API</span>
+                    <i class="fas fa-globe text-faceit-orange"></i>
+                    <span>API directe FACEIT</span>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <i class="fas fa-bolt text-blue-400"></i>
-                    <span>Ultra rapide</span>
+                    <i class="fas fa-chart-line text-blue-400"></i>
+                    <span>Parallélisation ultra-rapide</span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <i class="fas fa-users text-green-400"></i>
-                    <span>Parallélisation massive</span>
+                    <span>Toutes les régions</span>
                 </div>
             </div>
         </div>
@@ -87,7 +87,7 @@
         </div>
     </div>
 
-    <!-- Filtres -->
+    <!-- Filtres optimisés -->
     <div class="bg-gradient-to-br from-faceit-card to-faceit-elevated rounded-2xl p-6 border border-gray-800 mb-8 shadow-2xl">
         <div class="grid md:grid-cols-5 gap-4">
             <div>
@@ -95,12 +95,12 @@
                     <i class="fas fa-globe text-faceit-orange mr-2"></i>Région
                 </label>
                 <select id="regionSelect" class="w-full px-4 py-3 bg-faceit-elevated/80 border-2 border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-faceit-orange focus:border-faceit-orange transition-all hover:border-gray-600">
-                    <option value="EU" {{ $region === 'EU' ? 'selected' : '' }}>🌍 Europe</option>
-                    <option value="NA" {{ $region === 'NA' ? 'selected' : '' }}>🌎 Amérique du Nord</option>
-                    <option value="SA" {{ $region === 'SA' ? 'selected' : '' }}>🌎 Amérique du Sud</option>
-                    <option value="AS" {{ $region === 'AS' ? 'selected' : '' }}>🌏 Asie</option>
-                    <option value="AF" {{ $region === 'AF' ? 'selected' : '' }}>🌍 Afrique</option>
-                    <option value="OC" {{ $region === 'OC' ? 'selected' : '' }}>🌏 Océanie</option>
+                    <option value="EU">🌍 Europe</option>
+                    <option value="NA">🌎 Amérique du Nord</option>
+                    <option value="SA">🌎 Amérique du Sud</option>
+                    <option value="AS">🌏 Asie</option>
+                    <option value="AF">🌍 Afrique</option>
+                    <option value="OC">🌏 Océanie</option>
                 </select>
             </div>
             
@@ -110,27 +110,27 @@
                 </label>
                 <select id="countrySelect" class="w-full px-4 py-3 bg-faceit-elevated/80 border-2 border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-600">
                     <option value="">Tous les pays</option>
-                    <option value="FR" {{ $country === 'FR' ? 'selected' : '' }}>🇫🇷 France</option>
-                    <option value="DE" {{ $country === 'DE' ? 'selected' : '' }}>🇩🇪 Allemagne</option>
-                    <option value="GB" {{ $country === 'GB' ? 'selected' : '' }}>🇬🇧 Royaume-Uni</option>
-                    <option value="ES" {{ $country === 'ES' ? 'selected' : '' }}>🇪🇸 Espagne</option>
-                    <option value="IT" {{ $country === 'IT' ? 'selected' : '' }}>🇮🇹 Italie</option>
-                    <option value="US" {{ $country === 'US' ? 'selected' : '' }}>🇺🇸 États-Unis</option>
-                    <option value="CA" {{ $country === 'CA' ? 'selected' : '' }}>🇨🇦 Canada</option>
-                    <option value="BR" {{ $country === 'BR' ? 'selected' : '' }}>🇧🇷 Brésil</option>
-                    <option value="RU" {{ $country === 'RU' ? 'selected' : '' }}>🇷🇺 Russie</option>
-                    <option value="PL" {{ $country === 'PL' ? 'selected' : '' }}>🇵🇱 Pologne</option>
-                    <option value="SE" {{ $country === 'SE' ? 'selected' : '' }}>🇸🇪 Suède</option>
-                    <option value="DK" {{ $country === 'DK' ? 'selected' : '' }}>🇩🇰 Danemark</option>
-                    <option value="NO" {{ $country === 'NO' ? 'selected' : '' }}>🇳🇴 Norvège</option>
-                    <option value="FI" {{ $country === 'FI' ? 'selected' : '' }}>🇫🇮 Finlande</option>
-                    <option value="NL" {{ $country === 'NL' ? 'selected' : '' }}>🇳🇱 Pays-Bas</option>
-                    <option value="BE" {{ $country === 'BE' ? 'selected' : '' }}>🇧🇪 Belgique</option>
-                    <option value="CH" {{ $country === 'CH' ? 'selected' : '' }}>🇨🇭 Suisse</option>
-                    <option value="AT" {{ $country === 'AT' ? 'selected' : '' }}>🇦🇹 Autriche</option>
-                    <option value="CZ" {{ $country === 'CZ' ? 'selected' : '' }}>🇨🇿 République tchèque</option>
-                    <option value="UA" {{ $country === 'UA' ? 'selected' : '' }}>🇺🇦 Ukraine</option>
-                    <option value="TR" {{ $country === 'TR' ? 'selected' : '' }}>🇹🇷 Turquie</option>
+                    <option value="FR">🇫🇷 France (FR)</option>
+                    <option value="DE">🇩🇪 Allemagne (DE)</option>
+                    <option value="GB">🇬🇧 Royaume-Uni (GB)</option>
+                    <option value="ES">🇪🇸 Espagne (ES)</option>
+                    <option value="IT">🇮🇹 Italie (IT)</option>
+                    <option value="US">🇺🇸 États-Unis (US)</option>
+                    <option value="CA">🇨🇦 Canada (CA)</option>
+                    <option value="BR">🇧🇷 Brésil (BR)</option>
+                    <option value="RU">🇷🇺 Russie (RU)</option>
+                    <option value="PL">🇵🇱 Pologne (PL)</option>
+                    <option value="SE">🇸🇪 Suède (SE)</option>
+                    <option value="DK">🇩🇰 Danemark (DK)</option>
+                    <option value="NO">🇳🇴 Norvège (NO)</option>
+                    <option value="FI">🇫🇮 Finlande (FI)</option>
+                    <option value="NL">🇳🇱 Pays-Bas (NL)</option>
+                    <option value="BE">🇧🇪 Belgique (BE)</option>
+                    <option value="CH">🇨🇭 Suisse (CH)</option>
+                    <option value="AT">🇦🇹 Autriche (AT)</option>
+                    <option value="CZ">🇨🇿 République tchèque (CZ)</option>
+                    <option value="UA">🇺🇦 Ukraine (UA)</option>
+                    <option value="TR">🇹🇷 Turquie (TR)</option>
                 </select>
             </div>
             
@@ -139,9 +139,9 @@
                     <i class="fas fa-list text-purple-400 mr-2"></i>Limite
                 </label>
                 <select id="limitSelect" class="w-full px-4 py-3 bg-faceit-elevated/80 border-2 border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all hover:border-gray-600">
-                    <option value="20" {{ $limit == 20 ? 'selected' : '' }}>Top 20</option>
-                    <option value="50" {{ $limit == 50 ? 'selected' : '' }}>Top 50</option>
-                    <option value="100" {{ $limit == 100 ? 'selected' : '' }}>Top 100</option>
+                    <option value="20">Top 20</option>
+                    <option value="50">Top 50</option>
+                    <option value="100">Top 100</option>
                 </select>
             </div>
             
@@ -189,8 +189,8 @@
                 <i class="fas fa-trophy text-faceit-orange text-2xl animate-pulse"></i>
             </div>
         </div>
-        <h2 class="text-2xl font-bold mb-4">Chargement ultra optimisé...</h2>
-        <p id="loadingProgress" class="text-gray-400 animate-pulse">Appels directs API FACEIT</p>
+        <h2 class="text-2xl font-bold mb-4">Chargement ultra-rapide...</h2>
+        <p id="loadingProgress" class="text-gray-400 animate-pulse">Connexion directe à l'API FACEIT</p>
     </div>
 
     <!-- Error State -->
@@ -205,7 +205,7 @@
         </button>
     </div>
 
-    <!-- Classement -->
+    <!-- Classement optimisé -->
     <div id="leaderboardContainer" class="hidden">
         <div class="bg-gradient-to-br from-faceit-card to-faceit-elevated rounded-2xl border border-gray-800 overflow-hidden shadow-2xl">
             <!-- Header -->
@@ -215,9 +215,15 @@
                         <i class="fas fa-trophy text-faceit-orange mr-3"></i>
                         <span id="leaderboardTitle">Classement Global</span>
                     </h2>
-                    <div class="text-sm text-gray-400">
-                        <i class="fas fa-clock mr-2"></i>
-                        <span id="lastUpdated">Mis à jour maintenant</span>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-sm text-gray-400">
+                            <i class="fas fa-clock mr-2"></i>
+                            <span id="lastUpdated">Mis à jour maintenant</span>
+                        </div>
+                        <div class="text-sm text-green-400">
+                            <i class="fas fa-bolt mr-1"></i>
+                            <span id="loadTime">-</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -238,7 +244,7 @@
                         <i class="fas fa-star mr-1"></i>Niveau
                     </div>
                     <div class="col-span-2 text-center">
-                        <i class="fas fa-chart-line mr-1"></i>Stats & Forme
+                        <i class="fas fa-chart-line mr-1"></i>Stats
                     </div>
                     <div class="col-span-1 text-center">Actions</div>
                 </div>
@@ -272,24 +278,21 @@
             </div>
         </div>
     </div>
+
+    <!-- Load More Button pour affichage progressif -->
+    <div id="loadMoreContainer" class="hidden text-center mt-8">
+        <button id="loadMoreButton" class="bg-gray-700 hover:bg-gray-600 px-8 py-3 rounded-xl font-medium transition-colors">
+            <i class="fas fa-plus mr-2"></i>Charger plus de joueurs
+        </button>
+    </div>
 </div>
 @endsection
 
 @push('scripts')
 <script>
-    // Variables globales
-    window.leaderboardData = {
-        region: @json($region),
-        country: @json($country),
-        limit: @json($limit)
-    };
-</script>
-
-<!-- ⚡ VERSION ULTRA OPTIMISÉE - APPELS DIRECTS API -->
-<script>
 /**
- * Leaderboards optimisé - Version embarquée comme Friends
- * Appels directs à l'API FACEIT Rankings
+ * Leaderboards.js ULTRA OPTIMISÉ - Version embarquée
+ * Appels directs à l'API FACEIT comme dans le système Friends
  */
 
 // Configuration API directe ULTRA AGRESSIVE
@@ -297,50 +300,38 @@ const FACEIT_API = {
     TOKEN: "9bcea3f9-2144-495e-be16-02d4eb1a811c",
     BASE_URL: "https://open.faceit.com/data/v4/",
     GAME_ID: "cs2",
-    TIMEOUT: 15000,  // 15 secondes max
-    MAX_CONCURRENT: 50, // Maximum de requêtes simultanées
-    BATCH_SIZE: 10   // Taille des lots pour enrichissement
+    TIMEOUT: 12000,
+    MAX_CONCURRENT_ENRICHMENT: 50, // 50 joueurs enrichis simultanément
+    ENABLE_STATS_ENRICHMENT: true, // Activer l'enrichissement des stats
+    ENABLE_AVATAR_LOADING: true    // Activer le chargement des avatars
 };
 
 // Variables globales
 let currentRegion = 'EU';
 let currentCountry = '';
-let currentPage = 0;
 let currentLimit = 20;
+let currentOffset = 0;
 let currentLeaderboard = [];
+let enrichedLeaderboard = [];
 let searchSectionVisible = false;
+let isLoading = false;
 
-// Cache en mémoire ultra rapide
+// Cache en mémoire optimisé
 const leaderboardCache = new Map();
+const playerCache = new Map();
+const statsCache = new Map();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🏆 Leaderboards ultra optimisé chargé');
-    
-    if (window.leaderboardData) {
-        currentRegion = window.leaderboardData.region || 'EU';
-        currentCountry = window.leaderboardData.country || '';
-        currentLimit = parseInt(window.leaderboardData.limit) || 20;
-        updateSelectValues();
-    }
-    
+    console.log('🏆 Leaderboards ULTRA OPTIMISÉ chargé');
     setupEventListeners();
     loadLeaderboardOptimized();
 });
 
-function updateSelectValues() {
-    const regionSelect = document.getElementById('regionSelect');
-    const countrySelect = document.getElementById('countrySelect');
-    const limitSelect = document.getElementById('limitSelect');
-    
-    if (regionSelect) regionSelect.value = currentRegion;
-    if (countrySelect) countrySelect.value = currentCountry;
-    if (limitSelect) limitSelect.value = currentLimit;
-}
+// ===== FONCTIONS API OPTIMISÉES =====
 
-// API optimisée avec retry
-async function faceitApiCall(endpoint, retries = 2) {
+async function faceitApiCall(endpoint) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), FACEIT_API.TIMEOUT);
     
@@ -355,134 +346,177 @@ async function faceitApiCall(endpoint, retries = 2) {
         
         clearTimeout(timeoutId);
         
-        if (!response.ok) {
-            if (retries > 0 && (response.status === 429 || response.status >= 500)) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                return faceitApiCall(endpoint, retries - 1);
-            }
-            throw new Error(`HTTP ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return await response.json();
         
     } catch (error) {
         clearTimeout(timeoutId);
         if (error.name === 'AbortError') throw new Error('Timeout API');
-        if (retries > 0) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            return faceitApiCall(endpoint, retries - 1);
-        }
         throw error;
     }
 }
 
-// Récupération enrichie des données joueur
-async function getEnrichedPlayerData(playerId) {
-    const cacheKey = `enriched_${playerId}`;
-    if (leaderboardCache.has(cacheKey)) {
-        const cached = leaderboardCache.get(cacheKey);
-        if (Date.now() - cached.timestamp < CACHE_DURATION) {
-            return cached.data;
-        }
+/**
+ * Récupération du classement de base FACEIT Rankings
+ */
+async function getLeaderboardBase(region, country, offset, limit) {
+    const cacheKey = `leaderboard_${region}_${country}_${offset}_${limit}`;
+    const cached = leaderboardCache.get(cacheKey);
+    
+    if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+        console.log('📦 Classement depuis cache');
+        return cached.data;
     }
     
     try {
-        // Récupérer le joueur et ses stats en parallèle
-        const [player, stats] = await Promise.allSettled([
-            faceitApiCall(`players/${playerId}`),
-            faceitApiCall(`players/${playerId}/stats/${FACEIT_API.GAME_ID}`)
-        ]);
+        let endpoint = `rankings/games/${FACEIT_API.GAME_ID}/regions/${region}?offset=${offset}&limit=${limit}`;
+        if (country) {
+            endpoint += `&country=${country}`;
+        }
         
-        const playerData = player.status === 'fulfilled' ? player.value : null;
-        const statsData = stats.status === 'fulfilled' ? stats.value : null;
+        console.log(`🌐 API FACEIT Rankings: ${endpoint}`);
+        const data = await faceitApiCall(endpoint);
         
-        const enrichedData = {
-            avatar: playerData?.avatar || null,
-            win_rate: extractWinRate(statsData),
-            kd_ratio: extractKDRatio(statsData),
-            matches: extractMatches(statsData),
-            recent_form: calculateRecentForm(statsData)
-        };
-        
-        // Cache les données enrichies
         leaderboardCache.set(cacheKey, {
-            data: enrichedData,
+            data: data,
             timestamp: Date.now()
         });
         
-        return enrichedData;
+        return data;
         
     } catch (error) {
-        console.warn(`⚠️ Impossible d'enrichir ${playerId}:`, error.message);
-        return {
-            avatar: null,
-            win_rate: 0,
-            kd_ratio: 0,
-            matches: 0,
-            recent_form: 'unknown'
-        };
+        console.error('❌ Erreur API Rankings:', error);
+        throw error;
     }
 }
 
-// Enrichissement des joueurs du classement en lots
-async function enrichPlayersInBatches(players) {
-    console.log(`🔍 Enrichissement de ${players.length} joueurs...`);
-    
-    // Traiter par lots pour éviter de surcharger l'API
-    const batches = [];
-    for (let i = 0; i < players.length; i += FACEIT_API.BATCH_SIZE) {
-        batches.push(players.slice(i, i + FACEIT_API.BATCH_SIZE));
+/**
+ * Enrichissement ULTRA AGRESSIF des données
+ */
+async function enrichPlayersData(players) {
+    if (!FACEIT_API.ENABLE_STATS_ENRICHMENT) {
+        return players; // Retourner les données de base si enrichissement désactivé
     }
     
-    const enrichedPlayers = [...players];
+    console.log(`🚀 ENRICHISSEMENT ULTRA AGRESSIF: ${players.length} joueurs`);
     
-    for (let i = 0; i < batches.length; i++) {
-        const batch = batches[i];
-        console.log(`⚡ Enrichissement lot ${i + 1}/${batches.length} (${batch.length} joueurs)...`);
+    // Diviser en lots pour l'enrichissement
+    const batches = [];
+    for (let i = 0; i < players.length; i += FACEIT_API.MAX_CONCURRENT_ENRICHMENT) {
+        batches.push(players.slice(i, i + FACEIT_API.MAX_CONCURRENT_ENRICHMENT));
+    }
+    
+    let enrichedPlayers = [];
+    
+    for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+        const batch = batches[batchIndex];
+        console.log(`⚡ Enrichissement lot ${batchIndex + 1}/${batches.length} (${batch.length} joueurs)`);
         
-        // Enrichir tous les joueurs du lot en parallèle
-        const enrichmentPromises = batch.map(async (player, batchIndex) => {
-            const globalIndex = i * FACEIT_API.BATCH_SIZE + batchIndex;
-            const enrichedData = await getEnrichedPlayerData(player.player_id);
-            
-            // Fusionner les données enrichies
-            enrichedPlayers[globalIndex] = {
-                ...player,
-                avatar: enrichedData.avatar,
-                win_rate: enrichedData.win_rate,
-                kd_ratio: enrichedData.kd_ratio,
-                matches: enrichedData.matches,
-                recent_form: enrichedData.recent_form
-            };
-            
-            return enrichedPlayers[globalIndex];
+        // Traitement parallèle TOTAL du lot
+        const enrichPromises = batch.map(async (player) => {
+            try {
+                return await enrichSinglePlayer(player);
+            } catch (error) {
+                console.warn(`⚠️ Erreur enrichissement ${player.nickname}:`, error.message);
+                return player; // Fallback vers données de base
+            }
         });
         
-        await Promise.allSettled(enrichmentPromises);
+        const startTime = performance.now();
+        const batchResults = await Promise.allSettled(enrichPromises);
+        const endTime = performance.now();
         
-        // Affichage progressif après chaque lot
-        updateProgressiveDisplay(enrichedPlayers.slice(0, (i + 1) * FACEIT_API.BATCH_SIZE));
+        console.log(`⚡ Lot ${batchIndex + 1} traité en ${Math.round(endTime - startTime)}ms`);
         
-        // Petit délai entre les lots pour être gentil avec l'API
-        if (i < batches.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 200));
-        }
+        const validResults = batchResults
+            .filter(result => result.status === 'fulfilled')
+            .map(result => result.value);
+        
+        enrichedPlayers.push(...validResults);
+        
+        // Affichage progressif
+        updateProgressiveLeaderboard(enrichedPlayers);
     }
     
-    console.log(`✅ ${enrichedPlayers.length} joueurs enrichis avec avatar, stats et forme`);
+    console.log(`✅ ${enrichedPlayers.length}/${players.length} joueurs enrichis`);
     return enrichedPlayers;
 }
 
-// Fonctions d'extraction des stats (comme dans l'ancien code)
+/**
+ * Enrichissement d'un joueur individuel
+ */
+async function enrichSinglePlayer(player) {
+    const playerId = player.player_id;
+    
+    // Vérifier le cache
+    const playerCacheKey = `player_${playerId}`;
+    const statsCacheKey = `stats_${playerId}`;
+    
+    const cachedPlayer = playerCache.get(playerCacheKey);
+    const cachedStats = statsCache.get(statsCacheKey);
+    
+    let playerData = null;
+    let statsData = null;
+    
+    // Récupérer les données joueur (pour avatar)
+    if (FACEIT_API.ENABLE_AVATAR_LOADING) {
+        if (cachedPlayer && (Date.now() - cachedPlayer.timestamp) < CACHE_DURATION) {
+            playerData = cachedPlayer.data;
+        } else {
+            try {
+                playerData = await faceitApiCall(`players/${playerId}`);
+                playerCache.set(playerCacheKey, {
+                    data: playerData,
+                    timestamp: Date.now()
+                });
+            } catch (error) {
+                console.warn(`⚠️ Avatar ${player.nickname}:`, error.message);
+            }
+        }
+    }
+    
+    // Récupérer les stats (pour WR, K/D, forme)
+    if (cachedStats && (Date.now() - cachedStats.timestamp) < CACHE_DURATION) {
+        statsData = cachedStats.data;
+    } else {
+        try {
+            statsData = await faceitApiCall(`players/${playerId}/stats/${FACEIT_API.GAME_ID}`);
+            statsCache.set(statsCacheKey, {
+                data: statsData,
+                timestamp: Date.now()
+            });
+        } catch (error) {
+            console.warn(`⚠️ Stats ${player.nickname}:`, error.message);
+        }
+    }
+    
+    // Enrichir les données
+    const enrichedPlayer = {
+        ...player,
+        avatar: playerData?.avatar || null,
+        country: playerData?.country || player.country || 'EU',
+        win_rate: extractWinRate(statsData),
+        kd_ratio: extractKDRatio(statsData),
+        matches: extractMatches(statsData),
+        recent_form: calculateRecentForm(statsData)
+    };
+    
+    return enrichedPlayer;
+}
+
+/**
+ * Extraction des données de stats
+ */
 function extractWinRate(stats) {
     if (!stats || !stats.lifetime) return 0;
     
     const winRate = stats.lifetime['Win Rate %'];
-    if (winRate !== undefined) return round(parseFloat(winRate), 1);
+    if (winRate !== undefined) return Math.round(parseFloat(winRate));
     
     const matches = parseInt(stats.lifetime.Matches || 0);
     const wins = parseInt(stats.lifetime.Wins || 0);
     
-    if (matches > 0) return round((wins / matches) * 100, 1);
+    if (matches > 0) return Math.round((wins / matches) * 100);
     return 0;
 }
 
@@ -490,12 +524,12 @@ function extractKDRatio(stats) {
     if (!stats || !stats.lifetime) return 0;
     
     const kd = stats.lifetime['Average K/D Ratio'];
-    if (kd !== undefined) return round(parseFloat(kd), 2);
+    if (kd !== undefined) return parseFloat(kd).toFixed(2);
     
     const kills = parseInt(stats.lifetime.Kills || 0);
     const deaths = parseInt(stats.lifetime.Deaths || 0);
     
-    if (deaths > 0) return round(kills / deaths, 2);
+    if (deaths > 0) return (kills / deaths).toFixed(2);
     return 0;
 }
 
@@ -514,171 +548,132 @@ function calculateRecentForm(stats) {
     const winRate = (wins / recentResults.length) * 100;
     
     if (winRate >= 80) return 'excellent';
-    if (winRate >= 60) return 'good'; 
+    if (winRate >= 60) return 'good';
     if (winRate >= 40) return 'average';
     return 'poor';
 }
 
-function round(num, decimals) {
-    return Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
-}
-
-async function loadLeaderboardOptimized(forceRefresh = false) {
-    console.log('🚀 Chargement classement ultra optimisé avec enrichissement:', {
-        region: currentRegion,
-        country: currentCountry,
-        page: currentPage,
-        limit: currentLimit
-    });
-    
-    showLoading();
+/**
+ * Chargement principal optimisé
+ */
+async function loadLeaderboardOptimized() {
+    if (isLoading) return;
     
     try {
-        const offset = currentPage * currentLimit;
-        const cacheKey = `rankings_enriched_${currentRegion}_${currentCountry}_${currentLimit}_${offset}`;
+        isLoading = true;
+        showLoadingState();
         
-        // Vérifier le cache en mémoire pour les données enrichies
-        if (!forceRefresh && leaderboardCache.has(cacheKey)) {
-            const cachedData = leaderboardCache.get(cacheKey);
-            if (Date.now() - cachedData.timestamp < CACHE_DURATION) {
-                console.log('📦 Données enrichies depuis cache mémoire');
-                currentLeaderboard = cachedData.data;
-                displayLeaderboard();
-                return;
-            }
-        }
-        
-        // 1. Récupérer le classement de base
-        let endpoint = `rankings/games/${FACEIT_API.GAME_ID}/regions/${currentRegion}?offset=${offset}&limit=${currentLimit}`;
-        if (currentCountry) {
-            endpoint += `&country=${currentCountry}`;
-        }
-        
-        console.time('⚡ API FACEIT Rankings Base');
-        const rankingData = await faceitApiCall(endpoint);
-        console.timeEnd('⚡ API FACEIT Rankings Base');
-        
-        if (!rankingData || !rankingData.items) {
-            throw new Error('Aucune donnée de classement disponible');
-        }
-        
-        console.log(`📋 ${rankingData.items.length} joueurs récupérés, début enrichissement...`);
-        
-        // Afficher le classement de base immédiatement
-        currentLeaderboard = rankingData.items;
-        displayLeaderboard();
-        updatePagination(rankingData);
-        
-        // 2. Enrichir avec avatars, stats et forme en arrière-plan
-        const enrichedPlayers = await enrichPlayersInBatches(rankingData.items);
-        
-        // 3. Mettre à jour avec les données enrichies
-        currentLeaderboard = enrichedPlayers;
-        
-        // Cache les données enrichies
-        leaderboardCache.set(cacheKey, {
-            data: enrichedPlayers,
-            timestamp: Date.now()
+        console.log('🏆 Chargement classement optimisé:', {
+            region: currentRegion,
+            country: currentCountry,
+            offset: currentOffset,
+            limit: currentLimit
         });
         
-        // Affichage final avec toutes les données
-        displayLeaderboard();
+        const startTime = performance.now();
         
-        console.log('🎉 Classement complet avec avatars, stats et forme!');
+        // 1. Récupération du classement de base
+        console.log('📊 Récupération classement FACEIT...');
+        const leaderboardData = await getLeaderboardBase(currentRegion, currentCountry, currentOffset, currentLimit);
+        
+        if (!leaderboardData || !leaderboardData.items || leaderboardData.items.length === 0) {
+            throw new Error('Aucun joueur trouvé dans ce classement');
+        }
+        
+        currentLeaderboard = leaderboardData.items;
+        console.log(`📋 ${currentLeaderboard.length} joueurs récupérés`);
+        
+        // 2. Enrichissement ultra-agressif
+        console.log('🚀 Début enrichissement ultra-agressif...');
+        enrichedLeaderboard = await enrichPlayersData(currentLeaderboard);
+        
+        const endTime = performance.now();
+        const loadTime = Math.round(endTime - startTime);
+        
+        console.log(`✅ Classement chargé en ${loadTime}ms`);
+        
+        // 3. Affichage
+        displayLeaderboardOptimized();
+        updatePaginationOptimized(leaderboardData);
+        updateLoadTimeDisplay(loadTime);
+        showLeaderboardContent();
+        
+        // 4. Stats de région (en arrière-plan)
+        setTimeout(() => calculateRegionStats(), 100);
         
     } catch (error) {
-        console.error('❌ Erreur:', error);
+        console.error('❌ Erreur chargement classement:', error);
         showErrorState(error.message);
+    } finally {
+        isLoading = false;
     }
 }
 
-async function searchPlayerOptimized(playerName) {
-    console.log('🔍 Recherche joueur ultra optimisée avec enrichissement:', playerName);
+/**
+ * Recherche de joueur optimisée
+ */
+async function searchPlayerOptimized(nickname) {
+    console.log('🔍 Recherche joueur optimisée:', nickname);
     
-    const searchResult = document.getElementById('playerSearchResult');
-    const searchButton = document.getElementById('searchPlayerButton');
+    const searchCacheKey = `search_${nickname}_${currentRegion}_${currentCountry}`;
+    const cached = leaderboardCache.get(searchCacheKey);
     
-    if (!searchResult || !searchButton) return;
-    
-    const cacheKey = `search_enriched_${playerName}_${currentRegion}`;
-    if (leaderboardCache.has(cacheKey)) {
-        const cachedData = leaderboardCache.get(cacheKey);
-        if (Date.now() - cachedData.timestamp < CACHE_DURATION) {
-            displayPlayerSearchResult(cachedData.data);
-            return;
-        }
+    if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+        return cached.data;
     }
     
-    const originalText = searchButton.innerHTML;
-    searchButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Recherche...';
-    searchButton.disabled = true;
-    
-    searchResult.innerHTML = `
-        <div class="flex items-center justify-center py-4 bg-faceit-elevated/50 rounded-lg">
-            <i class="fas fa-spinner fa-spin text-faceit-orange mr-2"></i>
-            <span class="text-gray-300">Recherche avec enrichissement complet...</span>
-        </div>
-    `;
-    
     try {
-        console.time('🔍 Recherche API Enrichie');
+        // 1. Récupérer les données joueur
+        console.log('👤 Récupération données joueur...');
+        const player = await faceitApiCall(`players?nickname=${encodeURIComponent(nickname)}`);
         
-        // 1. Chercher le joueur par nickname via API directe
-        const player = await faceitApiCall(`players?nickname=${encodeURIComponent(playerName)}`);
-        
-        if (!player || !player.games || !player.games.cs2) {
+        if (!player || !player.games || !player.games[FACEIT_API.GAME_ID]) {
             throw new Error("Ce joueur n'a pas de profil CS2");
         }
         
-        // 2. Récupérer position + stats + avatar en parallèle
-        const [rankingResult, enrichedData] = await Promise.allSettled([
-            // Position dans le classement
-            faceitApiCall(`rankings/games/${FACEIT_API.GAME_ID}/regions/${currentRegion}/players/${player.player_id}?limit=20${currentCountry ? `&country=${currentCountry}` : ''}`),
-            // Stats et avatar
-            getEnrichedPlayerData(player.player_id)
-        ]);
+        // 2. Récupérer sa position dans le classement
+        let position = null;
+        try {
+            console.log('📊 Récupération position classement...');
+            let endpoint = `rankings/games/${FACEIT_API.GAME_ID}/regions/${currentRegion}/players/${player.player_id}?limit=20`;
+            if (currentCountry) {
+                endpoint += `&country=${currentCountry}`;
+            }
+            
+            const rankingData = await faceitApiCall(endpoint);
+            position = rankingData.position;
+        } catch (error) {
+            console.warn('⚠️ Position classement non disponible:', error.message);
+        }
         
-        const position = rankingResult.status === 'fulfilled' ? rankingResult.value.position : null;
-        const enriched = enrichedData.status === 'fulfilled' ? enrichedData.value : {};
+        // 3. Enrichir avec les stats
+        const enrichedPlayer = await enrichSinglePlayer({
+            ...player,
+            position: position,
+            faceit_elo: player.games[FACEIT_API.GAME_ID].faceit_elo,
+            skill_level: player.games[FACEIT_API.GAME_ID].skill_level
+        });
         
-        console.timeEnd('🔍 Recherche API Enrichie');
+        const result = { player: enrichedPlayer };
         
-        // 3. Construire le résultat complet
-        const enrichedPlayer = {
-            player_id: player.player_id,
-            nickname: player.nickname,
-            avatar: enriched.avatar || player.avatar,
-            country: player.country || currentRegion,
-            skill_level: player.games.cs2.skill_level || 1,
-            faceit_elo: player.games.cs2.faceit_elo || 1000,
-            position: position || 'N/A',
-            win_rate: enriched.win_rate || 0,
-            kd_ratio: enriched.kd_ratio || 0,
-            matches: enriched.matches || 0,
-            recent_form: enriched.recent_form || 'unknown'
-        };
-        
-        // Cache les données enrichies
-        leaderboardCache.set(cacheKey, {
-            data: enrichedPlayer,
+        leaderboardCache.set(searchCacheKey, {
+            data: result,
             timestamp: Date.now()
         });
         
-        displayPlayerSearchResult(enrichedPlayer);
+        return result;
         
     } catch (error) {
-        console.error('❌ Erreur recherche enrichie:', error);
-        handleSearchError(error, playerName, searchResult);
-    } finally {
-        searchButton.innerHTML = originalText;
-        searchButton.disabled = false;
+        console.error('❌ Erreur recherche:', error);
+        throw error;
     }
 }
 
+// ===== FONCTIONS D'AFFICHAGE OPTIMISÉES =====
+
 function setupEventListeners() {
-    const debouncedLoadLeaderboard = debounce(() => {
-        currentPage = 0;
-        updateURL();
+    const debouncedLoad = debounce(() => {
+        currentOffset = 0;
         loadLeaderboardOptimized();
     }, 800);
 
@@ -690,34 +685,34 @@ function setupEventListeners() {
     if (regionSelect) {
         regionSelect.addEventListener('change', function() {
             currentRegion = this.value;
-            debouncedLoadLeaderboard();
+            debouncedLoad();
         });
     }
 
     if (countrySelect) {
         countrySelect.addEventListener('change', function() {
             currentCountry = this.value;
-            debouncedLoadLeaderboard();
+            debouncedLoad();
         });
     }
 
     if (limitSelect) {
         limitSelect.addEventListener('change', function() {
             currentLimit = parseInt(this.value);
-            debouncedLoadLeaderboard();
+            debouncedLoad();
         });
     }
 
-    // Refresh
+    // Bouton refresh
     const refreshButton = document.getElementById('refreshButton');
     if (refreshButton) {
         refreshButton.addEventListener('click', function() {
             this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Actualisation...';
             this.disabled = true;
             
-            leaderboardCache.clear();
-            currentPage = 0;
-            loadLeaderboardOptimized(true).finally(() => {
+            clearAllCaches();
+            currentOffset = 0;
+            loadLeaderboardOptimized().finally(() => {
                 this.innerHTML = '<i class="fas fa-sync-alt mr-2"></i>Actualiser';
                 this.disabled = false;
             });
@@ -735,19 +730,14 @@ function setupEventListeners() {
     const searchInput = document.getElementById('playerSearchInput');
     
     if (searchButton) {
-        searchButton.addEventListener('click', function() {
-            const playerName = searchInput.value.trim();
-            if (playerName) {
-                searchPlayerOptimized(playerName);
-            }
-        });
+        searchButton.addEventListener('click', handlePlayerSearch);
     }
 
     if (searchInput) {
         searchInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                searchButton.click();
+                handlePlayerSearch();
             }
         });
     }
@@ -758,8 +748,8 @@ function setupEventListeners() {
     
     if (prevButton) {
         prevButton.addEventListener('click', function() {
-            if (currentPage > 0) {
-                currentPage--;
+            if (currentOffset > 0) {
+                currentOffset -= currentLimit;
                 loadLeaderboardOptimized();
             }
         });
@@ -767,68 +757,163 @@ function setupEventListeners() {
 
     if (nextButton) {
         nextButton.addEventListener('click', function() {
-            currentPage++;
+            currentOffset += currentLimit;
             loadLeaderboardOptimized();
         });
     }
 }
 
-// Affichage progressif pendant l'enrichissement
-function updateProgressiveDisplay(partialPlayers) {
-    if (!partialPlayers || partialPlayers.length === 0) return;
+async function handlePlayerSearch() {
+    const searchInput = document.getElementById('playerSearchInput');
+    const searchButton = document.getElementById('searchPlayerButton');
+    const searchResult = document.getElementById('playerSearchResult');
     
-    const loadingProgress = document.getElementById('loadingProgress');
-    if (loadingProgress) {
-        loadingProgress.textContent = `${partialPlayers.length}/${currentLimit} joueurs enrichis...`;
+    const playerName = searchInput.value.trim();
+    if (!playerName) {
+        showSearchError("Veuillez entrer un nom de joueur");
+        return;
     }
     
-    // Mettre à jour l'affichage partiel si on est en mode loading
-    const loadingState = document.getElementById('loadingState');
-    if (loadingState && !loadingState.classList.contains('hidden')) {
-        // Passer en mode affichage intermédiaire
-        currentLeaderboard = partialPlayers;
-        displayLeaderboard();
+    const originalText = searchButton.innerHTML;
+    searchButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Recherche...';
+    searchButton.disabled = true;
+    
+    searchResult.innerHTML = `
+        <div class="flex items-center justify-center py-4 bg-faceit-elevated/50 rounded-lg">
+            <i class="fas fa-spinner fa-spin text-faceit-orange mr-2"></i>
+            <span class="text-gray-300">Recherche ultra-rapide de ${playerName}...</span>
+        </div>
+    `;
+    
+    try {
+        const result = await searchPlayerOptimized(playerName);
+        displayPlayerSearchResult(result.player);
         
-        // Remettre l'indicateur de progression
-        if (loadingProgress) {
-            loadingProgress.textContent = `Enrichissement en cours... ${partialPlayers.length}/${currentLimit}`;
-        }
+    } catch (error) {
+        handleSearchError(error, playerName, searchResult);
+    } finally {
+        searchButton.innerHTML = originalText;
+        searchButton.disabled = false;
     }
 }
-    hideLoading();
-    const leaderboardContainer = document.getElementById('leaderboardContainer');
-    if (leaderboardContainer) {
-        leaderboardContainer.classList.remove('hidden');
+
+function displayPlayerSearchResult(player) {
+    const searchResult = document.getElementById('playerSearchResult');
+    if (!searchResult) return;
+    
+    const avatar = player.avatar || getDefaultAvatar(player.nickname);
+    const country = player.country || 'EU';
+    const level = player.skill_level || 1;
+    const elo = player.faceit_elo || 'N/A';
+    const position = player.position || 'N/A';
+    const winRate = player.win_rate || 0;
+    const kdRatio = player.kd_ratio || 0;
+    const recentForm = player.recent_form || 'unknown';
+    
+    const formConfig = getFormConfig(recentForm);
+    
+    searchResult.innerHTML = `
+        <div class="bg-gradient-to-r from-faceit-elevated to-faceit-card rounded-xl p-6 border border-gray-700 shadow-lg animate-scale-in">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <img src="${avatar}" alt="Avatar" 
+                             class="w-16 h-16 rounded-xl border-2 border-faceit-orange shadow-lg transition-transform hover:scale-110" 
+                             onerror="this.src='${getDefaultAvatar(player.nickname)}'"
+                             loading="lazy">
+                        <div class="absolute -bottom-2 -right-2 bg-faceit-orange rounded-full p-1">
+                            <img src="${getRankIconUrl(level)}" alt="Rank" class="w-6 h-6">
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-bold text-white">${player.nickname}</h4>
+                        <div class="flex items-center space-x-3 text-sm text-gray-400 mt-1">
+                            <div class="flex items-center space-x-1">
+                                <img src="${getCountryFlagUrl(country)}" alt="${country}" class="w-4 h-4">
+                                <span>${getCountryName(country) || country}</span>
+                            </div>
+                            <span>•</span>
+                            <span class="${getRankColor(level)} font-semibold">${formatNumber(elo)} ELO</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 mt-3">
+                            <div class="text-center p-2 bg-black/20 rounded-lg">
+                                <div class="text-sm font-semibold text-blue-400">${winRate}%</div>
+                                <div class="text-xs text-gray-500">Win Rate</div>
+                            </div>
+                            <div class="text-center p-2 bg-black/20 rounded-lg">
+                                <div class="text-sm font-semibold text-green-400">${kdRatio}</div>
+                                <div class="text-xs text-gray-500">K/D Ratio</div>
+                            </div>
+                            <div class="text-center p-2 bg-black/20 rounded-lg">
+                                <div class="px-2 py-1 rounded-full text-xs font-semibold ${formConfig.class}">
+                                    <i class="${formConfig.icon} mr-1"></i>
+                                    ${formConfig.text}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-right">
+                    <div class="text-3xl font-black text-faceit-orange animate-pulse-orange">
+                        ${position !== 'N/A' ? '#' + formatNumber(position) : 'N/A'}
+                    </div>
+                    <div class="text-sm text-gray-400">Position ${currentRegion}</div>
+                    ${position !== 'N/A' && position <= 100 ? '<div class="text-xs text-green-400 mt-1"><i class="fas fa-star mr-1"></i>Top 100</div>' : ''}
+                </div>
+                
+                <div class="flex flex-col space-y-2">
+                    <button onclick="navigateToPlayer('${player.player_id}')" 
+                            class="bg-gradient-to-r from-faceit-orange to-red-500 hover:from-faceit-orange-dark hover:to-red-600 px-4 py-2 rounded-lg text-sm font-semibold transition-all transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-chart-line mr-2"></i>Statistiques
+                    </button>
+                    <button onclick="navigateToComparison('${encodeURIComponent(player.nickname)}')" 
+                            class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 px-4 py-2 rounded-lg text-sm font-semibold transition-all transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-balance-scale mr-2"></i>Comparer
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function updateProgressiveLeaderboard(players) {
+    const progressElement = document.getElementById('loadingProgress');
+    if (progressElement) {
+        progressElement.textContent = `${players.length} joueurs enrichis...`;
     }
     
-    // Mettre à jour le titre
-    const regionName = getRegionName(currentRegion);
-    const countryName = currentCountry ? ` - ${getCountryName(currentCountry)}` : '';
-    const leaderboardTitle = document.getElementById('leaderboardTitle');
-    if (leaderboardTitle) {
-        leaderboardTitle.textContent = `Classement ${regionName}${countryName}`;
+    // Affichage progressif dès qu'on a quelques joueurs
+    if (players.length >= 5 && !document.getElementById('leaderboardContainer').classList.contains('hidden')) {
+        enrichedLeaderboard = players;
+        displayLeaderboardOptimized();
     }
+}
+
+function displayLeaderboardOptimized() {
+    const leaderboardTable = document.getElementById('leaderboardTable');
+    if (!leaderboardTable) return;
     
-    console.log('🎯 Affichage de', currentLeaderboard.length, 'joueurs');
+    console.log('🎯 Affichage optimisé:', enrichedLeaderboard.length, 'joueurs');
     
-    // Affichage optimisé avec DocumentFragment
-    const tableBody = document.getElementById('leaderboardTable');
-    if (tableBody) {
-        const fragment = document.createDocumentFragment();
-        
-        currentLeaderboard.forEach((player, index) => {
-            const playerRow = createOptimizedPlayerRow(player);
-            fragment.appendChild(playerRow);
-        });
-        
-        tableBody.innerHTML = '';
-        tableBody.appendChild(fragment);
-        
-        // Animation échelonnée
-        const rows = tableBody.querySelectorAll('.leaderboard-row');
+    // Utiliser DocumentFragment pour performance
+    const fragment = document.createDocumentFragment();
+    
+    enrichedLeaderboard.forEach((player, index) => {
+        const playerRow = createOptimizedPlayerRow(player, index);
+        fragment.appendChild(playerRow);
+    });
+    
+    // Remplacer le contenu en une seule opération DOM
+    leaderboardTable.innerHTML = '';
+    leaderboardTable.appendChild(fragment);
+    
+    // Animation échelonnée
+    setTimeout(() => {
+        const rows = leaderboardTable.querySelectorAll('.leaderboard-row');
         rows.forEach((row, index) => {
             row.style.opacity = '0';
-            row.style.transform = 'translateY(20px)';
+            row.style.transform = 'translateY(10px)';
             
             setTimeout(() => {
                 row.style.transition = 'all 0.3s ease-out';
@@ -836,48 +921,47 @@ function updateProgressiveDisplay(partialPlayers) {
                 row.style.transform = 'translateY(0)';
             }, index * 30);
         });
-    }
+    }, 50);
+    
+    updateLeaderboardMeta();
 }
 
-function createOptimizedPlayerRow(player) {
+function createOptimizedPlayerRow(player, index) {
     const row = document.createElement('div');
     row.className = 'leaderboard-row px-6 py-4 transition-all duration-300 hover:bg-faceit-elevated/50 border-l-4 border-transparent hover:border-faceit-orange cursor-pointer';
     
     const position = player.position;
-    const avatar = player.avatar || 'https://d50m6q67g4bn3.cloudfront.net/avatars/101f7b39-7130-4919-8d2d-13a87add102c_1516883786781';
+    const avatar = player.avatar || getDefaultAvatar(player.nickname);
     const country = player.country || 'EU';
-    const level = player.game_skill_level || 1;
-    const elo = player.faceit_elo || 1000;
+    const level = player.skill_level || 1;
+    const elo = player.faceit_elo || 'N/A';
     const nickname = player.nickname || 'Joueur inconnu';
     const playerId = player.player_id || '';
-    
-    // Données enrichies (avatar, stats, forme)
     const winRate = player.win_rate || 0;
     const kdRatio = player.kd_ratio || 0;
-    const matches = player.matches || 0;
     const recentForm = player.recent_form || 'unknown';
     
     // Couleurs spéciales pour le podium
     let positionClass = 'text-gray-300';
     let positionIcon = '';
-    let rowExtraClass = '';
+    let rowClass = '';
     
     if (position === 1) {
         positionClass = 'text-yellow-400';
         positionIcon = '<i class="fas fa-crown text-yellow-400 mr-2 animate-bounce"></i>';
-        rowExtraClass = 'bg-gradient-to-r from-yellow-500/10 to-transparent';
+        rowClass = 'bg-gradient-to-r from-yellow-500/10 to-transparent';
     } else if (position === 2) {
         positionClass = 'text-gray-300';
         positionIcon = '<i class="fas fa-medal text-gray-300 mr-2"></i>';
-        rowExtraClass = 'bg-gradient-to-r from-gray-500/10 to-transparent';
+        rowClass = 'bg-gradient-to-r from-gray-500/10 to-transparent';
     } else if (position === 3) {
         positionClass = 'text-orange-400';
         positionIcon = '<i class="fas fa-medal text-orange-400 mr-2"></i>';
-        rowExtraClass = 'bg-gradient-to-r from-orange-500/10 to-transparent';
+        rowClass = 'bg-gradient-to-r from-orange-500/10 to-transparent';
     }
     
-    if (rowExtraClass) {
-        row.className += ' ' + rowExtraClass;
+    if (rowClass) {
+        row.className += ' ' + rowClass;
     }
     
     const formConfig = getFormConfig(recentForm);
@@ -894,7 +978,7 @@ function createOptimizedPlayerRow(player) {
                 <div class="relative">
                     <img src="${avatar}" alt="Avatar" 
                          class="w-12 h-12 rounded-lg border-2 border-gray-600 hover:border-faceit-orange transition-all duration-300 shadow-lg" 
-                         onerror="this.src='https://d50m6q67g4bn3.cloudfront.net/avatars/101f7b39-7130-4919-8d2d-13a87add102c_1516883786781'"
+                         onerror="this.src='${getDefaultAvatar(nickname)}'"
                          loading="lazy">
                     <div class="absolute -bottom-1 -right-1 bg-faceit-orange rounded-full p-1">
                         <img src="${getRankIconUrl(level)}" alt="Rank" class="w-4 h-4" loading="lazy">
@@ -923,7 +1007,8 @@ function createOptimizedPlayerRow(player) {
             
             <div class="col-span-2 text-center">
                 <div class="flex items-center justify-center space-x-2">
-                    <img src="${getRankIconUrl(level)}" alt="Rank" class="w-6 h-6" loading="lazy">
+                    <img src="${getRankIconUrl(level)}" alt="Rank" class="w-6 h-6" 
+                         onerror="this.style.display='none'" loading="lazy">
                     <span class="${getRankColor(level)} font-semibold">Niveau ${level}</span>
                 </div>
             </div>
@@ -948,18 +1033,20 @@ function createOptimizedPlayerRow(player) {
                     </div>
                 ` : `
                     <div class="text-xs text-gray-500">
-                        <i class="fas fa-spinner fa-spin mr-1"></i>
-                        Chargement...
+                        <i class="fas fa-lock mr-1"></i>
+                        Données privées
                     </div>
                 `}
             </div>
             
             <div class="col-span-1 text-center">
-                <button onclick="event.stopPropagation(); navigateToPlayer('${playerId}')" 
-                        class="bg-gradient-to-r from-faceit-orange to-red-500 hover:from-faceit-orange-dark hover:to-red-600 p-2 rounded-lg text-sm transition-all transform hover:scale-110 shadow-lg"
-                        title="Voir les statistiques">
-                    <i class="fas fa-chart-line"></i>
-                </button>
+                <div class="flex justify-center">
+                    <button onclick="event.stopPropagation(); navigateToPlayer('${playerId}')" 
+                            class="bg-gradient-to-r from-faceit-orange to-red-500 hover:from-faceit-orange-dark hover:to-red-600 p-2 rounded-lg text-sm transition-all transform hover:scale-110 shadow-lg"
+                            title="Voir les statistiques">
+                        <i class="fas fa-chart-line"></i>
+                    </button>
+                </div>
             </div>
         </div>
     `;
@@ -968,104 +1055,148 @@ function createOptimizedPlayerRow(player) {
     return row;
 }
 
-function displayPlayerSearchResult(player) {
-    const searchResult = document.getElementById('playerSearchResult');
-    if (!searchResult) return;
+// ===== FONCTIONS UTILITAIRES =====
+
+function getFormConfig(form) {
+    const configs = {
+        'excellent': {
+            class: 'bg-green-500/20 text-green-400 border border-green-500/50',
+            icon: 'fas fa-fire',
+            text: 'Excellente'
+        },
+        'good': {
+            class: 'bg-blue-500/20 text-blue-400 border border-blue-500/50',
+            icon: 'fas fa-thumbs-up',
+            text: 'Bonne'
+        },
+        'average': {
+            class: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/50',
+            icon: 'fas fa-minus',
+            text: 'Moyenne'
+        },
+        'poor': {
+            class: 'bg-red-500/20 text-red-400 border border-red-500/50',
+            icon: 'fas fa-thumbs-down',
+            text: 'Difficile'
+        },
+        'unknown': {
+            class: 'bg-gray-500/20 text-gray-400 border border-gray-500/50',
+            icon: 'fas fa-question',
+            text: 'Inconnue'
+        }
+    };
     
-    const avatar = player.avatar || 'https://d50m6q67g4bn3.cloudfront.net/avatars/101f7b39-7130-4919-8d2d-13a87add102c_1516883786781';
-    const country = player.country || 'EU';
-    const level = player.skill_level || 1;
-    const elo = player.faceit_elo || 'N/A';
-    const position = player.position || 'N/A';
-    const winRate = player.win_rate || 0;
-    const kdRatio = player.kd_ratio || 0;
-    const matches = player.matches || 0;
-    const recentForm = player.recent_form || 'unknown';
-    
-    const formConfig = getFormConfig(recentForm);
-    
-    searchResult.innerHTML = `
-        <div class="bg-gradient-to-r from-faceit-elevated to-faceit-card rounded-xl p-6 border border-gray-700 shadow-lg animate-scale-in">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <div class="relative">
-                        <img src="${avatar}" alt="Avatar" 
-                             class="w-16 h-16 rounded-xl border-2 border-faceit-orange shadow-lg transition-transform hover:scale-110" 
-                             onerror="this.src='https://d50m6q67g4bn3.cloudfront.net/avatars/101f7b39-7130-4919-8d2d-13a87add102c_1516883786781'">
-                        <div class="absolute -bottom-2 -right-2 bg-faceit-orange rounded-full p-1">
-                            <img src="${getRankIconUrl(level)}" alt="Rank" class="w-6 h-6">
-                        </div>
-                    </div>
-                    <div>
-                        <h4 class="text-xl font-bold text-white">${player.nickname}</h4>
-                        <div class="flex items-center space-x-3 text-sm text-gray-400 mt-1">
-                            <div class="flex items-center space-x-1">
-                                <img src="${getCountryFlagUrl(country)}" alt="${country}" class="w-4 h-4">
-                                <span>${getCountryName(country) || country}</span>
-                            </div>
-                            <span>•</span>
-                            <span class="${getRankColor(level)} font-semibold">${formatNumber(elo)} ELO</span>
-                        </div>
-                        <div class="grid grid-cols-4 gap-4 mt-3">
-                            <div class="text-center p-2 bg-black/20 rounded-lg">
-                                <div class="text-sm font-semibold text-blue-400">${winRate}%</div>
-                                <div class="text-xs text-gray-500">Win Rate</div>
-                            </div>
-                            <div class="text-center p-2 bg-black/20 rounded-lg">
-                                <div class="text-sm font-semibold text-green-400">${kdRatio}</div>
-                                <div class="text-xs text-gray-500">K/D Ratio</div>
-                            </div>
-                            <div class="text-center p-2 bg-black/20 rounded-lg">
-                                <div class="text-sm font-semibold text-purple-400">${formatNumber(matches)}</div>
-                                <div class="text-xs text-gray-500">Matches</div>
-                            </div>
-                            <div class="text-center p-2 bg-black/20 rounded-lg">
-                                <div class="px-2 py-1 rounded-full text-xs font-semibold ${formConfig.class}">
-                                    <i class="${formConfig.icon} mr-1"></i>
-                                    ${formConfig.text}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="text-right">
-                    <div class="text-3xl font-black text-faceit-orange animate-pulse-orange">
-                        ${position !== 'N/A' ? '#' + formatNumber(position) : 'N/A'}
-                    </div>
-                    <div class="text-sm text-gray-400">Position ${currentRegion}</div>
-                    ${position !== 'N/A' && position <= 100 ? '<div class="text-xs text-green-400 mt-1"><i class="fas fa-star mr-1"></i>Top 100</div>' : ''}
-                </div>
-                
-                <div class="flex flex-col space-y-2">
-                    <button onclick="navigateToPlayer('${player.player_id}')" 
-                            class="bg-gradient-to-r from-faceit-orange to-red-500 hover:from-faceit-orange-dark hover:to-red-600 px-4 py-2 rounded-lg text-sm font-semibold transition-all transform hover:scale-105 shadow-lg">
-                        <i class="fas fa-chart-line mr-2"></i>Statistiques
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
+    return configs[form] || configs['unknown'];
 }
 
-function updatePagination(rankingData) {
+function updatePaginationOptimized(leaderboardData) {
     const prevButton = document.getElementById('prevPageButton');
     const nextButton = document.getElementById('nextPageButton');
     const pageInfo = document.getElementById('pageInfo');
     const playerCount = document.getElementById('playerCount');
     
-    const hasNext = rankingData.items && rankingData.items.length >= currentLimit;
+    if (prevButton) prevButton.disabled = currentOffset === 0;
+    if (nextButton) {
+        // Estimer s'il y a une page suivante
+        nextButton.disabled = enrichedLeaderboard.length < currentLimit;
+    }
     
-    if (prevButton) prevButton.disabled = currentPage === 0;
-    if (nextButton) nextButton.disabled = !hasNext;
+    const currentPage = Math.floor(currentOffset / currentLimit) + 1;
     
-    if (pageInfo) pageInfo.textContent = `Page ${currentPage + 1}`;
+    if (pageInfo) pageInfo.textContent = `Page ${currentPage}`;
     
     if (playerCount) {
-        const startPos = (currentPage * currentLimit) + 1;
-        const endPos = startPos + currentLeaderboard.length - 1;
+        const startPos = currentOffset + 1;
+        const endPos = currentOffset + enrichedLeaderboard.length;
         playerCount.textContent = `Joueurs ${startPos}-${endPos}`;
     }
+}
+
+function updateLeaderboardMeta() {
+    // Mettre à jour le titre
+    const regionName = getRegionName(currentRegion);
+    const countryName = currentCountry ? ` - ${getCountryName(currentCountry)}` : '';
+    const leaderboardTitle = document.getElementById('leaderboardTitle');
+    if (leaderboardTitle) {
+        leaderboardTitle.textContent = `Classement ${regionName}${countryName}`;
+    }
+    
+    // Mettre à jour la date
+    const now = new Date();
+    const lastUpdated = document.getElementById('lastUpdated');
+    if (lastUpdated) {
+        lastUpdated.textContent = 
+            `Mis à jour le ${now.toLocaleDateString('fr-FR')} à ${now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
+    }
+}
+
+function updateLoadTimeDisplay(loadTime) {
+    const loadTimeElement = document.getElementById('loadTime');
+    if (loadTimeElement) {
+        loadTimeElement.textContent = `${loadTime}ms`;
+    }
+}
+
+function calculateRegionStats() {
+    if (enrichedLeaderboard.length === 0) return;
+    
+    let totalElo = 0;
+    const countryCounts = {};
+    const levelCounts = {};
+    
+    enrichedLeaderboard.forEach(player => {
+        totalElo += player.faceit_elo || 1000;
+        
+        const country = player.country || 'Unknown';
+        countryCounts[country] = (countryCounts[country] || 0) + 1;
+        
+        const level = player.skill_level || 1;
+        levelCounts[level] = (levelCounts[level] || 0) + 1;
+    });
+    
+    const averageElo = Math.round(totalElo / enrichedLeaderboard.length);
+    
+    // Pays le plus représenté
+    const topCountry = Object.entries(countryCounts)
+        .sort(([,a], [,b]) => b - a)[0]?.[0] || 'EU';
+    
+    // Niveau le plus représenté
+    const topLevel = Object.entries(levelCounts)
+        .sort(([,a], [,b]) => b - a)[0]?.[0] || '1';
+    
+    // Estimation du nombre total de joueurs
+    const estimatedTotal = enrichedLeaderboard.length * 100; // Estimation
+    
+    animateNumber('totalPlayers', estimatedTotal);
+    animateNumber('averageElo', averageElo);
+    
+    const topCountryEl = document.getElementById('topCountry');
+    if (topCountryEl) {
+        topCountryEl.textContent = getCountryName(topCountry) || topCountry;
+    }
+    
+    const topLevelEl = document.getElementById('topLevel');
+    if (topLevelEl) {
+        topLevelEl.textContent = `Niveau ${topLevel}`;
+    }
+}
+
+function animateNumber(elementId, targetValue, duration = 1000) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    const startValue = parseInt(element.textContent.replace(/[^\d]/g, '')) || 0;
+    const increment = (targetValue - startValue) / (duration / 16);
+    let currentValue = startValue;
+    
+    const timer = setInterval(() => {
+        currentValue += increment;
+        if ((increment > 0 && currentValue >= targetValue) || (increment < 0 && currentValue <= targetValue)) {
+            currentValue = targetValue;
+            clearInterval(timer);
+        }
+        element.textContent = formatNumber(Math.floor(currentValue));
+    }, 16);
 }
 
 function toggleSearchSection() {
@@ -1078,7 +1209,10 @@ function toggleSearchSection() {
     
     if (searchSectionVisible) {
         searchSection.classList.remove('hidden');
+        searchSection.classList.add('animate-slide-up');
         toggleButton.innerHTML = '<i class="fas fa-times mr-2"></i>Fermer';
+        toggleButton.classList.remove('from-faceit-orange', 'to-red-500');
+        toggleButton.classList.add('from-gray-600', 'to-gray-700');
         
         setTimeout(() => {
             const searchInput = document.getElementById('playerSearchInput');
@@ -1086,72 +1220,111 @@ function toggleSearchSection() {
         }, 300);
     } else {
         searchSection.classList.add('hidden');
+        searchSection.classList.remove('animate-slide-up');
         toggleButton.innerHTML = '<i class="fas fa-search mr-2"></i>Rechercher';
+        toggleButton.classList.add('from-faceit-orange', 'to-red-500');
+        toggleButton.classList.remove('from-gray-600', 'to-gray-700');
         
         const searchResult = document.getElementById('playerSearchResult');
-        if (searchResult) searchResult.innerHTML = '';
+        if (searchResult) {
+            searchResult.innerHTML = '';
+        }
     }
 }
 
 function handleSearchError(error, playerName, searchResult) {
     let errorMessage = `Joueur "${playerName}" non trouvé`;
     let errorClass = 'bg-red-500/20 border-red-500/50';
+    let errorIcon = 'fas fa-exclamation-triangle text-red-400';
     
-    if (error.message.includes('404')) {
-        errorMessage = `Le joueur "${playerName}" n'existe pas sur FACEIT`;
-    } else if (error.message.includes('Ce joueur n\'a pas de profil CS2')) {
+    if (error.message.includes("n'a pas de profil CS2")) {
         errorMessage = `Le joueur "${playerName}" n'a pas de profil CS2`;
         errorClass = 'bg-yellow-500/20 border-yellow-500/50';
+        errorIcon = 'fas fa-info-circle text-yellow-400';
+    } else if (error.message.includes('Timeout')) {
+        errorMessage = 'Recherche trop lente, veuillez réessayer...';
+        errorClass = 'bg-blue-500/20 border-blue-500/50';
+        errorIcon = 'fas fa-clock text-blue-400';
     }
     
     searchResult.innerHTML = `
-        <div class="${errorClass} rounded-xl p-4 backdrop-blur-sm">
+        <div class="${errorClass} rounded-xl p-4 backdrop-blur-sm animate-shake">
             <div class="flex items-center">
-                <i class="fas fa-exclamation-triangle text-red-400 mr-3"></i>
+                <i class="${errorIcon} mr-3"></i>
                 <span class="text-white">${errorMessage}</span>
             </div>
         </div>
     `;
 }
 
-// Fonctions utilitaires
+function showSearchError(message) {
+    const searchResult = document.getElementById('playerSearchResult');
+    if (searchResult) {
+        searchResult.innerHTML = `
+            <div class="bg-red-500/20 border-red-500/50 rounded-xl p-4">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-red-400 mr-3"></i>
+                    <span class="text-white">${message}</span>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// ===== FONCTIONS D'ÉTAT =====
+
+function showLoadingState() {
+    document.getElementById('loadingState')?.classList.remove('hidden');
+    document.getElementById('leaderboardContainer')?.classList.add('hidden');
+    document.getElementById('errorState')?.classList.add('hidden');
+}
+
+function showLeaderboardContent() {
+    document.getElementById('loadingState')?.classList.add('hidden');
+    document.getElementById('leaderboardContainer')?.classList.remove('hidden');
+    document.getElementById('errorState')?.classList.add('hidden');
+}
+
+function showErrorState(message) {
+    document.getElementById('loadingState')?.classList.add('hidden');
+    document.getElementById('leaderboardContainer')?.classList.add('hidden');
+    document.getElementById('errorState')?.classList.remove('hidden');
+    
+    const errorMessage = document.getElementById('errorMessage');
+    if (errorMessage) errorMessage.textContent = message;
+}
+
+// ===== FONCTIONS DE NAVIGATION =====
+
 function navigateToPlayer(playerId) {
     if (playerId) {
+        console.log('🔗 Navigation vers joueur:', playerId);
         window.location.href = `/advanced?playerId=${playerId}`;
     }
 }
 
-function showLoading() {
-    const loadingState = document.getElementById('loadingState');
-    const leaderboardContainer = document.getElementById('leaderboardContainer');
-    
-    if (loadingState) loadingState.classList.remove('hidden');
-    if (leaderboardContainer) leaderboardContainer.classList.add('hidden');
+function navigateToComparison(playerNickname) {
+    if (playerNickname) {
+        console.log('⚖️ Navigation vers comparaison:', playerNickname);
+        window.location.href = `/comparison?player1=${playerNickname}`;
+    }
 }
 
-function hideLoading() {
-    const loadingState = document.getElementById('loadingState');
-    if (loadingState) loadingState.classList.add('hidden');
+// ===== FONCTIONS UTILITAIRES FINALES =====
+
+function clearAllCaches() {
+    leaderboardCache.clear();
+    playerCache.clear();
+    statsCache.clear();
+    console.log('🗑️ Tous les caches vidés');
 }
 
-function showErrorState(message) {
-    const errorState = document.getElementById('errorState');
-    const errorMessage = document.getElementById('errorMessage');
-    
-    if (errorState) errorState.classList.remove('hidden');
-    if (errorMessage) errorMessage.textContent = message;
-    
-    hideLoading();
-}
-
-function updateURL() {
-    const params = new URLSearchParams();
-    params.set('region', currentRegion);
-    if (currentCountry) params.set('country', currentCountry);
-    if (currentLimit !== 20) params.set('limit', currentLimit);
-    
-    const newUrl = `${window.location.pathname}?${params.toString()}`;
-    window.history.replaceState({}, '', newUrl);
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
 }
 
 function getRegionName(region) {
@@ -1166,17 +1339,20 @@ function getRegionName(region) {
     return regions[region] || region;
 }
 
-function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-    };
+function getDefaultAvatar(nickname) {
+    return `https://via.placeholder.com/96x96/2a2a2a/ffffff?text=${nickname.charAt(0)}`;
 }
 
-// Export global
+// Export global des fonctions
+window.navigateToPlayer = navigateToPlayer;
+window.navigateToComparison = navigateToComparison;
 window.loadLeaderboardOptimized = loadLeaderboardOptimized;
 
-console.log('⚡ Leaderboards ultra optimisé avec enrichissement complet - Direct API calls');
+// Nettoyage des ressources
+window.addEventListener('beforeunload', function() {
+    clearAllCaches();
+});
+
+console.log('⚡ Leaderboards ULTRA OPTIMISÉ chargé avec succès!');
 </script>
 @endpush

@@ -21,43 +21,12 @@ use App\Http\Controllers\FriendsController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/advanced', [PlayerController::class, 'advanced'])->name('advanced');
 Route::get('/comparison', [ComparisonController::class, 'index'])->name('comparison');
+
+// ✅ GARDER - Route pour afficher la page (mais plus d'API)
 Route::get('/leaderboards', [LeaderboardController::class, 'index'])->name('leaderboards');
+
 Route::get('/tournaments', [TournamentController::class, 'index'])->name('tournaments');
 Route::get('/match', [MatchController::class, 'index'])->name('match');
-
-Route::middleware(['faceit.auth'])->group(function () {
-    // Page des amis
-    Route::get('/friends', [FriendsController::class, 'index'])->name('friends');
-});
-
-
-
-// Routes d'authentification FACEIT
-Route::prefix('auth/faceit')->name('auth.faceit.')->group(function () {
-    // Redirection vers FACEIT
-    Route::get('/login', [FaceitAuthController::class, 'redirectToFaceit'])->name('login');
-    
-    // Callback après authentification FACEIT
-    Route::get('/callback', [FaceitAuthController::class, 'handleFaceitCallback'])->name('callback');
-    
-    // Déconnexion
-    Route::post('/logout', [FaceitAuthController::class, 'logout'])->name('logout');
-    Route::get('/logout', [FaceitAuthController::class, 'logout'])->name('logout.get');
-    
-    // Popup de connexion (pour JavaScript)
-    Route::get('/popup', [FaceitAuthController::class, 'loginPopup'])->name('popup');
-    Route::get('/popup/callback', [FaceitAuthController::class, 'popupCallback'])->name('popup.callback');
-});
-
-// Routes de profil et amis (nécessitent une authentification)
-Route::middleware('faceit.auth')->group(function () {
-    // Profil
-    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
-    Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
-    Route::post('/profile/sync-faceit', [ProfileController::class, 'syncFaceitData'])->name('profile.sync');
-    Route::get('/profile/export', [ProfileController::class, 'exportData'])->name('profile.export');
-    Route::get('/profile/match-history', [ProfileController::class, 'getMatchHistory'])->name('profile.history');
-});
 
 // Routes API pour les données FACEIT
 Route::prefix('api')->group(function () {
@@ -74,10 +43,7 @@ Route::prefix('api')->group(function () {
     // Routes pour la comparaison
     Route::post('/compare', [ComparisonController::class, 'compare'])->name('api.compare');
     
-    // Routes pour les classements
-    Route::get('/leaderboard/top-players', [LeaderboardController::class, 'getTopPlayers'])->name('api.leaderboard.top');
-    
-    // Routes pour les championnats FACEIT
+    // Routes pour les championnats FACEIT (garder)
     Route::prefix('tournaments')->group(function () {
         Route::prefix('api')->group(function () {
             Route::get('/championships', [TournamentController::class, 'getChampionships'])->name('api.championships.list');
@@ -90,30 +56,14 @@ Route::prefix('api')->group(function () {
         });
     });
 
+    // Routes pour les amis (garder)
     Route::get('/friends', [FriendsController::class, 'getFriends']);
-    
-    // Rechercher dans les amis
     Route::get('/friends/search', [FriendsController::class, 'searchFriends']);
-    
-    // Statistiques des amis
     Route::get('/friends/stats', [FriendsController::class, 'getFriendsStats']);
-
-
 });
 
-// API pour vérifier l'authentification
+// API pour vérifier l'authentification (garder)
 Route::prefix('api/auth')->name('api.auth.')->group(function () {
     Route::get('/user', [FaceitAuthController::class, 'getCurrentUser'])->name('user');
     Route::get('/status', [FaceitAuthController::class, 'checkAuthStatus'])->name('status');
-});
-
-// Routes de test (à supprimer en production)
-Route::prefix('test')->group(function () {
-    Route::get('/auth', function () {
-        return view('test.auth');
-    })->name('test.auth');
-    
-    Route::get('/popup', function () {
-        return view('test.popup');
-    })->name('test.popup');
 });
