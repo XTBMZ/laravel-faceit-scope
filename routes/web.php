@@ -40,6 +40,8 @@ Route::prefix('auth/faceit')->name('auth.faceit.')->group(function () {
     // Popup de connexion (pour JavaScript)
     Route::get('/popup', [FaceitAuthController::class, 'loginPopup'])->name('popup');
     Route::get('/popup/callback', [FaceitAuthController::class, 'popupCallback'])->name('popup.callback');
+    Route::get('/friends', [FriendsController::class, 'index'])->name('friends');
+
 });
 
 // Routes de profil et amis (nécessitent une authentification)
@@ -50,21 +52,6 @@ Route::middleware('faceit.auth')->group(function () {
     Route::post('/profile/sync-faceit', [ProfileController::class, 'syncFaceitData'])->name('profile.sync');
     Route::get('/profile/export', [ProfileController::class, 'exportData'])->name('profile.export');
     Route::get('/profile/match-history', [ProfileController::class, 'getMatchHistory'])->name('profile.history');
-    
-    Route::get('/friends', [FriendsController::class, 'index'])->name('friends');
-    
-    // API pour récupérer les amis
-    Route::get('/api/friends', [FriendsController::class, 'getFriends'])->name('api.friends');
-    
-    // API pour récupérer les amis en ligne
-    Route::get('/api/friends/online', [FriendsController::class, 'getOnlineFriends'])->name('api.friends.online');
-    
-    // API pour rechercher dans les amis
-    Route::get('/api/friends/search', [FriendsController::class, 'searchFriends'])->name('api.friends.search');
-    
-    // API pour comparer avec un ami
-    Route::get('/api/friends/{friendId}/compare', [FriendsController::class, 'compareWithFriend'])->name('api.friends.compare');
-
 });
 
 // Routes API pour les données FACEIT
@@ -100,6 +87,15 @@ Route::prefix('api')->group(function () {
             Route::get('/stats', [TournamentController::class, 'getGlobalStats'])->name('api.championships.stats');
         });
     });
+
+    Route::get('/friends', [FriendsController::class, 'getFriends'])->name('api.friends.list');
+    
+    // Rechercher dans les amis
+    Route::get('/friends/search', [FriendsController::class, 'searchFriends'])->name('api.friends.search');
+    
+    // Comparer avec un ami
+    Route::get('/friends/{friendId}/compare', [FriendsController::class, 'compareFriend'])->name('api.friends.compare');
+
 });
 
 // API pour vérifier l'authentification

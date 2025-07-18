@@ -1,13 +1,12 @@
 /**
- * Script pour la page des amis - Faceit Scope
+ * Script pour la page Amis FACEIT - Faceit Scope
  */
 
 // Variables globales
-let friends = [];
-let onlineFriends = [];
-let friendsStats = null;
-let searchTimeout = null;
-let currentSort = 'games_together';
+let allFriends = [];
+let filteredFriends = [];
+let currentStats = {};
+let isLoading = false;
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
@@ -19,53 +18,38 @@ function setupEventListeners() {
     // Recherche avec debounce
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                handleSearch(this.value);
-            }, 300);
-        });
+        searchInput.addEventListener('input', debounce(handleSearch, 300));
     }
 
-    // Tri
-    const sortFilter = document.getElementById('sortFilter');
-    if (sortFilter) {
-        sortFilter.addEventListener('change', function() {
-            currentSort = this.value;
-            sortAndDisplayFriends();
-        });
+    // Filtres
+    const filterSelect = document.getElementById('filterSelect');
+    if (filterSelect) {
+        filterSelect.addEventListener('change', handleFilter);
     }
 
-    // Actualisation
+    // Bouton actualiser
     const refreshButton = document.getElementById('refreshButton');
     if (refreshButton) {
-        refreshButton.addEventListener('click', function() {
-            this.innerHTML = '<i class="fas fa-spin fa-sync mr-2"></i>Actualisation...';
-            this.disabled = true;
-            loadFriends(true);
-        });
+        refreshButton.addEventListener('click', refreshFriends);
     }
 
-    // Retry en cas d'erreur
+    // Bouton réessayer
     const retryButton = document.getElementById('retryButton');
     if (retryButton) {
-        retryButton.addEventListener('click', function() {
-            hideError();
-            loadFriends();
-        });
+        retryButton.addEventListener('click', loadFriends);
     }
 
     // Fermeture du modal
-    const modal = document.getElementById('friendProfileModal');
-    if (modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
+    const friendModal = document.getElementById('friendModal');
+    if (friendModal) {
+        friendModal.addEventListener('click', function(e) {
+            if (e.target === friendModal) {
                 closeFriendModal();
             }
         });
     }
 
-    // Échap pour fermer le modal
+    // Raccourci clavier pour fermer le modal
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeFriendModal();
@@ -73,515 +57,514 @@ function setupEventListeners() {
     });
 }
 
-async function loadFriends(refresh = false) {
+async function loadFriends() {
+    showLoading();
+    hideError();
+    
     try {
-        showLoading();
-        hideError();
+        console.log('🔄 Chargement des amis...');
+        
+        const response = await fetch('/api/friends', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin'
+        });
 
-        // Charger les amis
-        const friendsResponse = await fetch(`/api/friends${refresh ? '?_refresh=1' : ''}`);
-        const friendsData = await friendsResponse.json();
-
-        if (!friendsData.success) {
-            throw new Error(friendsData.error || 'Erreur lors du chargement des amis');
+        if (!response.ok) {
+            if (response.status === 401) {
+                window.location.href = '/auth/faceit/login';
+                return;
+            }
+            throw new Error(`HTTP ${response.status}`);
         }
 
-        friends = friendsData.friends;
-        friendsStats = friendsData.stats;
+        const data = await response.json();
 
-        // Charger les amis en ligne
-        const onlineResponse = await fetch('/api/friends/online');
-        const onlineData = await onlineResponse.json();
-
-        if (onlineData.success) {
-            onlineFriends = onlineData.online_friends;
+        if (!data.success) {
+            throw new Error(data.error || 'Erreur inconnue');
         }
 
+        allFriends = data.friends || [];
+        currentStats = data.stats || {};
+        
+        console.log(`✅ ${allFriends.length} amis chargés`, { 
+            cached: data.cached,
+            stats: currentStats 
+        });
+
+        displayStats();
+        applyCurrentFilters();
         hideLoading();
-        displayFriendsStats();
-        displayOnlineFriends();
-        sortAndDisplayFriends();
 
-        // Reset du bouton refresh
-        const refreshButton = document.getElementById('refreshButton');
-        if (refreshButton) {
-            refreshButton.innerHTML = '<i class="fas fa-sync mr-2"></i>Actualiser';
-            refreshButton.disabled = false;
+        if (data.cached) {
+            showNotification('Données mises en cache utilisées', 'info');
         }
 
     } catch (error) {
-        console.error('Erreur chargement amis:', error);
+        console.error('❌ Erreur chargement amis:', error);
         hideLoading();
         showError(error.message);
     }
 }
 
-function displayFriendsStats() {
-    const container = document.getElementById('friendsStats');
-    if (!container || !friendsStats) return;
+async function refreshFriends() {
+    const refreshButton = document.getElementById('refreshButton');
+    const originalContent = refreshButton.innerHTML;
+    
+    // Animation du bouton
+    refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span class="hidden md:inline ml-2">Actualisation...</span>';
+    refreshButton.disabled = true;
+
+    try {
+        // Forcer le rechargement sans cache
+        const response = await fetch('/api/friends?refresh=1', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Cache-Control': 'no-cache'
+            },
+            credentials: 'same-origin'
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            allFriends = data.friends || [];
+            currentStats = data.stats || {};
+            
+            displayStats();
+            applyCurrentFilters();
+            
+            showNotification('Liste d\'amis actualisée !', 'success');
+        }
+
+    } catch (error) {
+        console.error('Erreur actualisation:', error);
+        showNotification('Erreur lors de l\'actualisation', 'error');
+    } finally {
+        refreshButton.innerHTML = originalContent;
+        refreshButton.disabled = false;
+    }
+}
+
+function displayStats() {
+    const container = document.getElementById('statsOverview');
+    if (!container) return;
 
     const stats = [
         {
             icon: 'fas fa-users',
             label: 'Total amis',
-            value: friendsStats.total_friends,
+            value: currentStats.total || 0,
             color: 'text-blue-400',
-            bgColor: 'bg-blue-500/10 border-blue-500/30'
+            bgGradient: 'from-blue-500/20 to-blue-600/10',
+            borderColor: 'border-blue-500/30'
         },
         {
             icon: 'fas fa-circle',
             label: 'En ligne',
-            value: friendsStats.online_friends,
+            value: currentStats.online || 0,
             color: 'text-green-400',
-            bgColor: 'bg-green-500/10 border-green-500/30'
+            bgGradient: 'from-green-500/20 to-green-600/10',
+            borderColor: 'border-green-500/30'
+        },
+        {
+            icon: 'fas fa-gamepad',
+            label: 'Joueurs CS2',
+            value: currentStats.cs2_players || 0,
+            color: 'text-orange-400',
+            bgGradient: 'from-orange-500/20 to-orange-600/10',
+            borderColor: 'border-orange-500/30'
         },
         {
             icon: 'fas fa-star',
             label: 'Niveau moyen',
-            value: friendsStats.average_level,
-            color: 'text-yellow-400',
-            bgColor: 'bg-yellow-500/10 border-yellow-500/30'
-        },
-        {
-            icon: 'fas fa-fire',
-            label: 'ELO moyen',
-            value: formatNumber(friendsStats.average_elo),
-            color: 'text-faceit-orange',
-            bgColor: 'bg-orange-500/10 border-orange-500/30'
+            value: currentStats.average_level || 0,
+            color: 'text-purple-400',
+            bgGradient: 'from-purple-500/20 to-purple-600/10',
+            borderColor: 'border-purple-500/30'
         }
     ];
 
     container.innerHTML = stats.map(stat => `
-        <div class="glass-effect rounded-xl p-4 text-center border ${stat.bgColor}">
-            <div class="w-12 h-12 ${stat.bgColor} rounded-lg flex items-center justify-center mx-auto mb-3">
+        <div class="bg-gradient-to-br ${stat.bgGradient} rounded-2xl p-6 border ${stat.borderColor} text-center transform hover:scale-105 transition-all duration-300">
+            <div class="w-12 h-12 bg-black/30 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i class="${stat.icon} ${stat.color} text-xl"></i>
             </div>
-            <div class="text-2xl font-bold text-white mb-1">${stat.value}</div>
-            <div class="text-xs text-gray-400 font-medium">${stat.label}</div>
+            <div class="text-3xl font-black ${stat.color} mb-2">${stat.value}</div>
+            <div class="text-sm text-gray-300 font-medium">${stat.label}</div>
         </div>
     `).join('');
 }
 
-function displayOnlineFriends() {
-    const section = document.getElementById('onlineFriendsSection');
-    const container = document.getElementById('onlineFriendsGrid');
-    const countElement = document.getElementById('onlineCount');
+function handleSearch() {
+    const query = document.getElementById('searchInput').value.trim().toLowerCase();
+    applyFilters(query, document.getElementById('filterSelect').value);
+}
 
-    if (!container || !section) return;
+function handleFilter() {
+    const query = document.getElementById('searchInput').value.trim().toLowerCase();
+    const filter = document.getElementById('filterSelect').value;
+    applyFilters(query, filter);
+}
 
-    if (onlineFriends.length === 0) {
-        section.classList.add('hidden');
+function applyCurrentFilters() {
+    const query = document.getElementById('searchInput').value.trim().toLowerCase();
+    const filter = document.getElementById('filterSelect').value;
+    applyFilters(query, filter);
+}
+
+function applyFilters(searchQuery = '', filterType = 'all') {
+    let filtered = [...allFriends];
+
+    // Filtrage par recherche
+    if (searchQuery) {
+        filtered = filtered.filter(friend => 
+            friend.nickname.toLowerCase().includes(searchQuery) ||
+            (friend.country && friend.country.toLowerCase().includes(searchQuery))
+        );
+    }
+
+    // Filtrage par type
+    switch (filterType) {
+        case 'online':
+            filtered = filtered.filter(friend => friend.is_online);
+            break;
+        case 'cs2':
+            filtered = filtered.filter(friend => friend.has_cs2);
+            break;
+        case 'high_level':
+            filtered = filtered.filter(friend => friend.level >= 7);
+            break;
+    }
+
+    filteredFriends = filtered;
+    displayFriends();
+}
+
+function displayFriends() {
+    const container = document.getElementById('friendsContainer');
+    const emptyState = document.getElementById('emptyState');
+    
+    if (filteredFriends.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
         return;
     }
 
-    section.classList.remove('hidden');
-    countElement.textContent = onlineFriends.length;
-
-    container.innerHTML = onlineFriends.map(friend => createCompactFriendCard(friend)).join('');
-}
-
-function createCompactFriendCard(friend) {
-    const statusColor = getStatusColor(friend.online_status);
-    const statusText = getStatusText(friend.online_status);
+    emptyState.classList.add('hidden');
     
-    return `
-        <div class="friend-card rounded-xl p-4 cursor-pointer" onclick="showFriendProfile('${friend.player_id}')">
-            <div class="flex items-center space-x-3">
-                <div class="relative online-indicator ${friend.online_status}">
-                    <img 
-                        src="${friend.avatar || '/images/default-avatar.png'}" 
-                        alt="${friend.nickname}"
-                        class="w-12 h-12 rounded-xl border-2 border-gray-700"
-                        onerror="this.src='/images/default-avatar.png'"
-                    >
-                </div>
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center space-x-2">
-                        <h3 class="font-semibold text-white truncate">${friend.nickname}</h3>
-                        <img src="${getCountryFlagUrl(friend.country)}" alt="${friend.country}" class="country-flag">
-                    </div>
-                    <div class="flex items-center space-x-2 text-sm">
-                        <span class="${statusColor}">${statusText}</span>
-                        <span class="text-gray-500">•</span>
-                        <span class="text-gray-400">Niveau ${friend.skill_level}</span>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <div class="text-sm font-medium text-faceit-orange">${friend.faceit_elo}</div>
-                    <div class="text-xs text-gray-400">ELO</div>
-                </div>
-            </div>
+    container.innerHTML = `
+        <div class="grid gap-4 md:gap-6">
+            ${filteredFriends.map(friend => createFriendCard(friend)).join('')}
         </div>
     `;
-}
-
-function sortAndDisplayFriends() {
-    if (friends.length === 0) {
-        showEmptyState();
-        return;
-    }
-
-    // Trier les amis
-    const sortedFriends = [...friends].sort((a, b) => {
-        switch (currentSort) {
-            case 'skill_level':
-                return b.skill_level - a.skill_level;
-            case 'faceit_elo':
-                return b.faceit_elo - a.faceit_elo;
-            case 'last_seen':
-                return getLastSeenPriority(a.online_status) - getLastSeenPriority(b.online_status);
-            case 'games_together':
-            default:
-                return b.games_together - a.games_together;
-        }
-    });
-
-    displayFriends(sortedFriends);
-    showMainContent();
-}
-
-function displayFriends(friendsToDisplay) {
-    const container = document.getElementById('friendsGrid');
-    if (!container) return;
-
-    container.innerHTML = friendsToDisplay.map(friend => createFriendCard(friend)).join('');
 }
 
 function createFriendCard(friend) {
-    const statusColor = getStatusColor(friend.online_status);
-    const statusText = getStatusText(friend.online_status);
-    const rankColor = getRankColor(friend.skill_level);
+    const statusColor = friend.is_online ? 'bg-green-500' : 'bg-gray-500';
+    const statusIcon = friend.is_online ? 'fas fa-circle' : 'fas fa-moon';
+    const membershipIcon = getMembershipIcon(friend.membership_type);
+    const gameIcon = friend.has_cs2 ? 'text-orange-400' : (friend.has_csgo ? 'text-blue-400' : 'text-gray-500');
     
     return `
-        <div class="friend-card rounded-xl p-6 cursor-pointer" onclick="showFriendProfile('${friend.player_id}')">
-            <!-- Header avec avatar et infos de base -->
-            <div class="flex items-center space-x-4 mb-4">
-                <div class="relative online-indicator ${friend.online_status}">
+        <div class="bg-gradient-to-r from-faceit-card to-faceit-elevated rounded-2xl p-6 border border-gray-800 hover:border-gray-700 transition-all duration-300 hover:shadow-xl cursor-pointer friend-card" 
+             onclick="showFriendDetails('${friend.player_id}')">
+            <div class="flex items-center space-x-4">
+                <!-- Avatar avec statut -->
+                <div class="relative">
                     <img 
                         src="${friend.avatar || '/images/default-avatar.png'}" 
                         alt="${friend.nickname}"
-                        class="w-16 h-16 rounded-2xl border-3 border-gray-700"
+                        class="w-16 h-16 rounded-xl border-2 border-gray-700"
                         onerror="this.src='/images/default-avatar.png'"
                     >
+                    <div class="absolute -bottom-1 -right-1 w-5 h-5 ${statusColor} border-2 border-faceit-card rounded-full flex items-center justify-center">
+                        <i class="${statusIcon} text-white text-xs"></i>
+                    </div>
+                    ${friend.verified ? '<div class="absolute -top-1 -left-1 w-5 h-5 bg-blue-500 border-2 border-faceit-card rounded-full flex items-center justify-center"><i class="fas fa-check text-white text-xs"></i></div>' : ''}
                 </div>
+                
+                <!-- Infos principales -->
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center space-x-2 mb-1">
-                        <h3 class="text-lg font-bold text-white truncate">${friend.nickname}</h3>
-                        <img src="${getCountryFlagUrl(friend.country)}" alt="${friend.country}" class="country-flag">
+                        <h3 class="font-bold text-white text-lg truncate">${friend.nickname}</h3>
+                        ${membershipIcon}
+                        ${friend.country ? `<img src="${getCountryFlagUrl(friend.country)}" alt="${friend.country}" class="w-5 h-5 rounded">` : ''}
                     </div>
-                    <div class="flex items-center space-x-2 text-sm mb-1">
-                        <span class="${statusColor} font-medium">${statusText}</span>
-                        ${friend.online_status === 'offline' ? `<span class="text-gray-500">• ${friend.last_seen}</span>` : ''}
+                    <div class="flex items-center space-x-4 text-sm text-gray-400">
+                        <span class="flex items-center">
+                            <i class="${statusIcon} ${friend.is_online ? 'text-green-400' : 'text-gray-500'} mr-1"></i>
+                            ${friend.status_text}
+                        </span>
+                        ${friend.level > 0 ? `
+                            <span class="flex items-center">
+                                <i class="fas fa-star ${getRankColor(friend.level)} mr-1"></i>
+                                Niveau ${friend.level}
+                            </span>
+                        ` : ''}
+                        ${friend.elo > 0 ? `
+                            <span class="flex items-center">
+                                <i class="fas fa-fire text-orange-400 mr-1"></i>
+                                ${friend.elo} ELO
+                            </span>
+                        ` : ''}
                     </div>
-                    <div class="text-sm text-gray-400">${friend.games_together} matches ensemble</div>
                 </div>
-            </div>
-
-            <!-- Stats principales -->
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div class="bg-faceit-elevated/50 rounded-lg p-3 text-center">
-                    <div class="text-xl font-bold ${rankColor}">${friend.skill_level}</div>
-                    <div class="text-xs text-gray-400">Niveau</div>
+                
+                <!-- Actions et badges -->
+                <div class="flex flex-col items-end space-y-2">
+                    <!-- Badge de jeu -->
+                    <div class="flex items-center space-x-2">
+                        ${friend.has_cs2 ? '<div class="px-2 py-1 bg-orange-500/20 border border-orange-500/50 rounded-full text-xs text-orange-400 font-semibold">CS2</div>' : ''}
+                        ${friend.has_csgo && !friend.has_cs2 ? '<div class="px-2 py-1 bg-blue-500/20 border border-blue-500/50 rounded-full text-xs text-blue-400 font-semibold">CS:GO</div>' : ''}
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="flex space-x-2">
+                        <button 
+                            onclick="event.stopPropagation(); compareFriend('${friend.player_id}')"
+                            class="p-2 bg-blue-500/20 hover:bg-blue-500/30 rounded-lg transition-colors group"
+                            title="Comparer avec ce joueur"
+                        >
+                            <i class="fas fa-balance-scale text-blue-400 group-hover:text-blue-300"></i>
+                        </button>
+                        <button 
+                            onclick="event.stopPropagation(); viewFriendStats('${friend.player_id}')"
+                            class="p-2 bg-purple-500/20 hover:bg-purple-500/30 rounded-lg transition-colors group"
+                            title="Voir les statistiques"
+                        >
+                            <i class="fas fa-chart-line text-purple-400 group-hover:text-purple-300"></i>
+                        </button>
+                        <a 
+                            href="${buildFaceitProfileUrl(friend)}" 
+                            target="_blank"
+                            onclick="event.stopPropagation()"
+                            class="p-2 bg-gray-500/20 hover:bg-gray-500/30 rounded-lg transition-colors group"
+                            title="Voir sur FACEIT"
+                        >
+                            <i class="fas fa-external-link-alt text-gray-400 group-hover:text-gray-300"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="bg-faceit-elevated/50 rounded-lg p-3 text-center">
-                    <div class="text-xl font-bold text-faceit-orange">${formatNumber(friend.faceit_elo)}</div>
-                    <div class="text-xs text-gray-400">ELO</div>
-                </div>
-            </div>
-
-            <!-- Stats détaillées -->
-            <div class="space-y-2 text-sm">
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-400">Win Rate</span>
-                    <span class="font-medium ${getWinRateColor(friend.win_rate)}">${friend.win_rate}%</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-400">K/D Ratio</span>
-                    <span class="font-medium ${getKDColor(friend.kd_ratio)}">${friend.kd_ratio}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-400">Matches</span>
-                    <span class="font-medium text-white">${formatNumber(friend.matches)}</span>
-                </div>
-                ${friend.current_streak ? `
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-400">Série actuelle</span>
-                    <span class="streak-indicator streak-${friend.current_streak.type}">
-                        ${friend.current_streak.type === 'win' ? '🔥' : '❄️'} ${friend.current_streak.count}
-                    </span>
-                </div>
-                ` : ''}
-            </div>
-
-            <!-- Actions -->
-            <div class="mt-4 pt-4 border-t border-gray-700 flex gap-2">
-                <button 
-                    onclick="event.stopPropagation(); compareFriend('${friend.player_id}')"
-                    class="flex-1 bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-sm font-medium transition-all"
-                >
-                    <i class="fas fa-balance-scale mr-1"></i>Comparer
-                </button>
-                <button 
-                    onclick="event.stopPropagation(); viewFriendStats('${friend.player_id}')"
-                    class="flex-1 bg-gray-600 hover:bg-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition-all"
-                >
-                    <i class="fas fa-chart-line mr-1"></i>Stats
-                </button>
-                <a 
-                    href="${friend.faceit_url}" 
-                    target="_blank"
-                    onclick="event.stopPropagation()"
-                    class="bg-faceit-orange hover:bg-faceit-orange-dark px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center"
-                    title="Voir sur FACEIT"
-                >
-                    <i class="fas fa-external-link-alt"></i>
-                </a>
             </div>
         </div>
     `;
 }
 
-async function handleSearch(query) {
-    if (query.length < 2) {
-        sortAndDisplayFriends();
-        return;
-    }
-
-    try {
-        const response = await fetch(`/api/friends/search?q=${encodeURIComponent(query)}`);
-        const data = await response.json();
-
-        if (data.success) {
-            displayFriends(data.friends);
-            if (data.friends.length === 0) {
-                showEmptySearchState(query);
-            }
-        }
-    } catch (error) {
-        console.error('Erreur recherche:', error);
+function getMembershipIcon(membershipType) {
+    switch (membershipType) {
+        case 'premium':
+            return '<i class="fas fa-crown text-yellow-400" title="Premium"></i>';
+        case 'unlimited':
+            return '<i class="fas fa-diamond text-purple-400" title="Unlimited"></i>';
+        default:
+            return '';
     }
 }
 
-async function showFriendProfile(friendId) {
-    const friend = friends.find(f => f.player_id === friendId) || 
-                   onlineFriends.find(f => f.player_id === friendId);
-    
+function showFriendDetails(friendId) {
+    const friend = allFriends.find(f => f.player_id === friendId);
     if (!friend) return;
 
-    const modal = document.getElementById('friendProfileModal');
-    const content = document.getElementById('friendProfileContent');
-
-    // Afficher le modal avec un loading
-    content.innerHTML = createFriendProfileLoading(friend);
+    const modal = document.getElementById('friendModal');
+    const modalContent = document.getElementById('friendModalContent');
+    
+    modalContent.innerHTML = `
+        <div class="relative">
+            <!-- Header avec image de fond -->
+            <div class="relative h-32 bg-gradient-to-r from-faceit-orange to-red-500 rounded-t-2xl overflow-hidden">
+                <div class="absolute inset-0 bg-black/30"></div>
+                <div class="absolute inset-0 flex items-center justify-between p-6">
+                    <div class="flex items-center space-x-4">
+                        <img 
+                            src="${friend.avatar || '/images/default-avatar.png'}" 
+                            alt="${friend.nickname}"
+                            class="w-16 h-16 rounded-xl border-3 border-white/50"
+                            onerror="this.src='/images/default-avatar.png'"
+                        >
+                        <div>
+                            <h2 class="text-2xl font-black text-white">${friend.nickname}</h2>
+                            <div class="flex items-center space-x-2 text-white/80">
+                                <i class="fas fa-${friend.is_online ? 'circle text-green-400' : 'moon text-gray-400'}"></i>
+                                <span>${friend.status_text}</span>
+                                ${friend.country ? `<img src="${getCountryFlagUrl(friend.country)}" alt="${friend.country}" class="w-5 h-5 rounded">` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="closeFriendModal()" class="w-10 h-10 bg-black/20 hover:bg-black/40 rounded-full flex items-center justify-center transition-colors">
+                        <i class="fas fa-times text-white"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Contenu -->
+            <div class="p-6 space-y-6">
+                <!-- Stats de jeu -->
+                ${friend.has_cs2 || friend.has_csgo ? `
+                    <div>
+                        <h3 class="text-lg font-bold mb-4 flex items-center">
+                            <i class="fas fa-gamepad text-orange-400 mr-2"></i>
+                            Statistiques de jeu
+                        </h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-faceit-elevated rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold ${getRankColor(friend.level)}">${friend.level}</div>
+                                <div class="text-sm text-gray-400">Niveau</div>
+                            </div>
+                            <div class="bg-faceit-elevated rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-orange-400">${friend.elo}</div>
+                                <div class="text-sm text-gray-400">ELO</div>
+                            </div>
+                        </div>
+                        <div class="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-blue-300">Région principale</span>
+                                <span class="font-semibold">${friend.region}</span>
+                            </div>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="text-center py-8">
+                        <i class="fas fa-gamepad text-gray-600 text-4xl mb-4"></i>
+                        <p class="text-gray-400">Aucune donnée de jeu disponible</p>
+                    </div>
+                `}
+                
+                <!-- Badges et statuts -->
+                <div>
+                    <h3 class="text-lg font-bold mb-4 flex items-center">
+                        <i class="fas fa-tags text-purple-400 mr-2"></i>
+                        Badges et statuts
+                    </h3>
+                    <div class="flex flex-wrap gap-2">
+                        ${friend.verified ? '<div class="px-3 py-1 bg-blue-500/20 border border-blue-500/50 rounded-full text-sm text-blue-400 flex items-center"><i class="fas fa-check mr-1"></i>Vérifié</div>' : ''}
+                        ${friend.membership_type !== 'free' ? `<div class="px-3 py-1 bg-yellow-500/20 border border-yellow-500/50 rounded-full text-sm text-yellow-400 flex items-center">${getMembershipIcon(friend.membership_type)} ${friend.membership_type.charAt(0).toUpperCase() + friend.membership_type.slice(1)}</div>` : ''}
+                        ${friend.has_cs2 ? '<div class="px-3 py-1 bg-orange-500/20 border border-orange-500/50 rounded-full text-sm text-orange-400">Joueur CS2</div>' : ''}
+                        ${friend.has_csgo && !friend.has_cs2 ? '<div class="px-3 py-1 bg-blue-500/20 border border-blue-500/50 rounded-full text-sm text-blue-400">Joueur CS:GO</div>' : ''}
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex gap-3">
+                    <button 
+                        onclick="compareFriend('${friend.player_id}')"
+                        class="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105"
+                    >
+                        <i class="fas fa-balance-scale mr-2"></i>Comparer
+                    </button>
+                    <button 
+                        onclick="viewFriendStats('${friend.player_id}')"
+                        class="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105"
+                    >
+                        <i class="fas fa-chart-line mr-2"></i>Statistiques
+                    </button>
+                    <a 
+                        href="${buildFaceitProfileUrl(friend)}" 
+                        target="_blank"
+                        class="flex-1 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-500 hover:to-gray-600 px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105 text-center"
+                    >
+                        <i class="fas fa-external-link-alt mr-2"></i>FACEIT
+                    </a>
+                </div>
+            </div>
+        </div>
+    `;
+    
     modal.classList.remove('hidden');
     modal.classList.add('flex');
-
-    try {
-        // Charger plus de données si nécessaire
-        const response = await fetch(`/api/player/${friendId}/stats`);
-        const statsData = await response.json();
-
-        // Afficher le profil complet
-        content.innerHTML = createFriendProfileContent(friend, statsData);
-    } catch (error) {
-        console.error('Erreur chargement profil ami:', error);
-        content.innerHTML = createFriendProfileError(friend);
-    }
-}
-
-function createFriendProfileLoading(friend) {
-    return `
-        <div class="p-6">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold">Profil de ${friend.nickname}</h2>
-                <button onclick="closeFriendModal()" class="text-gray-400 hover:text-white">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            <div class="text-center py-8">
-                <div class="animate-spin rounded-full h-12 w-12 border-4 border-gray-600 border-t-faceit-orange mx-auto mb-4"></div>
-                <p class="text-gray-400">Chargement du profil...</p>
-            </div>
-        </div>
-    `;
-}
-
-function createFriendProfileContent(friend, stats) {
-    const statusColor = getStatusColor(friend.online_status);
-    const statusText = getStatusText(friend.online_status);
-    
-    return `
-        <div class="p-6">
-            <!-- Header -->
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold">Profil détaillé</h2>
-                <button onclick="closeFriendModal()" class="text-gray-400 hover:text-white">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-
-            <!-- Infos principales -->
-            <div class="flex items-center space-x-6 mb-6">
-                <div class="relative online-indicator ${friend.online_status}">
-                    <img 
-                        src="${friend.avatar || '/images/default-avatar.png'}" 
-                        alt="${friend.nickname}"
-                        class="w-20 h-20 rounded-2xl border-3 border-gray-700"
-                        onerror="this.src='/images/default-avatar.png'"
-                    >
-                </div>
-                <div>
-                    <h3 class="text-2xl font-bold mb-2">${friend.nickname}</h3>
-                    <div class="flex items-center space-x-4 text-sm">
-                        <span class="${statusColor} font-medium">${statusText}</span>
-                        <span class="text-gray-500">•</span>
-                        <span class="text-gray-400">Niveau ${friend.skill_level}</span>
-                        <span class="text-gray-500">•</span>
-                        <span class="text-faceit-orange font-medium">${friend.faceit_elo} ELO</span>
-                    </div>
-                    <div class="mt-2 text-sm text-gray-400">
-                        <i class="fas fa-handshake mr-1"></i>${friend.games_together} matches ensemble
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stats détaillées -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-faceit-elevated rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold ${getWinRateColor(friend.win_rate)} mb-1">${friend.win_rate}%</div>
-                    <div class="text-xs text-gray-400">Win Rate</div>
-                </div>
-                <div class="bg-faceit-elevated rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold ${getKDColor(friend.kd_ratio)} mb-1">${friend.kd_ratio}</div>
-                    <div class="text-xs text-gray-400">K/D Ratio</div>
-                </div>
-                <div class="bg-faceit-elevated rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold text-white mb-1">${formatNumber(friend.matches)}</div>
-                    <div class="text-xs text-gray-400">Matches</div>
-                </div>
-                <div class="bg-faceit-elevated rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold text-yellow-400 mb-1">${friend.friendship_score || 0}</div>
-                    <div class="text-xs text-gray-400">Amitié</div>
-                </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="flex gap-3">
-                <button 
-                    onclick="compareFriend('${friend.player_id}')"
-                    class="flex-1 bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-xl font-medium transition-all"
-                >
-                    <i class="fas fa-balance-scale mr-2"></i>Comparer nos stats
-                </button>
-                <button 
-                    onclick="viewFriendStats('${friend.player_id}')"
-                    class="flex-1 bg-purple-600 hover:bg-purple-700 px-4 py-3 rounded-xl font-medium transition-all"
-                >
-                    <i class="fas fa-chart-line mr-2"></i>Voir les stats
-                </button>
-                <a 
-                    href="${friend.faceit_url}" 
-                    target="_blank"
-                    class="bg-faceit-orange hover:bg-faceit-orange-dark px-4 py-3 rounded-xl font-medium transition-all flex items-center justify-center"
-                >
-                    <i class="fas fa-external-link-alt"></i>
-                </a>
-            </div>
-        </div>
-    `;
-}
-
-function createFriendProfileError(friend) {
-    return `
-        <div class="p-6">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold">Profil de ${friend.nickname}</h2>
-                <button onclick="closeFriendModal()" class="text-gray-400 hover:text-white">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            <div class="text-center py-8">
-                <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-exclamation-triangle text-red-400 text-xl"></i>
-                </div>
-                <p class="text-gray-400 mb-4">Impossible de charger le profil détaillé</p>
-                <button onclick="showFriendProfile('${friend.player_id}')" class="bg-faceit-orange hover:bg-faceit-orange-dark px-4 py-2 rounded-lg">
-                    Réessayer
-                </button>
-            </div>
-        </div>
-    `;
+    document.body.style.overflow = 'hidden';
 }
 
 function closeFriendModal() {
-    const modal = document.getElementById('friendProfileModal');
+    const modal = document.getElementById('friendModal');
     if (modal) {
         modal.classList.add('hidden');
         modal.classList.remove('flex');
+        document.body.style.overflow = '';
     }
 }
 
 async function compareFriend(friendId) {
     try {
-        const response = await fetch(`/api/friends/${friendId}/compare`);
+        const response = await fetch(`/api/friends/${friendId}/compare`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin'
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
         const data = await response.json();
 
-        if (data.success && data.redirect_url) {
+        if (data.success) {
             window.location.href = data.redirect_url;
         } else {
-            showNotification('Erreur lors de la comparaison', 'error');
+            throw new Error(data.error);
         }
+
     } catch (error) {
-        console.error('Erreur comparaison ami:', error);
+        console.error('Erreur comparaison:', error);
         showNotification('Erreur lors de la comparaison', 'error');
     }
 }
 
 function viewFriendStats(friendId) {
-    const friend = friends.find(f => f.player_id === friendId);
+    const friend = allFriends.find(f => f.player_id === friendId);
     if (friend) {
-        window.location.href = `/advanced?playerId=${friendId}&playerNickname=${encodeURIComponent(friend.nickname)}`;
+        window.location.href = `/advanced?playerId=${friend.player_id}&playerNickname=${encodeURIComponent(friend.nickname)}`;
     }
 }
 
-// États d'affichage
 function showLoading() {
     document.getElementById('loadingState').classList.remove('hidden');
     document.getElementById('mainContent').classList.add('hidden');
-    document.getElementById('errorState').classList.add('hidden');
+    
+    // Messages de chargement animés
+    const messages = [
+        "Récupération des données FACEIT",
+        "Analyse des profils d'amis",
+        "Calcul des statistiques",
+        "Finalisation..."
+    ];
+    
+    let index = 0;
+    const loadingText = document.getElementById('loadingText');
+    
+    const interval = setInterval(() => {
+        if (loadingText && index < messages.length) {
+            loadingText.textContent = messages[index];
+            index++;
+        } else {
+            clearInterval(interval);
+        }
+    }, 800);
+    
+    // Nettoyer l'interval si on charge trop longtemps
+    setTimeout(() => clearInterval(interval), 10000);
 }
 
 function hideLoading() {
     document.getElementById('loadingState').classList.add('hidden');
-}
-
-function showMainContent() {
     document.getElementById('mainContent').classList.remove('hidden');
-    document.getElementById('emptyState').classList.add('hidden');
-}
-
-function showEmptyState() {
-    document.getElementById('mainContent').classList.remove('hidden');
-    document.getElementById('friendsGrid').innerHTML = '';
-    document.getElementById('emptyState').classList.remove('hidden');
-}
-
-function showEmptySearchState(query) {
-    const container = document.getElementById('friendsGrid');
-    container.innerHTML = `
-        <div class="col-span-full text-center py-12">
-            <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-search text-gray-600 text-xl"></i>
-            </div>
-            <h3 class="text-lg font-semibold mb-2">Aucun résultat pour "${query}"</h3>
-            <p class="text-gray-400">Essayez avec un autre nom</p>
-        </div>
-    `;
 }
 
 function showError(message) {
-    document.getElementById('errorState').classList.remove('hidden');
     document.getElementById('errorMessage').textContent = message;
+    document.getElementById('errorState').classList.remove('hidden');
     document.getElementById('mainContent').classList.add('hidden');
 }
 
@@ -589,53 +572,12 @@ function hideError() {
     document.getElementById('errorState').classList.add('hidden');
 }
 
-// Fonctions utilitaires
-function getStatusColor(status) {
-    const colors = {
-        'online': 'text-green-400',
-        'in_game': 'text-yellow-400',
-        'away': 'text-gray-400',
-        'offline': 'text-gray-500'
-    };
-    return colors[status] || 'text-gray-500';
-}
-
-function getStatusText(status) {
-    const texts = {
-        'online': 'En ligne',
-        'in_game': 'En jeu',
-        'away': 'Absent',
-        'offline': 'Hors ligne'
-    };
-    return texts[status] || 'Inconnu';
-}
-
-function getLastSeenPriority(status) {
-    const priorities = {
-        'online': 1,
-        'in_game': 2,
-        'away': 3,
-        'offline': 4
-    };
-    return priorities[status] || 5;
-}
-
-function getWinRateColor(winRate) {
-    if (winRate >= 60) return 'text-green-400';
-    if (winRate >= 50) return 'text-yellow-400';
-    return 'text-red-400';
-}
-
-function getKDColor(kd) {
-    if (kd >= 1.2) return 'text-green-400';
-    if (kd >= 1.0) return 'text-yellow-400';
-    return 'text-red-400';
-}
-
 // Export pour usage global
-window.showFriendProfile = showFriendProfile;
+window.loadFriends = loadFriends;
+window.refreshFriends = refreshFriends;
+window.showFriendDetails = showFriendDetails;
 window.closeFriendModal = closeFriendModal;
 window.compareFriend = compareFriend;
 window.viewFriendStats = viewFriendStats;
 
-console.log('🤝 Script de la page des amis chargé avec succès!');
+console.log('👥 Script de la page amis chargé avec succès!');

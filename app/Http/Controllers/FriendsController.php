@@ -20,118 +20,366 @@ class FriendsController extends Controller
     }
 
     /**
-     * Affiche la page des amis
+     * Page principale des amis
      */
     public function index()
     {
-        $user = $this->faceitOAuth->getAuthenticatedUser();
-        
-        if (!$user) {
+        if (!$this->faceitOAuth->isAuthenticated()) {
             return redirect()->route('auth.faceit.login')
-                ->with('error', 'Vous devez être connecté pour accéder à cette page');
+                ->with('error', 'Vous devez être connecté pour voir vos amis FACEIT');
         }
 
-        return view('friends.index', [
-            'user' => $user
-        ]);
+        return view('friends');
     }
 
     /**
-     * API - Récupère la liste des amis
+     * API: Récupère la liste des amis du joueur connecté
      */
     public function getFriends(Request $request)
     {
         try {
             $user = $this->faceitOAuth->getAuthenticatedUser();
             
-            if (!$user || !isset($user['access_token'])) {
+            if (!$user) {
                 return response()->json([
                     'success' => false,
                     'error' => 'Non authentifié'
                 ], 401);
             }
 
-            $playerId = $user['player_data']['player_id'] ?? null;
-            if (!$playerId) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Données joueur manquantes'
-                ], 404);
+            $playerId = $user['id'];
+            $cacheKey = "friends_list_{$playerId}";
+            
+            // Cache de 10 minutes pour éviter les appels répétés
+            $friendsData = Cache::remember($cacheKey, 600, function () use ($playerId) {
+                return $this->fetchFriendsData($playerId);
+            });
+
+            return response()->json([
+                'success' => true,
+                'friends' => $friendsData['friends'],
+                'stats' => $friendsData['stats'],
+                'cached' => Cache::has($cacheKey)
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur récupération amis:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Erreur lors de la récupération des amis'
+            ], 500);
+        }
+    }
+
+    /**
+     * Récupère les données des amis avec traitement par batch
+     */
+    private function fetchFriendsData($playerId)
+    {
+        try {
+            // 1. Récupérer les données du joueur principal
+            $playerData = $this->faceitService->getPlayer($playerId);
+            
+            if (!$playerData || !isset($playerData['friends_ids'])) {
+                return [
+                    'friends' => [],
+                    'stats' => [
+                        'total' => 0,
+                        'online' => 0,
+                        'cs2_players' => 0,
+                        'average_level' => 0
+                    ]
+                ];
             }
 
-            $offset = (int) $request->get('offset', 0);
-            $limit = min((int) $request->get('limit', 20), 50);
-
-            // Clé de cache
-            $cacheKey = "user_friends_{$playerId}_{$offset}_{$limit}";
+            $friendIds = $playerData['friends_ids'];
             
-            // Vérifier le cache (5 minutes)
-            if (!$request->has('_refresh')) {
-                $cachedData = Cache::get($cacheKey);
-                if ($cachedData) {
-                    return response()->json([
-                        'success' => true,
-                        'friends' => $cachedData['friends'],
-                        'pagination' => $cachedData['pagination'],
-                        'stats' => $cachedData['stats'],
-                        'cached' => true
-                    ]);
-                }
+            if (empty($friendIds)) {
+                return [
+                    'friends' => [],
+                    'stats' => [
+                        'total' => 0,
+                        'online' => 0,
+                        'cs2_players' => 0,
+                        'average_level' => 0
+                    ]
+                ];
             }
 
-            // Simuler la récupération des amis (l'API FACEIT n'expose pas les friends)
-            // On va utiliser une approche alternative : récupérer les joueurs récents
-            $friends = $this->getFriendsFromRecentMatches($playerId, $user['access_token']);
+            // 2. Traitement par batch pour éviter de surcharger l'API
+            $friends = [];
+            $batchSize = 5; // Traiter 5 amis à la fois
+            $batches = array_chunk($friendIds, $batchSize);
             
-            // Enrichir les données des amis
-            $enrichedFriends = $this->enrichFriendsData($friends);
-            
-            // Statistiques
-            $stats = $this->calculateFriendsStats($enrichedFriends);
-            
-            // Pagination
-            $pagination = [
-                'current_page' => floor($offset / $limit) + 1,
-                'has_next' => count($enrichedFriends) >= $limit,
-                'total_items' => count($enrichedFriends),
-                'items_per_page' => $limit,
-                'start' => $offset,
-                'end' => $offset + count($enrichedFriends)
-            ];
+            foreach ($batches as $batch) {
+                $batchFriends = $this->processFriendsBatch($batch);
+                $friends = array_merge($friends, $batchFriends);
+                
+                // Petite pause entre les batches pour respecter les rate limits
+                usleep(100000); // 100ms
+            }
 
-            $result = [
-                'friends' => array_slice($enrichedFriends, $offset, $limit),
-                'pagination' => $pagination,
+            // 3. Trier les amis par statut et niveau
+            $friends = $this->sortFriends($friends);
+
+            // 4. Calculer les statistiques
+            $stats = $this->calculateFriendsStats($friends);
+
+            return [
+                'friends' => $friends,
                 'stats' => $stats
             ];
 
-            // Mettre en cache pour 5 minutes
-            Cache::put($cacheKey, $result, 300);
-
-            return response()->json([
-                'success' => true,
-                'friends' => $result['friends'],
-                'pagination' => $result['pagination'],
-                'stats' => $result['stats'],
-                'cached' => false
-            ]);
-
         } catch (\Exception $e) {
-            Log::error('Erreur récupération amis: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
+            Log::error('Erreur fetchFriendsData:', [
+                'error' => $e->getMessage(),
+                'player_id' => $playerId
             ]);
             
-            return response()->json([
-                'success' => false,
-                'error' => 'Erreur lors du chargement des amis'
-            ], 500);
+            return [
+                'friends' => [],
+                'stats' => [
+                    'total' => 0,
+                    'online' => 0,
+                    'cs2_players' => 0,
+                    'average_level' => 0
+                ]
+            ];
         }
     }
 
     /**
-     * API - Récupère les amis en ligne (simulation)
+     * Traite un batch d'amis
      */
-    public function getOnlineFriends(Request $request)
+    private function processFriendsBatch($friendIds)
+    {
+        $friends = [];
+        
+        foreach ($friendIds as $friendId) {
+            try {
+                // Récupérer les données de l'ami
+                $friendData = $this->faceitService->getPlayer($friendId);
+                
+                if (!$friendData) {
+                    continue;
+                }
+
+                // Enrichir avec des données calculées
+                $enrichedFriend = $this->enrichFriendData($friendData);
+                $friends[] = $enrichedFriend;
+
+            } catch (\Exception $e) {
+                Log::warning('Erreur récupération ami:', [
+                    'friend_id' => $friendId,
+                    'error' => $e->getMessage()
+                ]);
+                continue;
+            }
+        }
+
+        return $friends;
+    }
+
+    /**
+     * Enrichit les données d'un ami
+     */
+    private function enrichFriendData($friendData)
+    {
+        $cs2Game = $friendData['games']['cs2'] ?? null;
+        $csgoGame = $friendData['games']['csgo'] ?? null;
+        $primaryGame = $cs2Game ?: $csgoGame;
+
+        // Calculer le statut d'activité (basé sur la date d'activation)
+        $lastSeen = $this->calculateLastSeen($friendData);
+        $isOnline = $this->isPlayerOnline($friendData);
+
+        return [
+            'player_id' => $friendData['player_id'],
+            'nickname' => $friendData['nickname'],
+            'avatar' => $friendData['avatar'] ?? null,
+            'country' => $friendData['country'] ?? null,
+            'verified' => $friendData['verified'] ?? false,
+            'membership_type' => $friendData['membership_type'] ?? 'free',
+            'faceit_url' => $friendData['faceit_url'] ?? null,
+            
+            // Données de jeu
+            'has_cs2' => $cs2Game !== null,
+            'has_csgo' => $csgoGame !== null,
+            'level' => $primaryGame['skill_level'] ?? 0,
+            'elo' => $primaryGame['faceit_elo'] ?? 0,
+            'region' => $primaryGame['region'] ?? 'EU',
+            
+            // Statut
+            'is_online' => $isOnline,
+            'last_seen' => $lastSeen,
+            'status_text' => $this->getStatusText($isOnline, $lastSeen),
+            
+            // Métadonnées
+            'enriched_at' => time(),
+            'game_priority' => $cs2Game ? 'cs2' : ($csgoGame ? 'csgo' : 'none')
+        ];
+    }
+
+    /**
+     * Calcule la dernière fois vu (approximation)
+     */
+    private function calculateLastSeen($playerData)
+    {
+        // FACEIT ne fournit pas de données de "dernière connexion" précises
+        // On utilise la date d'activation comme approximation
+        $activatedAt = $playerData['activated_at'] ?? null;
+        
+        if ($activatedAt) {
+            return strtotime($activatedAt);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Détermine si un joueur est "en ligne" (heuristique)
+     */
+    private function isPlayerOnline($playerData)
+    {
+        // Logique simple : considérer comme "en ligne" si le compte est vérifié
+        // et a une activité récente (heuristique basée sur les données disponibles)
+        $verified = $playerData['verified'] ?? false;
+        $hasPremium = in_array($playerData['membership_type'] ?? 'free', ['premium', 'unlimited']);
+        
+        // Approximation basée sur le statut du compte
+        return $verified && $hasPremium;
+    }
+
+    /**
+     * Génère le texte de statut
+     */
+    private function getStatusText($isOnline, $lastSeen)
+    {
+        if ($isOnline) {
+            return 'En ligne';
+        }
+        
+        if ($lastSeen) {
+            $now = time();
+            $diff = $now - $lastSeen;
+            
+            if ($diff < 3600) { // 1 heure
+                return 'Il y a ' . round($diff / 60) . ' min';
+            } elseif ($diff < 86400) { // 24 heures
+                return 'Il y a ' . round($diff / 3600) . 'h';
+            } elseif ($diff < 604800) { // 7 jours
+                return 'Il y a ' . round($diff / 86400) . 'j';
+            } else {
+                return 'Inactif';
+            }
+        }
+        
+        return 'Hors ligne';
+    }
+
+    /**
+     * Trie la liste des amis
+     */
+    private function sortFriends($friends)
+    {
+        usort($friends, function($a, $b) {
+            // 1. En ligne d'abord
+            if ($a['is_online'] !== $b['is_online']) {
+                return $b['is_online'] <=> $a['is_online'];
+            }
+            
+            // 2. Joueurs CS2 d'abord
+            if ($a['has_cs2'] !== $b['has_cs2']) {
+                return $b['has_cs2'] <=> $a['has_cs2'];
+            }
+            
+            // 3. Par niveau descendant
+            if ($a['level'] !== $b['level']) {
+                return $b['level'] <=> $a['level'];
+            }
+            
+            // 4. Par ELO descendant
+            return $b['elo'] <=> $a['elo'];
+        });
+        
+        return $friends;
+    }
+
+    /**
+     * Calcule les statistiques des amis
+     */
+    private function calculateFriendsStats($friends)
+    {
+        $total = count($friends);
+        $online = 0;
+        $cs2Players = 0;
+        $totalLevel = 0;
+        $levelCount = 0;
+        
+        foreach ($friends as $friend) {
+            if ($friend['is_online']) {
+                $online++;
+            }
+            
+            if ($friend['has_cs2']) {
+                $cs2Players++;
+            }
+            
+            if ($friend['level'] > 0) {
+                $totalLevel += $friend['level'];
+                $levelCount++;
+            }
+        }
+        
+        return [
+            'total' => $total,
+            'online' => $online,
+            'cs2_players' => $cs2Players,
+            'average_level' => $levelCount > 0 ? round($totalLevel / $levelCount, 1) : 0,
+            'regions' => $this->getRegionDistribution($friends),
+            'membership_types' => $this->getMembershipDistribution($friends)
+        ];
+    }
+
+    /**
+     * Distribution par région
+     */
+    private function getRegionDistribution($friends)
+    {
+        $regions = [];
+        
+        foreach ($friends as $friend) {
+            $region = $friend['region'];
+            $regions[$region] = ($regions[$region] ?? 0) + 1;
+        }
+        
+        arsort($regions);
+        return $regions;
+    }
+
+    /**
+     * Distribution par type de membership
+     */
+    private function getMembershipDistribution($friends)
+    {
+        $memberships = [];
+        
+        foreach ($friends as $friend) {
+            $type = $friend['membership_type'];
+            $memberships[$type] = ($memberships[$type] ?? 0) + 1;
+        }
+        
+        return $memberships;
+    }
+
+    /**
+     * API: Compare avec un ami
+     */
+    public function compareFriend(Request $request, $friendId)
     {
         try {
             $user = $this->faceitOAuth->getAuthenticatedUser();
@@ -143,130 +391,16 @@ class FriendsController extends Controller
                 ], 401);
             }
 
-            // Simuler les amis en ligne (20-30% des amis)
-            $allFriends = $this->getFriends($request)->getData();
-            
-            if (!$allFriends->success) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Impossible de récupérer les amis'
-                ], 500);
-            }
-
-            $onlineFriends = array_filter($allFriends->friends, function($friend) {
-                return $friend['online_status'] === 'online' || $friend['online_status'] === 'in_game';
-            });
-
-            return response()->json([
-                'success' => true,
-                'online_friends' => array_values($onlineFriends),
-                'total_online' => count($onlineFriends)
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Erreur récupération amis en ligne: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'error' => 'Erreur lors du chargement des amis en ligne'
-            ], 500);
-        }
-    }
-
-    /**
-     * API - Recherche dans les amis
-     */
-    public function searchFriends(Request $request)
-    {
-        try {
-            $query = $request->get('q', '');
-            
-            if (strlen($query) < 2) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Requête trop courte'
-                ], 400);
-            }
-
-            $user = $this->faceitOAuth->getAuthenticatedUser();
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Non authentifié'
-                ], 401);
-            }
-
-            // Récupérer tous les amis et filtrer
-            $allFriends = $this->getFriends($request)->getData();
-            
-            if (!$allFriends->success) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Impossible de récupérer les amis'
-                ], 500);
-            }
-
-            $filteredFriends = array_filter($allFriends->friends, function($friend) use ($query) {
-                return stripos($friend['nickname'], $query) !== false;
-            });
-
-            return response()->json([
-                'success' => true,
-                'friends' => array_values($filteredFriends),
-                'query' => $query,
-                'total_results' => count($filteredFriends)
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Erreur recherche amis: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'error' => 'Erreur lors de la recherche'
-            ], 500);
-        }
-    }
-
-    /**
-     * API - Comparaison avec un ami
-     */
-    public function compareWithFriend(Request $request, $friendId)
-    {
-        try {
-            $user = $this->faceitOAuth->getAuthenticatedUser();
-            
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Non authentifié'
-                ], 401);
-            }
-
-            // Récupérer les données de l'ami
-            $friend = $this->faceitService->getPlayer($friendId);
-            
-            if (!$friend) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Ami non trouvé'
-                ], 404);
-            }
-
-            // Rediriger vers la page de comparaison
             $userNickname = $user['nickname'];
-            $friendNickname = $friend['nickname'];
-            
+            $friendData = $this->faceitService->getPlayer($friendId);
+            $friendNickname = $friendData['nickname'];
+
             return response()->json([
                 'success' => true,
-                'redirect_url' => route('comparison', [
-                    'player1' => $userNickname,
-                    'player2' => $friendNickname
-                ])
+                'redirect_url' => "/comparison?player1=" . urlencode($userNickname) . "&player2=" . urlencode($friendNickname)
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Erreur comparaison avec ami: ' . $e->getMessage());
-            
             return response()->json([
                 'success' => false,
                 'error' => 'Erreur lors de la comparaison'
@@ -275,293 +409,77 @@ class FriendsController extends Controller
     }
 
     /**
-     * Récupère les "amis" depuis les matches récents
+     * API: Recherche d'amis
      */
-    private function getFriendsFromRecentMatches($playerId, $accessToken)
+    public function searchFriends(Request $request)
     {
         try {
-            // Récupérer l'historique des matches
-            $history = $this->faceitService->getPlayerHistory($playerId, 0, 0, 0, 100);
+            $user = $this->faceitOAuth->getAuthenticatedUser();
             
-            if (!$history || !isset($history['items'])) {
-                return [];
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Non authentifié'
+                ], 401);
             }
 
-            $teammates = [];
-            $teammateCount = [];
+            $query = $request->get('query', '');
+            $filter = $request->get('filter', 'all'); // all, online, cs2, high_level
+            
+            $playerId = $user['id'];
+            $cacheKey = "friends_list_{$playerId}";
+            
+            $friendsData = Cache::get($cacheKey);
+            
+            if (!$friendsData) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Données non disponibles, veuillez rafraîchir'
+                ], 404);
+            }
 
-            // Analyser les matches pour trouver les coéquipiers fréquents
-            foreach ($history['items'] as $match) {
-                try {
-                    $matchDetails = $this->faceitService->getMatch($match['match_id']);
+            $friends = $friendsData['friends'];
+            
+            // Filtrage par recherche
+            if (!empty($query)) {
+                $friends = array_filter($friends, function($friend) use ($query) {
+                    return stripos($friend['nickname'], $query) !== false ||
+                           stripos($friend['country'], $query) !== false;
+                });
+            }
+            
+            // Filtrage par type
+            switch ($filter) {
+                case 'online':
+                    $friends = array_filter($friends, function($friend) {
+                        return $friend['is_online'];
+                    });
+                    break;
                     
-                    if (!$matchDetails || !isset($matchDetails['teams'])) {
-                        continue;
-                    }
-
-                    // Trouver l'équipe du joueur
-                    $playerTeam = null;
-                    foreach ($matchDetails['teams'] as $teamId => $team) {
-                        foreach ($team['roster'] as $player) {
-                            if ($player['player_id'] === $playerId) {
-                                $playerTeam = $teamId;
-                                break 2;
-                            }
-                        }
-                    }
-
-                    if (!$playerTeam) continue;
-
-                    // Ajouter les coéquipiers
-                    foreach ($matchDetails['teams'][$playerTeam]['roster'] as $player) {
-                        if ($player['player_id'] !== $playerId) {
-                            $teammateId = $player['player_id'];
-                            
-                            if (!isset($teammateCount[$teammateId])) {
-                                $teammateCount[$teammateId] = 0;
-                                $teammates[$teammateId] = $player;
-                            }
-                            $teammateCount[$teammateId]++;
-                        }
-                    }
-                } catch (\Exception $e) {
-                    // Continuer même si un match échoue
-                    continue;
-                }
+                case 'cs2':
+                    $friends = array_filter($friends, function($friend) {
+                        return $friend['has_cs2'];
+                    });
+                    break;
+                    
+                case 'high_level':
+                    $friends = array_filter($friends, function($friend) {
+                        return $friend['level'] >= 7;
+                    });
+                    break;
             }
 
-            // Filtrer pour garder seulement les joueurs qui ont joué plusieurs fois ensemble
-            $friends = [];
-            foreach ($teammateCount as $teammateId => $count) {
-                if ($count >= 3) { // Au moins 3 matches ensemble
-                    $friends[] = array_merge($teammates[$teammateId], [
-                        'games_together' => $count,
-                        'friendship_score' => min($count * 10, 100)
-                    ]);
-                }
-            }
-
-            // Trier par nombre de matches ensemble
-            usort($friends, function($a, $b) {
-                return $b['games_together'] <=> $a['games_together'];
-            });
-
-            return array_slice($friends, 0, 50); // Limiter à 50 amis
+            return response()->json([
+                'success' => true,
+                'friends' => array_values($friends),
+                'total' => count($friends)
+            ]);
 
         } catch (\Exception $e) {
-            Log::error('Erreur récupération amis depuis matches: ' . $e->getMessage());
-            return [];
-        }
-    }
-
-    /**
-     * Enrichit les données des amis
-     */
-    private function enrichFriendsData($friends)
-    {
-        $enrichedFriends = [];
-
-        foreach ($friends as $friend) {
-            try {
-                // Récupérer les données complètes du joueur
-                $playerData = $this->faceitService->getPlayer($friend['player_id']);
-                
-                if (!$playerData) {
-                    continue;
-                }
-
-                // Récupérer les stats
-                $stats = null;
-                try {
-                    $stats = $this->faceitService->getPlayerStats($friend['player_id']);
-                } catch (\Exception $e) {
-                    // Continuer sans stats si erreur
-                }
-
-                // Simuler le statut en ligne
-                $onlineStatus = $this->simulateOnlineStatus();
-                
-                $enrichedFriend = [
-                    'player_id' => $friend['player_id'],
-                    'nickname' => $playerData['nickname'],
-                    'avatar' => $playerData['avatar'] ?? null,
-                    'country' => $playerData['country'] ?? 'EU',
-                    'skill_level' => $playerData['games']['cs2']['skill_level'] ?? 1,
-                    'faceit_elo' => $playerData['games']['cs2']['faceit_elo'] ?? 1000,
-                    'region' => $playerData['games']['cs2']['region'] ?? 'EU',
-                    'games_together' => $friend['games_together'] ?? 0,
-                    'friendship_score' => $friend['friendship_score'] ?? 0,
-                    'online_status' => $onlineStatus,
-                    'last_seen' => $this->generateLastSeen($onlineStatus),
-                    'win_rate' => $this->extractWinRate($stats),
-                    'kd_ratio' => $this->extractKDRatio($stats),
-                    'matches' => $this->extractMatches($stats),
-                    'current_streak' => $this->extractCurrentStreak($stats),
-                    'faceit_url' => "https://www.faceit.com/en/players/{$playerData['nickname']}"
-                ];
-
-                $enrichedFriends[] = $enrichedFriend;
-
-            } catch (\Exception $e) {
-                Log::warning("Erreur enrichissement ami {$friend['player_id']}: " . $e->getMessage());
-                continue;
-            }
-        }
-
-        return $enrichedFriends;
-    }
-
-    /**
-     * Calcule les statistiques des amis
-     */
-    private function calculateFriendsStats($friends)
-    {
-        if (empty($friends)) {
-            return [
-                'total_friends' => 0,
-                'online_friends' => 0,
-                'average_level' => 0,
-                'average_elo' => 0,
-                'top_countries' => [],
-                'best_friend' => null
-            ];
-        }
-
-        $totalFriends = count($friends);
-        $onlineFriends = count(array_filter($friends, function($f) {
-            return in_array($f['online_status'], ['online', 'in_game']);
-        }));
-
-        $avgLevel = round(array_sum(array_column($friends, 'skill_level')) / $totalFriends, 1);
-        $avgElo = round(array_sum(array_column($friends, 'faceit_elo')) / $totalFriends);
-
-        // Top pays
-        $countries = array_count_values(array_column($friends, 'country'));
-        arsort($countries);
-        $topCountries = array_slice($countries, 0, 5, true);
-
-        // Meilleur ami (plus de matches ensemble)
-        $bestFriend = !empty($friends) ? $friends[0] : null;
-
-        return [
-            'total_friends' => $totalFriends,
-            'online_friends' => $onlineFriends,
-            'average_level' => $avgLevel,
-            'average_elo' => $avgElo,
-            'top_countries' => $topCountries,
-            'best_friend' => $bestFriend
-        ];
-    }
-
-    /**
-     * Simule un statut en ligne
-     */
-    private function simulateOnlineStatus()
-    {
-        $statuses = [
-            'online' => 15,      // 15%
-            'in_game' => 10,     // 10%
-            'away' => 20,        // 20%
-            'offline' => 55      // 55%
-        ];
-
-        $rand = rand(1, 100);
-        $cumulative = 0;
-
-        foreach ($statuses as $status => $percentage) {
-            $cumulative += $percentage;
-            if ($rand <= $cumulative) {
-                return $status;
-            }
-        }
-
-        return 'offline';
-    }
-
-    /**
-     * Génère une date de dernière connexion
-     */
-    private function generateLastSeen($onlineStatus)
-    {
-        if (in_array($onlineStatus, ['online', 'in_game'])) {
-            return 'Maintenant';
-        }
-
-        if ($onlineStatus === 'away') {
-            return rand(1, 30) . ' min';
-        }
-
-        // Offline
-        $hours = rand(1, 72);
-        if ($hours < 24) {
-            return $hours . 'h';
-        } else {
-            $days = floor($hours / 24);
-            return $days . 'j';
-        }
-    }
-
-    /**
-     * Extraction du win rate depuis les stats
-     */
-    private function extractWinRate($stats)
-    {
-        if (!$stats || !isset($stats['lifetime'])) {
-            return rand(35, 75); // Valeur simulée
-        }
-        
-        $winRate = $stats['lifetime']['Win Rate %'] ?? null;
-        if ($winRate !== null) {
-            return round(floatval($winRate), 1);
-        }
-        
-        return rand(35, 75);
-    }
-
-    /**
-     * Extraction du K/D ratio depuis les stats
-     */
-    private function extractKDRatio($stats)
-    {
-        if (!$stats || !isset($stats['lifetime'])) {
-            return round(rand(60, 140) / 100, 2); // Valeur simulée
-        }
-        
-        $kd = $stats['lifetime']['Average K/D Ratio'] ?? null;
-        if ($kd !== null) {
-            return round(floatval($kd), 2);
-        }
-        
-        return round(rand(60, 140) / 100, 2);
-    }
-
-    /**
-     * Extraction du nombre de matches
-     */
-    private function extractMatches($stats)
-    {
-        if (!$stats || !isset($stats['lifetime'])) {
-            return rand(50, 2000); // Valeur simulée
-        }
-        
-        return intval($stats['lifetime']['Matches'] ?? rand(50, 2000));
-    }
-
-    /**
-     * Extraction de la série actuelle
-     */
-    private function extractCurrentStreak($stats)
-    {
-        if (!$stats || !isset($stats['lifetime'])) {
-            return ['type' => rand(0, 1) ? 'win' : 'loss', 'count' => rand(1, 8)];
-        }
-        
-        $winStreak = intval($stats['lifetime']['Current Win Streak'] ?? 0);
-        
-        if ($winStreak > 0) {
-            return ['type' => 'win', 'count' => $winStreak];
-        } else {
-            return ['type' => 'loss', 'count' => rand(1, 5)];
+            return response()->json([
+                'success' => false,
+                'error' => 'Erreur lors de la recherche'
+            ], 500);
         }
     }
 }
