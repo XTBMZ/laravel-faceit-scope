@@ -9,6 +9,7 @@ use App\Http\Controllers\TournamentController;
 use App\Http\Controllers\MatchController;
 use App\Http\Controllers\Auth\FaceitAuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\FriendsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,13 +42,24 @@ Route::prefix('auth/faceit')->name('auth.faceit.')->group(function () {
     Route::get('/popup/callback', [FaceitAuthController::class, 'popupCallback'])->name('popup.callback');
 });
 
-// Routes de profil (nécessitent une authentification)
+// Routes de profil et amis (nécessitent une authentification)
 Route::middleware('faceit.auth')->group(function () {
+    // Profil
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/sync-faceit', [ProfileController::class, 'syncFaceitData'])->name('profile.sync');
     Route::get('/profile/export', [ProfileController::class, 'exportData'])->name('profile.export');
     Route::get('/profile/match-history', [ProfileController::class, 'getMatchHistory'])->name('profile.history');
+    
+    // Amis
+    Route::prefix('friends')->name('friends.')->group(function () {
+        Route::get('/', [FriendsController::class, 'index'])->name('index');
+        Route::post('/search', [FriendsController::class, 'searchPlayers'])->name('search');
+        Route::post('/add', [FriendsController::class, 'addFriend'])->name('add');
+        Route::post('/remove', [FriendsController::class, 'removeFriend'])->name('remove');
+        Route::post('/compare', [FriendsController::class, 'compareWithFriend'])->name('compare');
+        Route::post('/update-stats', [FriendsController::class, 'updateFriendsStats'])->name('update-stats');
+    });
 });
 
 // Routes API pour les données FACEIT
