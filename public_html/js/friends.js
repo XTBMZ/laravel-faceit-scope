@@ -1,356 +1,278 @@
 /**
- * JavaScript optimisé pour la page Friends - Faceit Scope
- * Fichier: public/js/friends.js
+ * Friends.js optimisé - Appels directs à l'API FACEIT
+ * Similaire à ton projet HTML/JS rapide
  */
 
-// Variables globales
+// Configuration API directe ULTRA AGRESSIVE
+const FACEIT_API = {
+    TOKEN: "9bcea3f9-2144-495e-be16-02d4eb1a811c",
+    BASE_URL: "https://open.faceit.com/data/v4/",
+    GAME_ID: "cs2",
+    BATCH_SIZE: 50,  // 50 amis en parallèle (max agressif)
+    MAX_CONCURRENT: 100, // Jusqu'à 100 requêtes simultanées
+    TIMEOUT: 12000,  // 12 secondes max
+    NO_DELAY: true   // Pas de délai entre les lots
+};
+
+// Variables globales optimisées
 let allFriends = [];
 let filteredFriends = [];
 let currentPage = 1;
 const friendsPerPage = 12;
-let currentViewMode = 'grid';
 let isLoading = false;
-let lastUpdateTime = null;
-let friendsCache = new Map();
 
-// Cache et optimisations
+// Cache simple en mémoire (pas localStorage pour éviter la sérialisation)
+const friendsCache = new Map();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-const DEBOUNCE_DELAY = 300;
-const RETRY_ATTEMPTS = 3;
-const RETRY_DELAY = 1000;
 
-// Initialisation avec optimisations
+// Initialisation rapide
 document.addEventListener('DOMContentLoaded', function() {
-    initializeFriendsPage();
+    console.log('🚀 Initialisation Friends optimisée');
+    setupEventListeners();
+    loadFriendsOptimized();
 });
 
-async function initializeFriendsPage() {
+// ===== FONCTIONS API OPTIMISÉES =====
+
+/**
+ * Appel API direct optimisé avec timeout et retry
+ */
+async function faceitApiCall(endpoint, options = {}) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), FACEIT_API.TIMEOUT);
+    
     try {
-        setupEventListeners();
-        setupIntersectionObserver();
-        await Promise.all([
-            loadFriends(),
-            loadFriendsStats()
-        ]);
-    } catch (error) {
-        console.error('Erreur initialisation page amis:', error);
-        showError('Erreur lors de l\'initialisation de la page');
-    }
-}
-
-function setupEventListeners() {
-    // Recherche avec debounce optimisé
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', debounce(function() {
-            const query = this.value.trim();
-            if (query.length >= 2 || query.length === 0) {
-                performSearch(query);
-            }
-        }, DEBOUNCE_DELAY));
-    }
-
-    // Filtres avec optimisation
-    const statusFilter = document.getElementById('statusFilter');
-    const sortBy = document.getElementById('sortBy');
-    
-    if (statusFilter) {
-        statusFilter.addEventListener('change', throttle(filterFriends, 100));
-    }
-    if (sortBy) {
-        sortBy.addEventListener('change', throttle(filterFriends, 100));
-    }
-
-    // Boutons d'action avec états de chargement
-    setupActionButtons();
-    
-    // Mode d'affichage avec animation
-    setupViewModeButtons();
-    
-    // Modal avec gestion clavier
-    setupModalHandlers();
-    
-    // Gestion du redimensionnement
-    window.addEventListener('resize', debounce(handleResize, 250));
-    
-    // Gestion de la visibilité de la page pour les mises à jour
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-}
-
-function setupActionButtons() {
-    const refreshButton = document.getElementById('refreshFriends');
-    const retryButton = document.getElementById('retryButton');
-    
-    if (refreshButton) {
-        refreshButton.addEventListener('click', async function() {
-            await refreshFriends(true);
-        });
-    }
-    
-    if (retryButton) {
-        retryButton.addEventListener('click', async function() {
-            await loadFriends();
-        });
-    }
-}
-
-function setupViewModeButtons() {
-    const gridModeButton = document.getElementById('viewModeGrid');
-    const listModeButton = document.getElementById('viewModeList');
-    
-    if (gridModeButton && listModeButton) {
-        gridModeButton.addEventListener('click', () => {
-            setViewMode('grid');
-            saveUserPreference('viewMode', 'grid');
+        const response = await fetch(`${FACEIT_API.BASE_URL}${endpoint}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${FACEIT_API.TOKEN}`,
+                'Content-Type': 'application/json'
+            },
+            signal: controller.signal,
+            ...options
         });
         
-        listModeButton.addEventListener('click', () => {
-            setViewMode('list');
-            saveUserPreference('viewMode', 'list');
-        });
+        clearTimeout(timeoutId);
         
-        // Charger la préférence utilisateur
-        const savedViewMode = getUserPreference('viewMode', 'grid');
-        setViewMode(savedViewMode);
-    }
-}
-
-function setupModalHandlers() {
-    const friendModal = document.getElementById('friendModal');
-    if (friendModal) {
-        friendModal.addEventListener('click', function(e) {
-            if (e.target === friendModal) {
-                closeFriendModal();
-            }
-        });
-    }
-
-    // Gestion clavier pour le modal
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeFriendModal();
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
         }
-    });
+        
+        return await response.json();
+        
+    } catch (error) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+            throw new Error('Timeout API');
+        }
+        throw error;
+    }
 }
 
-function setupIntersectionObserver() {
-    // Observer pour le lazy loading des images
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                if (img.dataset.src) {
-                    img.src = img.dataset.src;
-                    img.removeAttribute('data-src');
-                    img.classList.remove('avatar-loading');
-                    observer.unobserve(img);
-                }
-            }
+/**
+ * Récupération joueur avec cache en mémoire
+ */
+async function getPlayerOptimized(playerId) {
+    const cacheKey = `player_${playerId}`;
+    const cached = friendsCache.get(cacheKey);
+    
+    if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+        return cached.data;
+    }
+    
+    try {
+        const player = await faceitApiCall(`players/${playerId}`);
+        
+        // Cache en mémoire (plus rapide que localStorage)
+        friendsCache.set(cacheKey, {
+            data: player,
+            timestamp: Date.now()
         });
-    }, {
-        root: null,
-        rootMargin: '50px',
-        threshold: 0.1
-    });
-
-    // Observer sera utilisé lors de la création des cartes
-    window.friendsImageObserver = imageObserver;
+        
+        return player;
+    } catch (error) {
+        console.warn(`⚠️ Erreur joueur ${playerId}:`, error.message);
+        return null;
+    }
 }
 
-async function loadFriends(retryCount = 0) {
+/**
+ * Traitement ULTRA AGRESSIF - Tous les amis d'un coup
+ */
+async function processFriendsBatch(friendIds) {
+    console.log(`🚀 TRAITEMENT ULTRA AGRESSIF: ${friendIds.length} amis en parallèle`);
+    
+    // Créer toutes les promesses d'un coup
+    const promises = friendIds.map(id => getPlayerOptimized(id));
+    
+    try {
+        // Lancer TOUTES les requêtes simultanément
+        const startTime = performance.now();
+        const results = await Promise.allSettled(promises);
+        const endTime = performance.now();
+        
+        console.log(`⚡ ${friendIds.length} requêtes en ${Math.round(endTime - startTime)}ms`);
+        
+        const validPlayers = results
+            .filter(result => result.status === 'fulfilled' && result.value)
+            .map(result => result.value)
+            .filter(player => player && player.games && (player.games.cs2 || player.games.csgo));
+        
+        console.log(`✅ ${validPlayers.length}/${friendIds.length} amis récupérés avec succès`);
+        return validPlayers;
+            
+    } catch (error) {
+        console.error('❌ Erreur traitement ultra agressif:', error);
+        return [];
+    }
+}
+
+/**
+ * Chargement optimisé des amis
+ */
+async function loadFriendsOptimized() {
     if (isLoading) return;
     
     try {
         isLoading = true;
-        showLoading();
+        showLoadingState();
         
-        const cacheKey = 'friends_data';
-        const cachedData = getCachedData(cacheKey);
+        console.log('🔍 Récupération utilisateur connecté...');
         
-        if (cachedData && !isDataExpired(cachedData.timestamp)) {
-            console.log('📦 Données amis chargées depuis le cache');
-            allFriends = cachedData.data;
-            lastUpdateTime = cachedData.timestamp;
-            processLoadedFriends();
+        // 1. Récupérer l'utilisateur connecté via l'API Laravel (une seule fois)
+        const userResponse = await fetch('/api/auth/user', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        if (!userResponse.ok) {
+            throw new Error('Non authentifié');
+        }
+        
+        const userData = await userResponse.json();
+        if (!userData.authenticated || !userData.user?.player_data?.player_id) {
+            throw new Error('Données utilisateur manquantes');
+        }
+        
+        const currentUserId = userData.user.player_data.player_id;
+        console.log(`👤 Utilisateur: ${userData.user.nickname}`);
+        
+        // 2. Récupération directe des amis via l'API FACEIT (pas Laravel)
+        console.log('👥 Récupération liste d\'amis...');
+        const playerData = await faceitApiCall(`players/${currentUserId}`);
+        
+        if (!playerData.friends_ids || playerData.friends_ids.length === 0) {
+            showEmptyState();
             return;
         }
         
-        console.log('🌐 Chargement des amis depuis l\'API');
-        const response = await fetchWithTimeout('/api/friends', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        }, 15000);
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-
-        if (data.success) {
-            allFriends = data.friends || [];
-            lastUpdateTime = Date.now();
-            
-            // Mettre en cache
-            setCachedData(cacheKey, {
-                data: allFriends,
-                timestamp: lastUpdateTime
-            });
-            
-            updateLastUpdateTime(data.cached_at || lastUpdateTime / 1000);
-            processLoadedFriends();
-            
-            console.log(`✅ ${allFriends.length} amis chargés avec succès`);
+        console.log(`📋 ${playerData.friends_ids.length} amis trouvés`);
+        
+        // 3. TRAITEMENT ULTRA AGRESSIF - TOUS D'UN COUP
+        const friendIds = playerData.friends_ids;
+        
+        if (friendIds.length <= FACEIT_API.MAX_CONCURRENT) {
+            // Si moins de 100 amis, tout traiter d'un coup
+            console.log(`🚀 TRAITEMENT TOTAL: ${friendIds.length} amis simultanément`);
+            allFriends = await processFriendsBatch(friendIds);
             
         } else {
-            throw new Error(data.error || 'Erreur inconnue');
+            // Si plus de 100 amis, diviser en gros lots sans délai
+            console.log(`🚀 TRAITEMENT GROS LOTS: ${friendIds.length} amis en lots de ${FACEIT_API.BATCH_SIZE}`);
+            
+            const batches = [];
+            for (let i = 0; i < friendIds.length; i += FACEIT_API.BATCH_SIZE) {
+                batches.push(friendIds.slice(i, i + FACEIT_API.BATCH_SIZE));
+            }
+            
+            console.log(`🔄 ${batches.length} lots de ${FACEIT_API.BATCH_SIZE} - SANS DÉLAI`);
+            
+            allFriends = [];
+            
+            // Traiter les lots SANS délai entre eux
+            for (let i = 0; i < batches.length; i++) {
+                const batch = batches[i];
+                console.log(`⚡ Lot ${i + 1}/${batches.length} (${batch.length} amis)...`);
+                
+                const batchFriends = await processFriendsBatch(batch);
+                allFriends.push(...batchFriends);
+                
+                // SUPPRESSION DU DÉLAI - Traitement immédiat
+                // Affichage progressif
+                updateProgressiveDisplay();
+            }
         }
-
+        
+        console.log(`✅ ${allFriends.length} amis chargés avec succès`);
+        
+        // 4. Tri et affichage final
+        sortFriendsByElo();
+        filterFriends();
+        showFriendsContent();
+        
     } catch (error) {
         console.error('❌ Erreur chargement amis:', error);
-        
-        if (retryCount < RETRY_ATTEMPTS) {
-            console.log(`🔄 Tentative ${retryCount + 1}/${RETRY_ATTEMPTS} dans ${RETRY_DELAY}ms`);
-            setTimeout(() => {
-                loadFriends(retryCount + 1);
-            }, RETRY_DELAY * (retryCount + 1));
-        } else {
-            showError(getErrorMessage(error));
-        }
+        showErrorState(error.message);
     } finally {
         isLoading = false;
     }
 }
 
-function processLoadedFriends() {
-    if (allFriends.length === 0) {
-        showEmptyState();
-    } else {
-        // Précharger les premières images
-        preloadAvatars(allFriends.slice(0, 8));
-        
+/**
+ * Affichage progressif pendant le chargement
+ */
+function updateProgressiveDisplay() {
+    const progress = allFriends.length;
+    const progressElement = document.getElementById('loadingProgress');
+    
+    if (progressElement) {
+        progressElement.textContent = `${progress} amis chargés...`;
+    }
+    
+    // Afficher les premiers résultats dès qu'on en a
+    if (progress >= 8 && !document.getElementById('friendsContent').classList.contains('hidden')) {
         filterFriends();
-        showFriendsContent();
-        
-        // Animation d'entrée
-        setTimeout(() => {
-            animateCardsEntrance();
-        }, 100);
     }
 }
 
-async function loadFriendsStats() {
-    try {
-        const cacheKey = 'friends_stats';
-        const cachedStats = getCachedData(cacheKey);
-        
-        if (cachedStats && !isDataExpired(cachedStats.timestamp, 10 * 60 * 1000)) {
-            displayFriendsStats(cachedStats.data);
-            return;
-        }
-        
-        const response = await fetchWithTimeout('/api/friends/stats', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        }, 10000);
+/**
+ * Tri rapide par ELO
+ */
+function sortFriendsByElo() {
+    allFriends.sort((a, b) => {
+        const eloA = a.games?.cs2?.faceit_elo || a.games?.csgo?.faceit_elo || 0;
+        const eloB = b.games?.cs2?.faceit_elo || b.games?.csgo?.faceit_elo || 0;
+        return eloB - eloA;
+    });
+}
 
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success) {
-                setCachedData(cacheKey, {
-                    data: data.stats,
-                    timestamp: Date.now()
-                });
-                displayFriendsStats(data.stats);
-            }
-        }
-    } catch (error) {
-        console.warn('⚠️ Erreur chargement stats:', error);
-        // Afficher des stats par défaut
-        displayFriendsStats({
-            total: allFriends.length,
-            online: 0,
-            average_elo: 0,
-            highest_elo: 0
+// ===== FONCTIONS D'AFFICHAGE OPTIMISÉES =====
+
+function setupEventListeners() {
+    // Recherche avec debounce court
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', debounce(filterFriends, 200));
+    }
+
+    // Filtres instantanés
+    const statusFilter = document.getElementById('statusFilter');
+    const sortBy = document.getElementById('sortBy');
+    
+    if (statusFilter) statusFilter.addEventListener('change', filterFriends);
+    if (sortBy) sortBy.addEventListener('change', filterFriends);
+
+    // Actualisation
+    const refreshButton = document.getElementById('refreshFriends');
+    if (refreshButton) {
+        refreshButton.addEventListener('click', function() {
+            // Clear cache et reload
+            friendsCache.clear();
+            allFriends = [];
+            loadFriendsOptimized();
         });
     }
-}
-
-function displayFriendsStats(stats) {
-    const statsContainer = document.getElementById('friendsStats');
-    if (!statsContainer) return;
-
-    const onlinePercentage = stats.total > 0 ? ((stats.online / stats.total) * 100).toFixed(1) : 0;
-
-    // Animation des compteurs
-    const statsHTML = `
-        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800 stat-counter">
-            <div class="flex items-center mb-2">
-                <i class="fas fa-users text-blue-400 mr-2"></i>
-                <span class="text-sm text-gray-400">Total</span>
-            </div>
-            <div class="text-2xl font-bold" data-count="${stats.total}">0</div>
-        </div>
-        
-        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800 stat-counter">
-            <div class="flex items-center mb-2">
-                <i class="fas fa-circle text-green-400 mr-2"></i>
-                <span class="text-sm text-gray-400">Actifs</span>
-            </div>
-            <div class="text-2xl font-bold text-green-400" data-count="${stats.online}">0</div>
-            <div class="text-xs text-gray-500">${onlinePercentage}%</div>
-        </div>
-        
-        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800 stat-counter">
-            <div class="flex items-center mb-2">
-                <i class="fas fa-chart-line text-faceit-orange mr-2"></i>
-                <span class="text-sm text-gray-400">ELO Moyen</span>
-            </div>
-            <div class="text-2xl font-bold text-faceit-orange" data-count="${stats.average_elo}">0</div>
-        </div>
-        
-        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800 stat-counter">
-            <div class="flex items-center mb-2">
-                <i class="fas fa-crown text-yellow-400 mr-2"></i>
-                <span class="text-sm text-gray-400">Meilleur ELO</span>
-            </div>
-            <div class="text-2xl font-bold text-yellow-400" data-count="${stats.highest_elo}">0</div>
-        </div>
-    `;
-
-    statsContainer.innerHTML = statsHTML;
-    
-    // Animer les compteurs
-    setTimeout(() => {
-        animateCounters();
-    }, 200);
-}
-
-function animateCounters() {
-    const counters = document.querySelectorAll('[data-count]');
-    
-    counters.forEach(counter => {
-        const target = parseInt(counter.dataset.count);
-        const duration = 1000;
-        const step = target / (duration / 16);
-        let current = 0;
-        
-        const timer = setInterval(() => {
-            current += step;
-            if (current >= target) {
-                counter.textContent = formatNumber(target);
-                clearInterval(timer);
-            } else {
-                counter.textContent = formatNumber(Math.floor(current));
-            }
-        }, 16);
-    });
 }
 
 function filterFriends() {
@@ -358,37 +280,21 @@ function filterFriends() {
     const statusFilter = document.getElementById('statusFilter')?.value || 'all';
     const sortBy = document.getElementById('sortBy')?.value || 'elo';
 
-    // Performance: filtrer directement sans copies intermédiaires
+    // Filtrage rapide
     filteredFriends = allFriends.filter(friend => {
         const matchesSearch = !searchQuery || 
-            friend.nickname.toLowerCase().includes(searchQuery) ||
-            (friend.country || '').toLowerCase().includes(searchQuery);
+            friend.nickname.toLowerCase().includes(searchQuery);
         
-        const matchesStatus = statusFilter === 'all' || friend.status.status === statusFilter;
-        
-        return matchesSearch && matchesStatus;
+        return matchesSearch; // Simplifier le filtrage pour la vitesse
     });
 
-    // Tri optimisé
-    sortFriends(filteredFriends, sortBy);
-    
-    // Réinitialiser la pagination
-    currentPage = 1;
-    clearCurrentDisplay();
-    
-    updateFriendsDisplay();
-}
+    // Tri rapide
+    if (sortBy === 'name') {
+        filteredFriends.sort((a, b) => a.nickname.localeCompare(b.nickname));
+    }
+    // Déjà trié par ELO par défaut
 
-function sortFriends(friends, sortBy) {
-    const sortFunctions = {
-        elo: (a, b) => b.faceit_elo - a.faceit_elo,
-        activity: (a, b) => a.last_activity.days_ago - b.last_activity.days_ago,
-        name: (a, b) => a.nickname.localeCompare(b.nickname),
-        level: (a, b) => b.skill_level - a.skill_level
-    };
-    
-    const sortFn = sortFunctions[sortBy] || sortFunctions.elo;
-    friends.sort(sortFn);
+    updateFriendsDisplay();
 }
 
 function updateFriendsDisplay() {
@@ -397,334 +303,211 @@ function updateFriendsDisplay() {
     
     // Mise à jour des compteurs
     const friendsCountElement = document.getElementById('friendsCount');
-    const filteredCountElement = document.getElementById('filteredCount');
-    
     if (friendsCountElement) {
         friendsCountElement.textContent = totalCount;
     }
     
-    if (filteredCountElement) {
-        if (filteredCount !== totalCount) {
-            filteredCountElement.textContent = `(${filteredCount} affiché${filteredCount > 1 ? 's' : ''})`;
-            filteredCountElement.classList.remove('hidden');
-        } else {
-            filteredCountElement.classList.add('hidden');
-        }
-    }
-
-    displayFriends();
+    displayFriendsOptimized();
 }
 
-function displayFriends() {
+/**
+ * Affichage optimisé avec fragments DOM
+ */
+function displayFriendsOptimized() {
+    const friendsGrid = document.getElementById('friendsGrid');
+    if (!friendsGrid) return;
+    
     const startIndex = 0;
     const endIndex = currentPage * friendsPerPage;
     const friendsToShow = filteredFriends.slice(startIndex, endIndex);
 
-    if (currentViewMode === 'grid') {
-        displayFriendsGrid(friendsToShow);
-    } else {
-        displayFriendsList(friendsToShow);
-    }
-
-    updateLoadMoreButton(endIndex);
-}
-
-function displayFriendsGrid(friends) {
-    const friendsGrid = document.getElementById('friendsGrid');
-    const friendsList = document.getElementById('friendsList');
-    
-    if (!friendsGrid || !friendsList) return;
-    
-    friendsGrid.classList.remove('hidden');
-    friendsList.classList.add('hidden');
-
-    const existingCards = friendsGrid.children.length;
-    const newFriends = friends.slice(existingCards);
-
     // Utiliser DocumentFragment pour de meilleures performances
     const fragment = document.createDocumentFragment();
     
-    newFriends.forEach((friend, index) => {
-        const friendCard = createFriendCard(friend, existingCards + index);
+    friendsToShow.forEach((friend, index) => {
+        const friendCard = createOptimizedFriendCard(friend);
         fragment.appendChild(friendCard);
     });
     
+    // Remplacer le contenu en une seule opération DOM
+    friendsGrid.innerHTML = '';
     friendsGrid.appendChild(fragment);
+    
+    updateLoadMoreButton(endIndex);
 }
 
-function displayFriendsList(friends) {
-    const friendsGrid = document.getElementById('friendsGrid');
-    const friendsList = document.getElementById('friendsList');
-    
-    if (!friendsGrid || !friendsList) return;
-    
-    friendsGrid.classList.add('hidden');
-    friendsList.classList.remove('hidden');
-
-    const existingItems = friendsList.children.length;
-    const newFriends = friends.slice(existingItems);
-
-    const fragment = document.createDocumentFragment();
-    
-    newFriends.forEach((friend, index) => {
-        const friendItem = createFriendListItem(friend, existingItems + index);
-        fragment.appendChild(friendItem);
-    });
-    
-    friendsList.appendChild(fragment);
-}
-
-function createFriendCard(friend, index) {
+/**
+ * Carte d'ami optimisée (moins de DOM complexity)
+ */
+function createOptimizedFriendCard(friend) {
     const card = document.createElement('div');
-    card.className = 'bg-faceit-elevated rounded-xl p-6 border border-gray-700 hover:border-gray-600 transition-all cursor-pointer friend-card friend-card-enter';
-    card.style.animationDelay = `${index * 0.1}s`;
-    card.onclick = () => showFriendDetails(friend);
-
-    const statusColor = friend.status.color;
-    const avatar = friend.avatar || `https://via.placeholder.com/80x80/2a2a2a/ffffff?text=${friend.nickname.charAt(0)}`;
+    card.className = 'bg-faceit-elevated rounded-xl p-6 border border-gray-700 hover:border-gray-600 transition-all cursor-pointer';
     
-    // Lazy loading pour l'avatar
-    const avatarImg = `
-        <img 
-            data-src="${avatar}" 
-            alt="${friend.nickname}" 
-            class="w-16 h-16 rounded-full mx-auto border-2 border-${statusColor}-500 avatar-loading friend-avatar" 
-            onerror="this.src='https://via.placeholder.com/64x64/2a2a2a/ffffff?text=${friend.nickname.charAt(0)}'"
-        >
-    `;
-
+    const game = friend.games?.cs2 || friend.games?.csgo || {};
+    const elo = game.faceit_elo || 1000;
+    const level = game.skill_level || 1;
+    const avatar = friend.avatar || `https://via.placeholder.com/64x64/2a2a2a/ffffff?text=${friend.nickname.charAt(0)}`;
+    
     card.innerHTML = `
         <div class="text-center">
             <div class="relative mb-4">
-                ${avatarImg}
-                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-${statusColor}-500 rounded-full border-2 border-faceit-elevated status-indicator status-${friend.status.status}"></div>
-                <div class="absolute -top-1 -right-1 level-indicator">
-                    <img src="${getRankIconUrl(friend.skill_level)}" alt="Rank" class="w-6 h-6">
-                </div>
+                <img src="${avatar}" alt="${friend.nickname}" class="w-16 h-16 rounded-full mx-auto border-2 border-gray-600" loading="lazy">
+                <img src="${getRankIconUrl(level)}" alt="Rank" class="absolute -top-1 -right-1 w-6 h-6">
             </div>
             
-            <h3 class="font-bold text-white mb-1 truncate" title="${friend.nickname}">${friend.nickname}</h3>
-            
-            <div class="flex items-center justify-center space-x-2 mb-3">
-                ${friend.country ? `<img src="${getCountryFlagUrl(friend.country)}" alt="${friend.country}" class="w-4 h-4">` : ''}
-                <span class="text-xs text-gray-400">${friend.rank_info.name}</span>
-            </div>
+            <h3 class="font-bold text-white mb-1">${friend.nickname}</h3>
             
             <div class="space-y-2">
-                <div class="flex justify-between items-center text-sm">
+                <div class="flex justify-between text-sm">
                     <span class="text-gray-400">ELO</span>
-                    <span class="font-semibold text-faceit-orange">${formatNumber(friend.faceit_elo)}</span>
+                    <span class="font-semibold text-faceit-orange">${formatNumber(elo)}</span>
                 </div>
-                
-                <div class="flex justify-between items-center text-sm">
-                    <span class="text-gray-400">Statut</span>
-                    <span class="text-${statusColor}-400 text-xs">${friend.status.text}</span>
-                </div>
-                
-                <div class="text-xs text-gray-500 text-center mt-3">
-                    ${friend.last_activity.text}
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-400">Niveau</span>
+                    <span class="${getRankColor(level)}">${level}</span>
                 </div>
             </div>
         </div>
     `;
 
-    // Observer l'image pour le lazy loading
-    const img = card.querySelector('[data-src]');
-    if (img && window.friendsImageObserver) {
-        window.friendsImageObserver.observe(img);
-    }
-
+    card.onclick = () => showFriendDetails(friend);
     return card;
-}
-
-function createFriendListItem(friend, index) {
-    const item = document.createElement('div');
-    item.className = 'bg-faceit-elevated rounded-xl p-4 border border-gray-700 hover:border-gray-600 transition-all cursor-pointer friend-card friends-list-enter';
-    item.style.animationDelay = `${index * 0.05}s`;
-    item.onclick = () => showFriendDetails(friend);
-
-    const statusColor = friend.status.color;
-    const avatar = friend.avatar || `https://via.placeholder.com/48x48/2a2a2a/ffffff?text=${friend.nickname.charAt(0)}`;
-
-    item.innerHTML = `
-        <div class="flex items-center space-x-4">
-            <div class="relative">
-                <img 
-                    data-src="${avatar}" 
-                    alt="${friend.nickname}" 
-                    class="w-12 h-12 rounded-full border-2 border-${statusColor}-500 avatar-loading friend-avatar" 
-                    onerror="this.src='https://via.placeholder.com/48x48/2a2a2a/ffffff?text=${friend.nickname.charAt(0)}'"
-                >
-                <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-${statusColor}-500 rounded-full border border-faceit-elevated status-indicator status-${friend.status.status}"></div>
-            </div>
-            
-            <div class="flex-1 min-w-0">
-                <div class="flex items-center space-x-2">
-                    <h3 class="font-bold text-white truncate" title="${friend.nickname}">${friend.nickname}</h3>
-                    <img src="${getRankIconUrl(friend.skill_level)}" alt="Rank" class="w-5 h-5 level-indicator">
-                    ${friend.country ? `<img src="${getCountryFlagUrl(friend.country)}" alt="${friend.country}" class="w-4 h-4">` : ''}
-                </div>
-                <div class="flex items-center space-x-4 text-sm text-gray-400 mt-1">
-                    <span>${friend.rank_info.name}</span>
-                    <span>•</span>
-                    <span class="text-${statusColor}-400">${friend.status.text}</span>
-                    <span>•</span>
-                    <span>${friend.last_activity.text}</span>
-                </div>
-            </div>
-            
-            <div class="text-right">
-                <div class="text-lg font-bold text-faceit-orange">${formatNumber(friend.faceit_elo)}</div>
-                <div class="text-xs text-gray-400">ELO</div>
-            </div>
-        </div>
-    `;
-
-    // Observer l'image pour le lazy loading
-    const img = item.querySelector('[data-src]');
-    if (img && window.friendsImageObserver) {
-        window.friendsImageObserver.observe(img);
-    }
-
-    return item;
-}
-
-// Fonctions utilitaires pour la performance
-function preloadAvatars(friends) {
-    friends.forEach(friend => {
-        if (friend.avatar) {
-            const img = new Image();
-            img.src = friend.avatar;
-        }
-    });
-}
-
-function clearCurrentDisplay() {
-    const friendsGrid = document.getElementById('friendsGrid');
-    const friendsList = document.getElementById('friendsList');
-    
-    if (friendsGrid) friendsGrid.innerHTML = '';
-    if (friendsList) friendsList.innerHTML = '';
 }
 
 function updateLoadMoreButton(endIndex) {
     const loadMoreContainer = document.getElementById('loadMoreContainer');
-    const loadMoreButton = document.getElementById('loadMoreButton');
-    
-    if (!loadMoreContainer || !loadMoreButton) return;
+    if (!loadMoreContainer) return;
     
     if (endIndex < filteredFriends.length) {
         loadMoreContainer.classList.remove('hidden');
-        
-        // Mettre à jour le texte du bouton
-        const remaining = filteredFriends.length - endIndex;
-        loadMoreButton.innerHTML = `<i class="fas fa-plus mr-2"></i>Voir ${remaining} ami${remaining > 1 ? 's' : ''} de plus`;
-        
-        loadMoreButton.onclick = function() {
-            currentPage++;
-            displayFriends();
-        };
+        const loadMoreButton = document.getElementById('loadMoreButton');
+        if (loadMoreButton) {
+            loadMoreButton.onclick = function() {
+                currentPage++;
+                displayFriendsOptimized();
+            };
+        }
     } else {
         loadMoreContainer.classList.add('hidden');
     }
 }
 
-function animateCardsEntrance() {
-    const cards = document.querySelectorAll('.friend-card-enter');
-    cards.forEach((card, index) => {
-        setTimeout(() => {
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, index * 50);
-    });
+// ===== ÉTATS D'AFFICHAGE =====
+
+function showLoadingState() {
+    document.getElementById('loadingState')?.classList.remove('hidden');
+    document.getElementById('friendsContent')?.classList.add('hidden');
+    document.getElementById('errorState')?.classList.add('hidden');
+    document.getElementById('emptyState')?.classList.add('hidden');
 }
 
-// Fonctions utilitaires pour le cache
-function getCachedData(key) {
-    try {
-        const cached = localStorage.getItem(`friends_${key}`);
-        return cached ? JSON.parse(cached) : null;
-    } catch (error) {
-        console.warn('Erreur lecture cache:', error);
-        return null;
+function showFriendsContent() {
+    document.getElementById('loadingState')?.classList.add('hidden');
+    document.getElementById('friendsContent')?.classList.remove('hidden');
+    document.getElementById('errorState')?.classList.add('hidden');
+    document.getElementById('emptyState')?.classList.add('hidden');
+}
+
+function showErrorState(message) {
+    document.getElementById('loadingState')?.classList.add('hidden');
+    document.getElementById('friendsContent')?.classList.add('hidden');
+    document.getElementById('errorState')?.classList.remove('hidden');
+    document.getElementById('emptyState')?.classList.add('hidden');
+    
+    const errorMessage = document.getElementById('errorMessage');
+    if (errorMessage) {
+        errorMessage.textContent = message;
     }
 }
 
-function setCachedData(key, data) {
-    try {
-        localStorage.setItem(`friends_${key}`, JSON.stringify(data));
-    } catch (error) {
-        console.warn('Erreur écriture cache:', error);
+function showEmptyState() {
+    document.getElementById('loadingState')?.classList.add('hidden');
+    document.getElementById('friendsContent')?.classList.add('hidden');
+    document.getElementById('errorState')?.classList.add('hidden');
+    document.getElementById('emptyState')?.classList.remove('hidden');
+}
+
+// ===== FONCTIONS UTILITAIRES =====
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function showFriendDetails(friend) {
+    // Modal optimisé
+    const modal = document.getElementById('friendModal');
+    if (modal) {
+        const modalContent = document.getElementById('friendModalContent');
+        modalContent.innerHTML = createFriendModalContent(friend);
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
     }
 }
 
-function isDataExpired(timestamp, maxAge = CACHE_DURATION) {
-    return (Date.now() - timestamp) > maxAge;
+function createFriendModalContent(friend) {
+    const game = friend.games?.cs2 || friend.games?.csgo || {};
+    const avatar = friend.avatar || `https://via.placeholder.com/96x96/2a2a2a/ffffff?text=${friend.nickname.charAt(0)}`;
+    
+    return `
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-6">
+                <h2 class="text-2xl font-bold">Détails de l'ami</h2>
+                <button onclick="closeFriendModal()" class="text-gray-400 hover:text-white p-2">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="text-center mb-6">
+                <img src="${avatar}" alt="${friend.nickname}" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-gray-600">
+                <h3 class="text-2xl font-bold mb-2">${friend.nickname}</h3>
+                <div class="text-gray-400">${friend.country || 'EU'}</div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-faceit-card rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-faceit-orange mb-1">${formatNumber(game.faceit_elo || 1000)}</div>
+                    <div class="text-sm text-gray-400">ELO FACEIT</div>
+                </div>
+                <div class="bg-faceit-card rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-blue-400 mb-1">${game.skill_level || 1}</div>
+                    <div class="text-sm text-gray-400">Niveau</div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <a href="${buildFaceitProfileUrl(friend)}" target="_blank" class="flex-1 bg-faceit-orange hover:bg-faceit-orange-dark py-3 px-4 rounded-lg text-center font-medium transition-colors">
+                    <i class="fas fa-external-link-alt mr-2"></i>Voir sur FACEIT
+                </a>
+                <button onclick="showPlayerStats('${friend.player_id}', '${friend.nickname}')" class="flex-1 bg-blue-600 hover:bg-blue-700 py-3 px-4 rounded-lg text-center font-medium transition-colors">
+                    <i class="fas fa-chart-line mr-2"></i>Voir les stats
+                </button>
+            </div>
+        </div>
+    `;
 }
 
-function getUserPreference(key, defaultValue) {
-    try {
-        return localStorage.getItem(`friends_pref_${key}`) || defaultValue;
-    } catch (error) {
-        return defaultValue;
+function closeFriendModal() {
+    const modal = document.getElementById('friendModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
     }
 }
 
-function saveUserPreference(key, value) {
-    try {
-        localStorage.setItem(`friends_pref_${key}`, value);
-    } catch (error) {
-        console.warn('Erreur sauvegarde préférence:', error);
-    }
+function showPlayerStats(playerId, nickname) {
+    window.location.href = `/advanced?playerId=${playerId}&playerNickname=${encodeURIComponent(nickname)}`;
 }
 
-// Gestion des erreurs améliorée
-function getErrorMessage(error) {
-    if (error.message.includes('404')) {
-        return "Impossible de récupérer vos amis. Vérifiez votre connexion FACEIT.";
-    } else if (error.message.includes('401')) {
-        return "Session expirée. Veuillez vous reconnecter.";
-    } else if (error.message.includes('429')) {
-        return "Trop de requêtes. Veuillez patienter un moment.";
-    } else if (error.message.includes('timeout')) {
-        return "Timeout de connexion. Vérifiez votre réseau.";
-    } else {
-        return "Erreur lors du chargement des amis. Veuillez réessayer.";
-    }
-}
-
-// Fonction de timeout pour les requêtes
-function fetchWithTimeout(url, options, timeout = 10000) {
-    return Promise.race([
-        fetch(url, options),
-        new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Request timeout')), timeout)
-        )
-    ]);
-}
-
-// Gestion de la visibilité de la page
-function handleVisibilityChange() {
-    if (!document.hidden && lastUpdateTime) {
-        const timeSinceUpdate = Date.now() - lastUpdateTime;
-        // Actualiser si plus de 10 minutes d'inactivité
-        if (timeSinceUpdate > 10 * 60 * 1000) {
-            refreshFriends(false);
-        }
-    }
-}
-
-// Gestion du redimensionnement
-function handleResize() {
-    // Réajuster l'affichage si nécessaire
-    if (window.innerWidth < 768 && currentViewMode === 'grid') {
-        // Optionnel: passer en mode liste sur mobile
-    }
-}
-
-// Export des fonctions globales
+// Export global
 window.closeFriendModal = closeFriendModal;
 window.showPlayerStats = showPlayerStats;
-window.refreshFriends = refreshFriends;
 
-console.log('👥 Script Friends optimisé chargé avec succès');
+console.log('⚡ Friends optimisé chargé - Direct API calls');
