@@ -1,5 +1,6 @@
 /**
  * Script pour la page des amis FACEIT - Faceit Scope
+ * Version corrigée sans boucle infinie
  */
 
 // Variables globales
@@ -35,19 +36,19 @@ function setupEventListeners() {
     if (searchInput) {
         searchInput.addEventListener('input', debounce((e) => {
             searchQuery = e.target.value.toLowerCase().trim();
-            filterAndDisplayFriends();
+            displayFilteredFriends(); // Appel direct sans passer par filterFriends
         }, 300));
     }
 
     // Filtres
     document.getElementById('statusFilter')?.addEventListener('change', (e) => {
         currentFilter = e.target.value;
-        filterAndDisplayFriends();
+        displayFilteredFriends(); // Appel direct
     });
 
     document.getElementById('sortFilter')?.addEventListener('change', (e) => {
         currentSort = e.target.value;
-        filterAndDisplayFriends();
+        displayFilteredFriends(); // Appel direct
     });
 
     // Vues
@@ -113,7 +114,7 @@ async function loadFriends(forceRefresh = false) {
             
             // Afficher les données
             displayFriendsStats();
-            filterAndDisplayFriends();
+            displayFilteredFriends(); // Appel direct au lieu de filterAndDisplayFriends
             
             console.log('✅ Amis chargés:', currentFriends.length);
         } else {
@@ -274,7 +275,8 @@ function createOnlineFriendCard(friend) {
     `;
 }
 
-function filterAndDisplayFriends() {
+// FONCTION CORRIGÉE - Plus d'appels récursifs
+function displayFilteredFriends() {
     let filteredFriends = [...currentFriends];
 
     // Filtrer par recherche
@@ -315,14 +317,10 @@ function filterAndDisplayFriends() {
         }
     });
 
-    displayFilteredFriends(filteredFriends);
-    updateTotalCount(filteredFriends.length);
-}
-
-function displayFilteredFriends(friends) {
+    // Afficher les résultats
     hideAllStates();
 
-    if (friends.length === 0) {
+    if (filteredFriends.length === 0) {
         if (searchQuery || currentFilter !== 'all') {
             showNoResultsState();
         } else {
@@ -332,10 +330,12 @@ function displayFilteredFriends(friends) {
     }
 
     if (currentView === 'grid') {
-        displayFriendsGrid(friends);
+        displayFriendsGrid(filteredFriends);
     } else {
-        displayFriendsList(friends);
+        displayFriendsList(filteredFriends);
     }
+    
+    updateTotalCount(filteredFriends.length);
 }
 
 function displayFriendsGrid(friends) {
@@ -576,7 +576,7 @@ function switchView(view) {
     document.getElementById('listViewBtn')?.classList.toggle('active', view === 'list');
     
     // Réafficher avec la nouvelle vue
-    filterAndDisplayFriends();
+    displayFilteredFriends(); // Appel direct
 }
 
 function updateTotalCount(count) {
@@ -817,6 +817,27 @@ function debounce(func, wait) {
     };
 }
 
+// Fonctions utilitaires manquantes pour éviter les erreurs
+function getCountryFlagUrl(countryCode) {
+    return `https://flagcdn.com/w20/${countryCode.toLowerCase()}.png`;
+}
+
+function getCountryName(countryCode) {
+    const countries = {
+        'FR': 'France',
+        'DE': 'Allemagne', 
+        'GB': 'Royaume-Uni',
+        'US': 'États-Unis',
+        'EU': 'Europe'
+    };
+    return countries[countryCode] || countryCode;
+}
+
+function showNotification(message, type = 'info') {
+    // Cette fonction doit exister dans common.js ou être définie
+    console.log(`[${type.toUpperCase()}] ${message}`);
+}
+
 // Export pour usage global
 window.viewFriendProfile = viewFriendProfile;
 window.compareFriend = compareFriend;
@@ -825,4 +846,4 @@ window.copyInviteLink = copyInviteLink;
 window.hideCompareModal = hideCompareModal;
 window.hideInviteModal = hideInviteModal;
 
-console.log('👥 Script des amis FACEIT chargé avec succès');
+console.log('👥 Script des amis FACEIT chargé avec succès (version corrigée)');
