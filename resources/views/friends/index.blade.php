@@ -1,257 +1,244 @@
 @extends('layouts.app')
 
-@section('title', 'Mes Amis FACEIT - Faceit Scope')
+@section('title', 'Mes Amis - Faceit Scope')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Header avec statistiques -->
-    <div class="bg-gradient-to-br from-faceit-card to-faceit-elevated rounded-3xl p-8 mb-8 border border-gray-800">
-        <div class="flex flex-col lg:flex-row items-center justify-between mb-6">
+    <!-- Header avec recherche -->
+    <div class="mb-8">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
-                <h1 class="text-4xl font-black mb-2 bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+                <h1 class="text-3xl font-bold mb-2 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                     Mes Amis FACEIT
                 </h1>
-                <p class="text-gray-400 text-lg">Suivez vos amis, comparez vos performances et jouez ensemble</p>
+                <p class="text-gray-400">Retrouvez vos coéquipiers et suivez leurs performances</p>
             </div>
             
-            <div class="flex items-center space-x-4 mt-4 lg:mt-0">
-                <button 
-                    id="refreshFriendsBtn"
-                    class="bg-faceit-orange hover:bg-faceit-orange-dark px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105"
-                >
-                    <i class="fas fa-sync mr-2"></i>Actualiser
-                </button>
-                <button 
-                    id="inviteFriendsBtn"
-                    class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105"
-                >
-                    <i class="fas fa-user-plus mr-2"></i>Inviter des amis
-                </button>
-            </div>
-        </div>
-
-        <!-- Statistiques rapides -->
-        <div id="friendsStatsGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <!-- Stats injectées par JavaScript -->
-        </div>
-    </div>
-
-    <!-- Filtres et recherche -->
-    <div class="bg-faceit-card rounded-2xl p-6 mb-8 border border-gray-800">
-        <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 md:space-x-4">
             <!-- Recherche -->
-            <div class="flex-1 max-w-md">
-                <div class="relative">
-                    <input 
-                        id="friendsSearchInput"
-                        type="text" 
-                        placeholder="Rechercher un ami..."
-                        class="w-full pl-10 pr-4 py-3 bg-faceit-elevated border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-faceit-orange focus:border-transparent"
-                    >
-                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <div class="relative max-w-md w-full">
+                <input 
+                    id="searchInput" 
+                    type="text" 
+                    placeholder="Rechercher un ami..."
+                    class="w-full px-4 py-3 pl-12 bg-faceit-elevated border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-faceit-orange focus:border-transparent transition-all"
+                >
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Filtres -->
-            <div class="flex items-center space-x-4">
-                <select 
-                    id="statusFilter"
-                    class="bg-faceit-elevated border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-faceit-orange"
-                >
-                    <option value="all">Tous</option>
-                    <option value="online">En ligne</option>
-                    <option value="playing">En jeu</option>
-                    <option value="offline">Hors ligne</option>
-                </select>
-
-                <select 
-                    id="sortFilter"
-                    class="bg-faceit-elevated border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-faceit-orange"
-                >
-                    <option value="name">Nom</option>
-                    <option value="level">Niveau</option>
-                    <option value="elo">ELO</option>
-                    <option value="status">Statut</option>
-                    <option value="last_seen">Dernière fois vu</option>
-                </select>
-
-                <button 
-                    id="gridViewBtn"
-                    class="p-3 bg-faceit-elevated border border-gray-700 rounded-xl hover:bg-gray-600 transition-colors active"
-                    title="Vue grille"
-                >
-                    <i class="fas fa-th"></i>
-                </button>
-                <button 
-                    id="listViewBtn"
-                    class="p-3 bg-faceit-elevated border border-gray-700 rounded-xl hover:bg-gray-600 transition-colors"
-                    title="Vue liste"
-                >
-                    <i class="fas fa-list"></i>
-                </button>
+    <!-- États de chargement -->
+    <div id="loadingState" class="text-center py-16">
+        <div class="relative">
+            <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-600 border-t-faceit-orange mx-auto mb-4"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <i class="fas fa-users text-faceit-orange"></i>
             </div>
         </div>
+        <h2 class="text-xl font-semibold mb-2">Chargement de vos amis...</h2>
+        <p class="text-gray-400">Analyse de vos matches récents</p>
     </div>
 
-    <!-- Amis en ligne - Section spéciale -->
-    <div id="onlineFriendsSection" class="mb-8">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-2xl font-bold text-green-400 flex items-center">
-                <i class="fas fa-circle text-green-500 mr-3 animate-pulse"></i>
-                Amis en ligne
-            </h2>
-            <span id="onlineCount" class="text-sm text-gray-400">0 en ligne</span>
+    <!-- Contenu principal -->
+    <div id="mainContent" class="hidden space-y-8">
+        <!-- Statistiques générales -->
+        <div id="friendsStats" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- Stats injectées ici -->
         </div>
-        
-        <div id="onlineFriendsContainer" class="bg-faceit-card rounded-2xl p-4 border border-gray-800">
-            <!-- Amis en ligne injectés ici -->
-        </div>
-    </div>
 
-    <!-- Liste principale des amis -->
-    <div class="bg-faceit-card rounded-2xl border border-gray-800">
-        <div class="p-6 border-b border-gray-700">
-            <div class="flex items-center justify-between">
-                <h2 class="text-2xl font-bold flex items-center">
-                    <i class="fas fa-users text-faceit-orange mr-3"></i>
-                    Tous mes amis
+        <!-- Amis en ligne -->
+        <section id="onlineFriendsSection" class="hidden">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold flex items-center">
+                    <div class="w-3 h-3 bg-green-500 rounded-full mr-3 animate-pulse"></div>
+                    Amis en ligne
+                    <span id="onlineCount" class="ml-2 px-2 py-1 bg-green-500/20 text-green-400 text-sm rounded-full">0</span>
                 </h2>
-                <div class="flex items-center space-x-4 text-sm text-gray-400">
-                    <span id="totalFriendsCount">0 amis</span>
-                    <span id="loadingIndicator" class="hidden">
-                        <i class="fas fa-spinner fa-spin"></i>
-                    </span>
-                </div>
             </div>
-        </div>
+            <div id="onlineFriendsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+                <!-- Amis en ligne injectés ici -->
+            </div>
+        </section>
 
-        <!-- Liste des amis -->
-        <div id="friendsContainer" class="p-6">
-            <!-- État de chargement -->
-            <div id="friendsLoading" class="text-center py-12">
-                <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-600 border-t-faceit-orange mx-auto mb-4"></div>
-                <p class="text-gray-400">Chargement de vos amis...</p>
-            </div>
-
-            <!-- Vue grille -->
-            <div id="friendsGridView" class="hidden grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                <!-- Cartes d'amis injectées ici -->
-            </div>
-
-            <!-- Vue liste -->
-            <div id="friendsListView" class="hidden space-y-4">
-                <!-- Liste d'amis injectée ici -->
-            </div>
-
-            <!-- État vide -->
-            <div id="emptyState" class="hidden text-center py-12">
-                <div class="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i class="fas fa-users text-gray-500 text-3xl"></i>
-                </div>
-                <h3 class="text-xl font-semibold text-gray-300 mb-2">Aucun ami trouvé</h3>
-                <p class="text-gray-500 mb-6">Commencez à ajouter des amis sur FACEIT pour les voir ici !</p>
-                <button 
-                    onclick="window.open('https://www.faceit.com/fr', '_blank')"
-                    class="bg-faceit-orange hover:bg-faceit-orange-dark px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105"
-                >
-                    <i class="fas fa-external-link-alt mr-2"></i>Aller sur FACEIT
-                </button>
-            </div>
-
-            <!-- État d'erreur -->
-            <div id="errorState" class="hidden text-center py-12">
-                <div class="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i class="fas fa-exclamation-triangle text-red-400 text-3xl"></i>
-                </div>
-                <h3 class="text-xl font-semibold text-red-300 mb-2">Erreur de chargement</h3>
-                <p class="text-gray-500 mb-6">Impossible de charger la liste de vos amis</p>
-                <button 
-                    id="retryLoadBtn"
-                    class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105"
-                >
-                    <i class="fas fa-redo mr-2"></i>Réessayer
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de comparaison rapide -->
-<div id="compareModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-faceit-card rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div class="p-6 border-b border-gray-700">
-            <div class="flex items-center justify-between">
-                <h3 class="text-2xl font-bold">Comparaison rapide</h3>
-                <button 
-                    id="closeCompareModal"
-                    class="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-700"
-                >
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-        </div>
-        
-        <div id="compareModalContent" class="p-6">
-            <!-- Contenu de comparaison injecté ici -->
-        </div>
-    </div>
-</div>
-
-<!-- Modal d'invitation d'amis -->
-<div id="inviteModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-faceit-card rounded-2xl max-w-md w-full">
-        <div class="p-6 border-b border-gray-700">
-            <div class="flex items-center justify-between">
-                <h3 class="text-xl font-bold">Inviter des amis</h3>
-                <button 
-                    id="closeInviteModal"
-                    class="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-700"
-                >
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-        
-        <div class="p-6">
-            <div class="text-center">
-                <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-user-friends text-blue-400 text-2xl"></i>
-                </div>
-                <h4 class="text-lg font-semibold mb-2">Ajoutez des amis sur FACEIT</h4>
-                <p class="text-gray-400 mb-6">
-                    Les amis que vous ajoutez sur FACEIT apparaîtront automatiquement ici !
-                </p>
-                
-                <div class="space-y-4">
-                    <button 
-                        onclick="window.open('https://www.faceit.com/fr/players', '_blank')"
-                        class="w-full bg-faceit-orange hover:bg-faceit-orange-dark px-6 py-3 rounded-xl font-medium transition-all"
-                    >
-                        <i class="fas fa-search mr-2"></i>Chercher des joueurs
-                    </button>
+        <!-- Liste de tous les amis -->
+        <section>
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold">Tous mes amis</h2>
+                <div class="flex items-center space-x-4">
+                    <!-- Filtres -->
+                    <select id="sortFilter" class="bg-faceit-elevated border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-faceit-orange">
+                        <option value="games_together">Matches ensemble</option>
+                        <option value="skill_level">Niveau</option>
+                        <option value="faceit_elo">ELO</option>
+                        <option value="last_seen">Dernière connexion</option>
+                    </select>
                     
-                    <button 
-                        onclick="copyInviteLink()"
-                        class="w-full bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded-xl font-medium transition-all"
-                    >
-                        <i class="fas fa-link mr-2"></i>Partager mon profil
+                    <button id="refreshButton" class="bg-faceit-orange hover:bg-faceit-orange-dark px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                        <i class="fas fa-sync mr-2"></i>Actualiser
                     </button>
                 </div>
             </div>
+            
+            <div id="friendsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Amis injectés ici -->
+            </div>
+            
+            <!-- Pagination -->
+            <div id="pagination" class="hidden mt-8 flex justify-center">
+                <!-- Pagination injectée ici -->
+            </div>
+        </section>
+
+        <!-- État vide -->
+        <div id="emptyState" class="hidden text-center py-16">
+            <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-user-friends text-gray-600 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">Aucun ami trouvé</h3>
+            <p class="text-gray-400 mb-6">Jouez quelques matches pour découvrir vos coéquipiers !</p>
+            <a href="{{ route('home') }}" class="inline-block bg-faceit-orange hover:bg-faceit-orange-dark px-6 py-3 rounded-xl font-medium transition-all">
+                <i class="fas fa-search mr-2"></i>Rechercher des joueurs
+            </a>
+        </div>
+    </div>
+
+    <!-- État d'erreur -->
+    <div id="errorState" class="hidden text-center py-16">
+        <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Erreur de chargement</h3>
+        <p id="errorMessage" class="text-gray-400 mb-6">Une erreur est survenue lors du chargement de vos amis.</p>
+        <button id="retryButton" class="bg-faceit-orange hover:bg-faceit-orange-dark px-6 py-3 rounded-xl font-medium transition-all">
+            <i class="fas fa-redo mr-2"></i>Réessayer
+        </button>
+    </div>
+</div>
+
+<!-- Modal de profil d'ami -->
+<div id="friendProfileModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-faceit-card rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div id="friendProfileContent">
+            <!-- Contenu injecté ici -->
         </div>
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    .friend-card {
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, rgba(26, 26, 26, 0.8), rgba(37, 37, 37, 0.6));
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 85, 0, 0.1);
+    }
+
+    .friend-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 30px rgba(255, 85, 0, 0.2);
+        border-color: rgba(255, 85, 0, 0.3);
+    }
+
+    .online-indicator {
+        position: relative;
+    }
+
+    .online-indicator::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 12px;
+        height: 12px;
+        border: 2px solid #0f0f0f;
+        border-radius: 50%;
+    }
+
+    .online-indicator.online::after {
+        background-color: #10b981;
+        animation: pulse-green 2s infinite;
+    }
+
+    .online-indicator.in_game::after {
+        background-color: #f59e0b;
+        animation: pulse-yellow 2s infinite;
+    }
+
+    .online-indicator.away::after {
+        background-color: #6b7280;
+    }
+
+    .online-indicator.offline::after {
+        background-color: #374151;
+    }
+
+    @keyframes pulse-green {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+        50% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
+    }
+
+    @keyframes pulse-yellow {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+        50% { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0); }
+    }
+
+    .streak-indicator {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .streak-win {
+        background-color: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+    }
+
+    .streak-loss {
+        background-color: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+    }
+
+    .search-highlight {
+        background-color: rgba(255, 85, 0, 0.3);
+        padding: 1px 2px;
+        border-radius: 2px;
+    }
+
+    .country-flag {
+        width: 20px;
+        height: 15px;
+        border-radius: 2px;
+        object-fit: cover;
+    }
+
+    .loading-shimmer {
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+</style>
+@endpush
 
 @push('scripts')
 <script>
     // Variables globales
     window.friendsData = {
         user: @json($user),
-        currentView: 'grid',
-        currentFilter: 'all',
-        currentSort: 'name',
-        searchQuery: ''
+        currentSort: 'games_together',
+        searchQuery: '',
+        friends: [],
+        stats: null
     };
 </script>
 <script src="{{ asset('js/friends.js') }}"></script>
