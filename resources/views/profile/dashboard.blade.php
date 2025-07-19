@@ -156,111 +156,6 @@
             </div>
         </section>
 
-        @if($playerStats)
-            <!-- Detailed Stats -->
-            <section class="animate-slide-up" style="animation-delay: 0.1s">
-                <div class="flex items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gradient">Statistiques détaillées</h2>
-                    <div class="h-px flex-1 ml-4 bg-gradient-to-r from-faceit-orange/50 to-transparent"></div>
-                </div>
-                
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Performance globale -->
-                    <div class="bg-faceit-card rounded-xl p-6">
-                        <h3 class="text-lg font-semibold mb-4 flex items-center">
-                            <i class="fas fa-chart-bar text-faceit-orange mr-2"></i>
-                            Performance globale
-                        </h3>
-                        <div class="space-y-3">
-                            <div class="flex justify-between">
-                                <span class="text-gray-400">Kills moyens</span>
-                                <span class="font-semibold">{{ round(floatval($playerStats['lifetime']['Average Kills'] ?? 0), 1) }}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-400">Morts moyennes</span>
-                                <span class="font-semibold">{{ round(floatval($playerStats['lifetime']['Average Deaths'] ?? 0), 1) }}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-400">Assists moyens</span>
-                                <span class="font-semibold">{{ round(floatval($playerStats['lifetime']['Average Assists'] ?? 0), 1) }}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-400">MVPs</span>
-                                <span class="font-semibold">{{ intval($playerStats['lifetime']['Total MVPs'] ?? 0) }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Streak & Records -->
-                    <div class="bg-faceit-card rounded-xl p-6">
-                        <h3 class="text-lg font-semibold mb-4 flex items-center">
-                            <i class="fas fa-fire text-red-400 mr-2"></i>
-                            Séries & Records
-                        </h3>
-                        <div class="space-y-3">
-                            <div class="flex justify-between">
-                                <span class="text-gray-400">Plus longue série de victoires</span>
-                                <span class="font-semibold text-green-400">{{ intval($playerStats['lifetime']['Longest Win Streak'] ?? 0) }}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-400">Série actuelle</span>
-                                <span class="font-semibold">{{ intval($playerStats['lifetime']['Current Win Streak'] ?? 0) }}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-400">Triple kills</span>
-                                <span class="font-semibold text-yellow-400">{{ intval($playerStats['lifetime']['Triple Kills'] ?? 0) }}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-400">Quadra kills</span>
-                                <span class="font-semibold text-orange-400">{{ intval($playerStats['lifetime']['Quadro Kills'] ?? 0) }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Cartes favorites -->
-                    <div class="bg-faceit-card rounded-xl p-6">
-                        <h3 class="text-lg font-semibold mb-4 flex items-center">
-                            <i class="fas fa-map text-blue-400 mr-2"></i>
-                            Meilleures cartes
-                        </h3>
-                        <div class="space-y-3">
-                            @if(isset($playerStats['segments']))
-                                @php
-                                    $mapStats = array_filter($playerStats['segments'], function($segment) {
-                                        return isset($segment['type']) && $segment['type'] === 'Map' && intval($segment['stats']['Matches'] ?? 0) >= 5;
-                                    });
-                                    
-                                    usort($mapStats, function($a, $b) {
-                                        $winRateA = intval($a['stats']['Matches'] ?? 0) > 0 ? (intval($a['stats']['Wins'] ?? 0) / intval($a['stats']['Matches'])) * 100 : 0;
-                                        $winRateB = intval($b['stats']['Matches'] ?? 0) > 0 ? (intval($b['stats']['Wins'] ?? 0) / intval($b['stats']['Matches'])) * 100 : 0;
-                                        return $winRateB <=> $winRateA;
-                                    });
-                                    
-                                    $topMaps = array_slice($mapStats, 0, 3);
-                                @endphp
-                                
-                                @foreach($topMaps as $map)
-                                    @php
-                                        $mapName = ucfirst(str_replace(['de_', 'cs_'], '', $map['label']));
-                                        $matches = intval($map['stats']['Matches'] ?? 0);
-                                        $wins = intval($map['stats']['Wins'] ?? 0);
-                                        $winRate = $matches > 0 ? round(($wins / $matches) * 100, 1) : 0;
-                                    @endphp
-                                    <div class="flex justify-between items-center">
-                                        <div>
-                                            <span class="font-semibold">{{ $mapName }}</span>
-                                            <div class="text-xs text-gray-400">{{ $matches }} matches</div>
-                                        </div>
-                                        <span class="font-semibold text-green-400">{{ $winRate }}%</span>
-                                    </div>
-                                @endforeach
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </section>
-        @endif
-
         @if($recentMatches && isset($recentMatches['items']) && count($recentMatches['items']) > 0)
             <!-- Recent Matches -->
             <section class="animate-slide-up" style="animation-delay: 0.2s">
@@ -366,45 +261,10 @@
         </div>
         
         <div class="grid md:grid-cols-2 gap-6">
-            <!-- Préférences -->
-            <div class="bg-faceit-card rounded-xl p-6">
-                <h3 class="text-lg font-semibold mb-4">Préférences</h3>
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <span class="font-medium">Profil public</span>
-                            <p class="text-sm text-gray-400">Rendre mon profil visible aux autres utilisateurs</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" class="sr-only peer" checked>
-                            <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-faceit-orange"></div>
-                        </label>
-                    </div>
-                    
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <span class="font-medium">Notifications</span>
-                            <p class="text-sm text-gray-400">Recevoir des notifications de mise à jour</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" class="sr-only peer" checked>
-                            <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-faceit-orange"></div>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
             <!-- Actions -->
             <div class="bg-faceit-card rounded-xl p-6">
                 <h3 class="text-lg font-semibold mb-4">Actions</h3>
                 <div class="space-y-3">
-                    <button 
-                        id="exportDataBtn"
-                        class="w-full bg-gray-600 hover:bg-gray-700 px-4 py-3 rounded-xl font-medium transition-all flex items-center justify-center"
-                    >
-                        <i class="fas fa-download mr-2"></i>Exporter mes données
-                    </button>
-                    
                     <button 
                         id="clearCacheBtn"
                         class="w-full bg-gray-700 hover:bg-gray-600 px-4 py-3 rounded-xl font-medium transition-all flex items-center justify-center"
