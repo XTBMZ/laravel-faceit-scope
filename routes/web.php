@@ -18,6 +18,8 @@ use App\Http\Controllers\FriendsController;
 */
 
 // Routes publiques
+Route::get('/api/match/{matchId}/data', [MatchController::class, 'getMatchData'])->name('api.match.data');
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/advanced', [PlayerController::class, 'advanced'])->name('advanced');
 Route::get('/comparison', [ComparisonController::class, 'index'])->name('comparison');
