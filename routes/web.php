@@ -25,12 +25,19 @@ Route::get('/leaderboards', [LeaderboardController::class, 'index'])->name('lead
 Route::get('/tournaments', [TournamentController::class, 'index'])->name('tournaments');
 Route::get('/match', [MatchController::class, 'index'])->name('match');
 
+// Routes protégées (nécessitent une authentification FACEIT)
 Route::middleware(['faceit.auth'])->group(function () {
     // Page des amis
     Route::get('/friends', [FriendsController::class, 'index'])->name('friends');
+    
+    // Routes de profil PRINCIPALES
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::post('/profile/sync-faceit', [ProfileController::class, 'syncFaceitData'])->name('profile.sync');
+    Route::get('/profile/export', [ProfileController::class, 'exportData'])->name('profile.export');
+    
+    // API profil
+    Route::get('/api/profile/data', [ProfileController::class, 'getProfileData'])->name('api.profile.data');
 });
-
-
 
 // Routes d'authentification FACEIT
 Route::prefix('auth/faceit')->name('auth.faceit.')->group(function () {
@@ -47,16 +54,6 @@ Route::prefix('auth/faceit')->name('auth.faceit.')->group(function () {
     // Popup de connexion (pour JavaScript)
     Route::get('/popup', [FaceitAuthController::class, 'loginPopup'])->name('popup');
     Route::get('/popup/callback', [FaceitAuthController::class, 'popupCallback'])->name('popup.callback');
-});
-
-// Routes de profil et amis (nécessitent une authentification)
-Route::middleware('faceit.auth')->group(function () {
-    // Profil
-    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
-    Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
-    Route::post('/profile/sync-faceit', [ProfileController::class, 'syncFaceitData'])->name('profile.sync');
-    Route::get('/profile/export', [ProfileController::class, 'exportData'])->name('profile.export');
-    Route::get('/profile/match-history', [ProfileController::class, 'getMatchHistory'])->name('profile.history');
 });
 
 // Routes API pour les données FACEIT
@@ -93,15 +90,10 @@ Route::prefix('api')->group(function () {
         });
     });
 
+    // API Amis
     Route::get('/friends', [FriendsController::class, 'getFriends']);
-    
-    // Rechercher dans les amis
     Route::get('/friends/search', [FriendsController::class, 'searchFriends']);
-    
-    // Statistiques des amis
     Route::get('/friends/stats', [FriendsController::class, 'getFriendsStats']);
-
-
 });
 
 // API pour vérifier l'authentification
