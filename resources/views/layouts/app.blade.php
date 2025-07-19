@@ -300,17 +300,49 @@
             border: 2px solid #0f0f0f; /* faceit-dark */
             border-radius: 50%;
         }
+
+        /* NOUVEAUX STYLES POUR L'ESPACEMENT */
+        /* Assurer que le body a la bonne structure */
+        body {
+            padding-top: 64px; /* Espace pour le header fixe */
+        }
+        
+        /* Header fixe au top */
+        .header-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 64px;
+        }
+
+        /* Pour les pages avec hero section pleine hauteur */
+        .hero-full-height {
+            margin-top: -64px; /* Remonte pour coller au header */
+            padding-top: 64px; /* Remet le padding pour le contenu interne */
+        }
+        
+        /* S'assurer que les backgrounds avec absolute ne débordent pas */
+        .page-content {
+            position: relative;
+            min-height: calc(100vh - 64px);
+        }
     </style>
     
     @stack('styles')
 </head>
 <body class="min-h-screen flex flex-col bg-faceit-dark text-white font-inter">
-    <!-- Header -->
-    <x-header />
+    <!-- Header fixe au top -->
+    <div class="header-fixed">
+        <x-header />
+    </div>
     
-    <!-- Main Content -->
-    <main class="flex-grow">
-        @yield('content')
+    <!-- Main Content avec espacement approprié -->
+    <main class="flex-grow content-spacing">
+        <div class="page-content">
+            @yield('content')
+        </div>
     </main>
     
     <!-- Footer -->
