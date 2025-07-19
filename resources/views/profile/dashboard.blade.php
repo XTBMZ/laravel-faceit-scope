@@ -252,36 +252,6 @@
             </div>
         </section>
     @endif
-
-    <!-- Account Settings -->
-    <section class="animate-slide-up" style="animation-delay: 0.3s">
-        <div class="flex items-center mb-6">
-            <h2 class="text-2xl font-bold text-gradient">Paramètres du compte</h2>
-            <div class="h-px flex-1 ml-4 bg-gradient-to-r from-faceit-orange/50 to-transparent"></div>
-        </div>
-        
-        <div class="grid md:grid-cols-2 gap-6">
-            <!-- Actions -->
-            <div class="bg-faceit-card rounded-xl p-6">
-                <h3 class="text-lg font-semibold mb-4">Actions</h3>
-                <div class="space-y-3">
-                    <button 
-                        id="clearCacheBtn"
-                        class="w-full bg-gray-700 hover:bg-gray-600 px-4 py-3 rounded-xl font-medium transition-all flex items-center justify-center"
-                    >
-                        <i class="fas fa-trash mr-2"></i>Vider le cache
-                    </button>
-                    
-                    <button 
-                        id="logoutBtn"
-                        class="w-full bg-red-600 hover:bg-red-700 px-4 py-3 rounded-xl font-medium transition-all flex items-center justify-center"
-                    >
-                        <i class="fas fa-sign-out-alt mr-2"></i>Se déconnecter
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
 </div>
 
 <!-- Loading Modal -->
