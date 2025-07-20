@@ -10,12 +10,41 @@ use App\Http\Controllers\MatchController;
 use App\Http\Controllers\Auth\FaceitAuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FriendsController;
+use App\Http\Controllers\ExtensionController;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 */
+
+Route::middleware(['cors'])->group(function () {
+    
+    // Routes existantes avec support CORS pour l'extension
+    Route::get('/api/match/{matchId}/data', [MatchController::class, 'getMatchData'])
+        ->name('api.match.data.cors');
+    
+    Route::get('/api/player/{playerId}/stats', [PlayerController::class, 'getPlayerStats'])
+        ->name('api.player.stats.cors');
+        
+    Route::post('/api/compare', [ComparisonController::class, 'compare'])
+        ->name('api.compare.cors');
+});
+
+Route::prefix('api/extension')->name('api.extension.')->group(function () {
+    
+    // Vérification de version pour les mises à jour automatiques
+    Route::get('/version', [ExtensionController::class, 'getVersion'])->name('version');
+    
+    // Status de l'API pour vérifier la disponibilité
+    Route::get('/status', [ExtensionController::class, 'getStatus'])->name('status');
+    
+    // Analytics pour l'extension (optionnel)
+    Route::post('/analytics', [ExtensionController::class, 'recordAnalytics'])->name('analytics');
+    
+    // Feedback des utilisateurs de l'extension
+    Route::post('/feedback', [ExtensionController::class, 'submitFeedback'])->name('feedback');
+});
 
 // Routes publiques
 Route::get('/api/match/{matchId}/data', [MatchController::class, 'getMatchData'])->name('api.match.data');
