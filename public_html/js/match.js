@@ -124,8 +124,41 @@ function calculateBestWorstMaps(playerStats) {
         return { best: null, worst: null, all: [] };
     }
     
-    const mapSegments = playerStats.segments.filter(s => s.type === 'Map');
-    if (mapSegments.length === 0) return { best: null, worst: null, all: [] };
+    // Map pool officiel CS2 (cartes compétitives uniquement)
+    const officialMapPool = [
+        'Dust2', 'de_dust2',
+        'Mirage', 'de_mirage', 
+        'Inferno', 'de_inferno',
+        'Ancient', 'de_ancient',
+        'Nuke', 'de_nuke',
+        'Overpass', 'de_overpass',
+        'Vertigo', 'de_vertigo',
+        'Train', 'de_train', 
+    ];
+    
+    const mapSegments = playerStats.segments.filter(s => {
+        if (s.type !== 'Map') return false;
+        
+        // Vérifier si la carte est dans le map pool officiel
+        const mapName = s.label.toLowerCase();
+        const isOfficialMap = officialMapPool.some(officialMap => 
+            mapName === officialMap.toLowerCase() || 
+            mapName.includes(officialMap.toLowerCase())
+        );
+        
+        // Log des cartes filtrées pour debug
+        if (!isOfficialMap) {
+            console.log(`🗺️ Carte filtrée (hors map pool): ${s.label}`);
+        }
+        
+        return isOfficialMap;
+    });
+    
+    console.log(`🗺️ Cartes officielles trouvées: ${mapSegments.length} sur ${playerStats.segments.filter(s => s.type === 'Map').length} total`);
+    
+    if (mapSegments.length === 0) {
+        return { best: null, worst: null, all: [] };
+    }
     
     const mapAnalysis = mapSegments.map(segment => {
         const stats = segment.stats;
@@ -135,6 +168,12 @@ function calculateBestWorstMaps(playerStats) {
         const hs = parseFloat(stats['Average Headshots %']) || 0;
         const adr = parseFloat(stats.ADR) || 0;
         const winRate = matches > 0 ? (wins / matches) * 100 : 0;
+        
+        // Ignorer les cartes avec très peu de matches (moins de 5)
+        if (matches < 5) {
+            console.log(`🗺️ Carte ignorée (trop peu de matches): ${segment.label} (${matches} matches)`);
+            return null;
+        }
         
         // Facteur de confiance basé sur le nombre de matchs
         const confidenceFactor = Math.min(1, Math.log10(matches + 1));
@@ -166,7 +205,7 @@ function calculateBestWorstMaps(playerStats) {
         const finalScore = rawScore * confidenceFactor;
         
         return {
-            name: segment.label.replace('de_', ''),
+            name: cleanMapName(segment.label),
             matches: matches,
             winRate: winRate,
             kd: kd,
@@ -176,16 +215,49 @@ function calculateBestWorstMaps(playerStats) {
             confidence: confidenceFactor,
             category: getMapCategory(finalScore)
         };
-    });
+    }).filter(map => map !== null); // Supprimer les cartes nulles (pas assez de matches)
     
     // Trier par score
     mapAnalysis.sort((a, b) => b.score - a.score);
+    
+    console.log(`🗺️ Analyse des cartes terminée: ${mapAnalysis.length} cartes valides`);
+    console.log('🗺️ Top 3 cartes:', mapAnalysis.slice(0, 3).map(m => ({ name: m.name, score: m.score.toFixed(2) })));
     
     return {
         best: mapAnalysis[0] || null,
         worst: mapAnalysis[mapAnalysis.length - 1] || null,
         all: mapAnalysis
     };
+}
+
+/**
+ * Nettoie et normalise le nom des cartes
+ */
+function cleanMapName(mapLabel) {
+    // Mapping des noms de cartes vers leurs noms officiels
+    const mapNameMapping = {
+        'de_dust2': 'Dust2',
+        'de_mirage': 'Mirage', 
+        'de_inferno': 'Inferno',
+        'de_ancient': 'Ancient',
+        'de_nuke': 'Nuke',
+        'de_overpass': 'Overpass',
+        'de_vertigo': 'Vertigo',
+        'de_anubis': 'Anubis',
+        'de_train': 'Train',
+        'dust2': 'Dust2',
+        'mirage': 'Mirage',
+        'inferno': 'Inferno',
+        'ancient': 'Ancient',
+        'nuke': 'Nuke',
+        'overpass': 'Overpass',
+        'vertigo': 'Vertigo',
+        'anubis': 'Anubis',
+        'train': 'Train'
+    };
+    
+    const normalized = mapLabel.toLowerCase().trim();
+    return mapNameMapping[normalized] || mapLabel.replace(/^de_/, '').replace(/^cs_/, '');
 }
 
 function getMapCategory(score) {
@@ -294,17 +366,29 @@ function determinePlayerRole(lifetime) {
  * ALGORITHME 3: Force des équipes
  */
 function calculateTeamStrength(matchData, playersAnalysis) {
+    console.log('💪 Calcul de la force des équipes...');
+    console.log('📊 Données:', {
+        teams: Object.keys(matchData.teams),
+        playersAnalyzed: playersAnalysis.length
+    });
+    
     const teams = Object.keys(matchData.teams);
     const teamStrengths = {};
     
     teams.forEach((teamId, index) => {
         const team = matchData.teams[teamId];
-        const teamPlayers = playersAnalysis.filter(p => 
-            team.roster.some(r => r.player_id === p.playerId)
-        );
+        console.log(`💪 Analyse équipe ${index + 1} (${teamId}):`, team.name);
+        
+        // Filtrer les joueurs en respectant l'ordre original du roster
+        const teamPlayers = team.roster.map(rosterPlayer => {
+            return playersAnalysis.find(p => p.playerId === rosterPlayer.player_id);
+        }).filter(Boolean); // Supprimer les null/undefined
+        
+        console.log(`👥 Joueurs trouvés pour ${team.name} (ordre stable):`, teamPlayers.map(p => p.nickname));
         
         if (teamPlayers.length === 0) {
-            teamStrengths[teamId] = { score: 0, analysis: {} };
+            console.warn(`⚠️ Aucun joueur analysé pour ${team.name}`);
+            teamStrengths[teamId] = { score: 0, analysis: { players: 0 } };
             return;
         }
         
@@ -320,11 +404,23 @@ function calculateTeamStrength(matchData, playersAnalysis) {
             roles[role] = (roles[role] || 0) + 1;
         });
         
+        console.log(`📊 Stats équipe ${team.name}:`, {
+            avgElo: Math.round(avgElo),
+            avgPIS: avgPIS.toFixed(1),
+            avgLevel: avgLevel.toFixed(1),
+            roles
+        });
+        
         // Bonus d'équilibre des rôles
         const roleBalance = calculateRoleBalance(roles);
         
-        // Score final de l'équipe
-        const teamScore = (avgPIS * 0.6) + (avgLevel * 0.2) + (roleBalance * 0.2);
+        // Score final de l'équipe (sur 10)
+        const teamScore = Math.min(10, (avgPIS * 0.6) + (avgLevel * 0.8) + (roleBalance * 2));
+        
+        // Trouver le meilleur joueur (en gardant l'ordre stable)
+        const topPlayer = teamPlayers.reduce((best, current) => 
+            current.impactScore.score > best.impactScore.score ? current : best
+        );
         
         teamStrengths[teamId] = {
             score: Math.round(teamScore * 10) / 10,
@@ -335,13 +431,14 @@ function calculateTeamStrength(matchData, playersAnalysis) {
                 roleBalance: roleBalance,
                 roles: roles,
                 players: teamPlayers.length,
-                topPlayer: teamPlayers.reduce((best, current) => 
-                    current.impactScore.score > best.impactScore.score ? current : best
-                )
+                topPlayer: topPlayer
             }
         };
+        
+        console.log(`✅ Force équipe ${team.name}:`, teamStrengths[teamId].score);
     });
     
+    console.log('💪 Forces des équipes calculées:', teamStrengths);
     return teamStrengths;
 }
 
@@ -362,6 +459,13 @@ function calculateRoleBalance(roles) {
  * ALGORITHME 4: Prédictions IA
  */
 function generateMatchPredictions(matchData, playersAnalysis, teamStrengths) {
+    console.log('🤖 Génération des prédictions IA...');
+    console.log('📊 Données pour prédictions:', {
+        teams: Object.keys(matchData.teams),
+        playersCount: playersAnalysis.length,
+        teamStrengthsKeys: Object.keys(teamStrengths)
+    });
+    
     const teams = Object.keys(matchData.teams);
     const team1Id = teams[0];
     const team2Id = teams[1];
@@ -369,25 +473,36 @@ function generateMatchPredictions(matchData, playersAnalysis, teamStrengths) {
     const team1Strength = teamStrengths[team1Id];
     const team2Strength = teamStrengths[team2Id];
     
+    console.log('💪 Forces des équipes:', {
+        team1: team1Strength?.score,
+        team2: team2Strength?.score
+    });
+    
     // Prédiction de l'équipe gagnante
     const strengthDiff = team1Strength.score - team2Strength.score;
-    const winProbTeam1 = 50 + (strengthDiff * 5); // Facteur d'ajustement
+    const winProbTeam1 = Math.max(10, Math.min(90, 50 + (strengthDiff * 5))); // Limité entre 10-90%
     const winProbTeam2 = 100 - winProbTeam1;
     
     const winnerTeam = winProbTeam1 > winProbTeam2 ? team1Id : team2Id;
     const winnerProb = Math.max(winProbTeam1, winProbTeam2);
     
+    console.log('🏆 Prédiction winner:', { winnerTeam, winnerProb, strengthDiff });
+    
     // Prédiction MVP
     const allPlayers = playersAnalysis.sort((a, b) => b.impactScore.score - a.impactScore.score);
     const predictedMVP = allPlayers[0];
     
+    console.log('⭐ MVP prédit:', predictedMVP?.nickname, 'Score:', predictedMVP?.impactScore.score);
+    
     // Joueurs clés par rôle
     const keyPlayers = identifyKeyPlayers(playersAnalysis);
+    console.log('👥 Joueurs clés identifiés:', Object.keys(keyPlayers));
     
     // Facteurs clés
     const keyFactors = analyzeKeyFactors(team1Strength, team2Strength, playersAnalysis);
+    console.log('🔍 Facteurs clés:', keyFactors.length);
     
-    return {
+    const predictions = {
         winner: {
             team: winnerTeam,
             probability: Math.round(winnerProb),
@@ -401,6 +516,9 @@ function generateMatchPredictions(matchData, playersAnalysis, teamStrengths) {
         },
         keyFactors: keyFactors
     };
+    
+    console.log('🤖 Prédictions générées:', predictions);
+    return predictions;
 }
 
 function identifyKeyPlayers(playersAnalysis) {
@@ -466,19 +584,218 @@ function getConfidence(strengthDiff) {
     return 'Faible';
 }
 
-// ===== UTILITAIRES =====
+// ===== UTILITAIRES POUR LES CARTES =====
+
+/**
+ * Vérifie si une carte fait partie du map pool officiel CS2
+ */
+function isOfficialMap(mapName) {
+    const officialMaps = [
+        'dust2', 'de_dust2',
+        'mirage', 'de_mirage', 
+        'inferno', 'de_inferno',
+        'ancient', 'de_ancient',
+        'nuke', 'de_nuke',
+        'overpass', 'de_overpass',
+        'vertigo', 'de_vertigo',
+        'anubis', 'de_anubis'
+    ];
+    
+    const normalized = mapName.toLowerCase().trim();
+    return officialMaps.includes(normalized);
+}
+
+/**
+ * Retourne la liste du map pool officiel CS2 actuel
+ */
+function getOfficialMapPool() {
+    return [
+        { id: 'de_dust2', name: 'Dust2', active: true },
+        { id: 'de_mirage', name: 'Mirage', active: true },
+        { id: 'de_inferno', name: 'Inferno', active: true },
+        { id: 'de_ancient', name: 'Ancient', active: true },
+        { id: 'de_nuke', name: 'Nuke', active: true },
+        { id: 'de_overpass', name: 'Overpass', active: true },
+        { id: 'de_vertigo', name: 'Vertigo', active: true },
+        { id: 'de_anubis', name: 'Anubis', active: true },
+        { id: 'de_train', name: 'Train', active: false } // Retiré temporairement
+    ];
+}
+
+/**
+ * Filtre les statistiques pour ne garder que les cartes officielles
+ */
+function filterOfficialMapsOnly(segments) {
+    return segments.filter(segment => {
+        if (segment.type !== 'Map') return false;
+        
+        const mapName = segment.label;
+        const isOfficial = isOfficialMap(mapName);
+        
+        if (!isOfficial) {
+            console.log(`🚫 Carte filtrée (non-officielle): ${mapName}`);
+        }
+        
+        return isOfficial;
+    });
+}
+
+function getMatchStatusInfo(status) {
+    const statusMap = {
+        'FINISHED': {
+            text: 'TERMINÉ',
+            icon: 'fas fa-flag-checkered',
+            bgClass: 'bg-green-900/50',
+            textClass: 'text-green-300',
+            borderClass: 'border-green-500/50'
+        },
+        'ONGOING': {
+            text: 'EN COURS',
+            icon: 'fas fa-play',
+            bgClass: 'bg-red-900/50',
+            textClass: 'text-red-300',
+            borderClass: 'border-red-500/50'
+        },
+        'READY': {
+            text: 'PRÊT',
+            icon: 'fas fa-clock',
+            bgClass: 'bg-blue-900/50',
+            textClass: 'text-blue-300',
+            borderClass: 'border-blue-500/50'
+        },
+        'VOTING': {
+            text: 'VOTE DES CARTES',
+            icon: 'fas fa-vote-yea',
+            bgClass: 'bg-purple-900/50',
+            textClass: 'text-purple-300',
+            borderClass: 'border-purple-500/50'
+        },
+        'CONFIGURING': {
+            text: 'CONFIGURATION',
+            icon: 'fas fa-cog',
+            bgClass: 'bg-yellow-900/50',
+            textClass: 'text-yellow-300',
+            borderClass: 'border-yellow-500/50'
+        }
+    };
+    
+    return statusMap[status] || {
+        text: 'INCONNU',
+        icon: 'fas fa-question',
+        bgClass: 'bg-gray-900/50',
+        textClass: 'text-gray-300',
+        borderClass: 'border-gray-500/50'
+    };
+}
+
+function getMatchResult() {
+    if (!currentMatchData || currentMatchData.status !== 'FINISHED') {
+        return null;
+    }
+    
+    const results = currentMatchData.results;
+    if (!results || !results.winner) {
+        return null;
+    }
+    
+    const winner = results.winner;
+    const score = results.score;
+    const teams = currentMatchData.teams;
+    
+    // Nom de l'équipe gagnante
+    const winnerTeam = teams[winner];
+    const winnerName = winnerTeam?.name || 'Équipe Gagnante';
+    
+    // Score du match
+    let scoreDisplay = '';
+    if (score) {
+        const faction1Score = score.faction1 || 0;
+        const faction2Score = score.faction2 || 0;
+        scoreDisplay = `${Math.max(faction1Score, faction2Score)}-${Math.min(faction1Score, faction2Score)}`;
+    }
+    
+    // Durée du match
+    let duration = '';
+    if (currentMatchData.started_at && currentMatchData.finished_at) {
+        const startTime = currentMatchData.started_at * 1000;
+        const endTime = currentMatchData.finished_at * 1000;
+        const durationMs = endTime - startTime;
+        const minutes = Math.floor(durationMs / 60000);
+        const hours = Math.floor(minutes / 60);
+        
+        if (hours > 0) {
+            duration = `${hours}h ${minutes % 60}min`;
+        } else {
+            duration = `${minutes}min`;
+        }
+    }
+    
+    return {
+        winner: winnerName,
+        score: scoreDisplay,
+        duration: duration,
+        bgGradient: 'from-green-800/30 to-emerald-900/30',
+        borderClass: 'border-green-500/50',
+        textClass: 'text-green-400',
+        iconClass: 'text-yellow-400'
+    };
+}
+
+function getMapPlayed() {
+    // Vérifier si une carte a été jouée
+    const voting = currentMatchData.voting;
+    if (voting && voting.map && voting.map.pick && voting.map.pick.length > 0) {
+        const mapId = voting.map.pick[0];
+        return formatMapName(mapId);
+    }
+    
+    // Vérifier dans les detailed_results
+    if (currentMatchData.detailed_results && currentMatchData.detailed_results.length > 0) {
+        const result = currentMatchData.detailed_results[0];
+        if (result.map) {
+            return formatMapName(result.map);
+        }
+    }
+    
+    return null;
+}
+
+function formatMapName(mapId) {
+    const mapNames = {
+        'de_dust2': 'Dust2',
+        'de_mirage': 'Mirage',
+        'de_inferno': 'Inferno',
+        'de_ancient': 'Ancient',
+        'de_nuke': 'Nuke',
+        'de_overpass': 'Overpass',
+        'de_vertigo': 'Vertigo',
+        'de_anubis': 'Anubis',
+        'de_train': 'Train'
+    };
+    
+    return mapNames[mapId] || cleanMapName(mapId);
+}
 
 function extractAllPlayers(matchData) {
     const players = [];
-    Object.values(matchData.teams).forEach(team => {
-        team.roster.forEach(player => {
+    Object.entries(matchData.teams).forEach(([teamId, team], teamIndex) => {
+        team.roster.forEach((player, playerIndex) => {
             players.push({
                 playerId: player.player_id,
                 nickname: player.nickname,
-                team: team.name
+                team: team.name,
+                teamId: teamId,
+                teamIndex: teamIndex, // Pour maintenir l'ordre des équipes
+                playerIndex: playerIndex, // Pour maintenir l'ordre dans l'équipe
+                originalIndex: players.length // Index global original
             });
         });
     });
+    console.log('📋 Joueurs extraits avec ordre:', players.map(p => ({ 
+        nickname: p.nickname, 
+        teamIndex: p.teamIndex, 
+        playerIndex: p.playerIndex 
+    })));
     return players;
 }
 
@@ -486,12 +803,21 @@ async function analyzeAllPlayers(playersList) {
     console.log(`🧠 Analyse de ${playersList.length} joueurs...`);
     
     const promises = playersList.map(async (playerInfo, index) => {
+        console.log(`📊 Analyse joueur ${index + 1}/${playersList.length}: ${playerInfo.nickname}`);
+        
         try {
             const data = await fetchPlayerData(playerInfo.playerId);
-            if (!data || !data.player || !data.stats) return null;
+            if (!data || !data.player || !data.stats) {
+                console.warn(`⚠️ Données manquantes pour ${playerInfo.nickname}`);
+                return null;
+            }
+            
+            console.log(`✅ Données récupérées pour ${playerInfo.nickname}`);
             
             const mapAnalysis = calculateBestWorstMaps(data.stats);
             const impactScore = calculatePlayerImpactScore(data.player, data.stats);
+            
+            console.log(`🎯 Impact score ${playerInfo.nickname}:`, impactScore.score, 'Rôle:', impactScore.role);
             
             return {
                 ...playerInfo,
@@ -503,13 +829,33 @@ async function analyzeAllPlayers(playersList) {
                 level: data.player.games?.cs2?.skill_level || 1
             };
         } catch (error) {
-            console.warn(`Erreur analyse joueur ${playerInfo.nickname}:`, error);
+            console.error(`❌ Erreur analyse joueur ${playerInfo.nickname}:`, error);
             return null;
         }
     });
     
     const results = await Promise.all(promises);
-    return results.filter(r => r !== null);
+    const validResults = results.filter(r => r !== null);
+    
+    // ✅ TRI STABLE pour maintenir l'ordre original
+    validResults.sort((a, b) => {
+        // D'abord par équipe, puis par position dans l'équipe
+        if (a.teamIndex !== b.teamIndex) {
+            return a.teamIndex - b.teamIndex;
+        }
+        return a.playerIndex - b.playerIndex;
+    });
+    
+    console.log(`🧠 Analyse terminée: ${validResults.length}/${playersList.length} joueurs analysés avec succès`);
+    console.log('📊 Joueurs analysés (ordre stable):', validResults.map(p => ({ 
+        nickname: p.nickname, 
+        teamIndex: p.teamIndex,
+        playerIndex: p.playerIndex,
+        score: p.impactScore.score, 
+        role: p.impactScore.role 
+    })));
+    
+    return validResults;
 }
 
 function calculatePlayerMapAnalysis(playersAnalysis) {
@@ -529,11 +875,21 @@ function extractMatchId(matchId) {
 // ===== AFFICHAGE =====
 
 function displayAdvancedAnalysis() {
+    console.log('🎨 Début affichage analyse avancée');
+    console.log('📊 Données disponibles:', {
+        currentMatchData: !!currentMatchData,
+        playersAnalysis: playersAnalysis.length,
+        teamStrengthData: !!teamStrengthData,
+        matchPredictions: !!matchPredictions
+    });
+    
     displayMatchHeader();
     displayPredictions();
     displayMatchLobby();
     displayTeamStrength();
     displayAnalysisFactors();
+    
+    console.log('✅ Affichage terminé');
 }
 
 function displayMatchHeader() {
@@ -542,28 +898,132 @@ function displayMatchHeader() {
     const container = document.getElementById('matchHeader');
     const competitionName = currentMatchData.competition_name || 'Match FACEIT';
     const status = currentMatchData.status || 'unknown';
+    const region = currentMatchData.region || 'EU';
+    const bestOf = currentMatchData.best_of || 1;
+    
+    // Formatage de la date
+    const startedAt = currentMatchData.started_at ? new Date(currentMatchData.started_at * 1000) : null;
+    const finishedAt = currentMatchData.finished_at ? new Date(currentMatchData.finished_at * 1000) : null;
+    const configuredAt = currentMatchData.configured_at ? new Date(currentMatchData.configured_at * 1000) : null;
+    
+    const displayDate = finishedAt || startedAt || configuredAt || new Date();
+    const formattedDate = displayDate.toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+    const formattedTime = displayDate.toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    // Status avec couleurs
+    const statusInfo = getMatchStatusInfo(status);
+    
+    // Résultat du match si terminé
+    const matchResult = getMatchResult();
+    
+    // Carte jouée
+    const mapPlayed = getMapPlayed();
     
     container.innerHTML = `
-        <div class="space-y-4">
-            <div class="text-center">
-                <h1 class="text-4xl font-black mb-2 bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
-                    Analyse IA de Match
-                </h1>
-                <p class="text-xl text-gray-400">${competitionName}</p>
+        <div class="relative overflow-hidden">
+            <!-- Background Grid Pattern -->
+            <div class="absolute inset-0 bg-grid-pattern opacity-10"></div>
+            
+            <!-- Background Gradient -->
+            <div class="absolute inset-0 opacity-5">
+                <div class="absolute inset-0 bg-gradient-to-br from-faceit-orange/20 via-transparent to-blue-500/20"></div>
             </div>
             
-            <div class="flex items-center justify-center space-x-6 text-sm">
-                <div class="flex items-center space-x-2">
-                    <i class="fas fa-robot text-faceit-orange"></i>
-                    <span>Analyse par Intelligence Artificielle</span>
+            <div class="relative z-10 space-y-6">
+                <!-- Title Section -->
+                <div class="text-center space-y-3">
+                    <div class="space-y-2">
+                        <h2 class="text-2xl font-bold text-gray-200">${competitionName}</h2>
+                        <div class="flex items-center justify-center space-x-4 text-gray-400">
+                            <span class="flex items-center space-x-1">
+                                <i class="fas fa-calendar text-blue-400"></i>
+                                <span>${formattedDate}</span>
+                            </span>
+                            <span class="w-1 h-1 bg-gray-600 rounded-full"></span>
+                            <span class="flex items-center space-x-1">
+                                <i class="fas fa-clock text-green-400"></i>
+                                <span>${formattedTime}</span>
+                            </span>
+                            <span class="w-1 h-1 bg-gray-600 rounded-full"></span>
+                            <span class="flex items-center space-x-1">
+                                <i class="fas fa-globe text-purple-400"></i>
+                                <span>${region}</span>
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <i class="fas fa-users text-blue-400"></i>
-                    <span>10 joueurs analysés</span>
+                
+                <!-- Status and Match Info -->
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <!-- Status Badge -->
+                    <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full ${statusInfo.bgClass} ${statusInfo.textClass} border ${statusInfo.borderClass} shadow-lg">
+                        <i class="${statusInfo.icon} text-sm"></i>
+                        <span class="font-bold text-sm">${statusInfo.text}</span>
+                    </div>
+                    
+                    <!-- Best Of Badge -->
+                    <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-gray-800/80 text-gray-300 border border-gray-600/50">
+                        <i class="fas fa-trophy text-yellow-400"></i>
+                        <span class="font-semibold">BO${bestOf}</span>
+                    </div>
+                    
+                    <!-- Map Badge -->
+                    ${mapPlayed ? `
+                        <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-green-800/30 text-green-300 border border-green-600/50">
+                            <i class="fas fa-map text-green-400"></i>
+                            <span class="font-semibold">${mapPlayed}</span>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- Game Badge -->
+                    <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-orange-800/30 text-orange-300 border border-orange-600/50">
+                        <i class="fas fa-gamepad text-orange-400"></i>
+                        <span class="font-semibold">CS2</span>
+                    </div>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <i class="fas fa-chart-line text-green-400"></i>
-                    <span>Prédictions avancées</span>
+                
+                ${matchResult ? `
+                    <!-- Match Result -->
+                    <div class="text-center space-y-3">
+                        <div class="inline-flex items-center space-x-4 px-6 py-4 bg-gradient-to-r ${matchResult.bgGradient} rounded-2xl border ${matchResult.borderClass} shadow-xl">
+                            <i class="fas fa-crown text-2xl ${matchResult.iconClass}"></i>
+                            <div>
+                                <div class="text-lg font-bold text-white">Vainqueur</div>
+                                <div class="text-2xl font-black ${matchResult.textClass}">${matchResult.winner}</div>
+                            </div>
+                            <div class="text-3xl font-black text-white">${matchResult.score}</div>
+                        </div>
+                        
+                        ${matchResult.duration ? `
+                            <div class="text-sm text-gray-400">
+                                <i class="fas fa-stopwatch mr-1"></i>
+                                Durée: ${matchResult.duration}
+                            </div>
+                        ` : ''}
+                    </div>
+                ` : ''}
+                
+                <!-- AI Stats -->
+                <div class="flex flex-wrap items-center justify-center gap-6 text-sm">
+                    <div class="flex items-center space-x-2 text-blue-400">
+                        <div class="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                        <span>10 joueurs analysés</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-purple-400">
+                        <div class="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+                        <span>Analyse des rôles</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-yellow-400">
+                        <div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                        <span>Force des équipes</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -571,39 +1031,56 @@ function displayMatchHeader() {
 }
 
 function displayPredictions() {
-    if (!matchPredictions) return;
+    console.log('🔮 Affichage prédictions...');
+    console.log('📊 matchPredictions:', matchPredictions);
+    
+    if (!matchPredictions) {
+        console.warn('❌ Pas de prédictions disponibles');
+        return;
+    }
     
     // Winner Prediction
     const winnerContent = document.getElementById('winnerContent');
-    const teams = Object.keys(currentMatchData.teams);
-    const winnerTeam = matchPredictions.winner.team;
-    const winnerName = currentMatchData.teams[winnerTeam]?.name || 'Équipe';
+    console.log('🏆 Winner element trouvé:', !!winnerContent);
     
-    winnerContent.innerHTML = `
-        <div class="space-y-4">
-            <div class="text-2xl font-bold text-faceit-orange">${winnerName}</div>
-            <div class="text-lg">${matchPredictions.winner.probability}% de chances</div>
-            <div class="space-y-2">
-                ${teams.map(teamId => `
-                    <div class="flex justify-between text-sm">
-                        <span>${currentMatchData.teams[teamId].name}</span>
-                        <span class="font-semibold">${matchPredictions.teamProbabilities[teamId]}%</span>
-                    </div>
-                    <div class="w-full bg-gray-700 rounded-full h-2">
-                        <div class="bg-blue-500 h-2 rounded-full" style="width: ${matchPredictions.teamProbabilities[teamId]}%"></div>
-                    </div>
-                `).join('')}
+    if (winnerContent) {
+        const teams = Object.keys(currentMatchData.teams);
+        const winnerTeam = matchPredictions.winner.team;
+        const winnerName = currentMatchData.teams[winnerTeam]?.name || 'Équipe';
+        
+        console.log('🏆 Affichage winner:', { winnerTeam, winnerName, teams });
+        
+        winnerContent.innerHTML = `
+            <div class="space-y-4">
+                <div class="text-2xl font-bold text-faceit-orange">${winnerName}</div>
+                <div class="text-lg">${matchPredictions.winner.probability}% de chances</div>
+                <div class="space-y-2">
+                    ${teams.map(teamId => `
+                        <div class="flex justify-between text-sm">
+                            <span>${currentMatchData.teams[teamId].name}</span>
+                            <span class="font-semibold">${matchPredictions.teamProbabilities[teamId]}%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-blue-500 h-2 rounded-full" style="width: ${matchPredictions.teamProbabilities[teamId]}%"></div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="text-xs text-gray-400">
+                    Confiance: <span class="confidence-${matchPredictions.winner.confidence.toLowerCase()}">${matchPredictions.winner.confidence}</span>
+                </div>
             </div>
-            <div class="text-xs text-gray-400">
-                Confiance: <span class="confidence-${matchPredictions.winner.confidence.toLowerCase()}">${matchPredictions.winner.confidence}</span>
-            </div>
-        </div>
-    `;
+        `;
+    }
     
     // MVP Prediction
     const mvpContent = document.getElementById('mvpContent');
-    if (matchPredictions.mvp) {
+    console.log('⭐ MVP element trouvé:', !!mvpContent);
+    console.log('⭐ MVP data:', matchPredictions.mvp);
+    
+    if (mvpContent && matchPredictions.mvp) {
         const mvp = matchPredictions.mvp;
+        console.log('⭐ Affichage MVP:', mvp.nickname);
+        
         mvpContent.innerHTML = `
             <div class="space-y-4">
                 <div class="flex items-center justify-center space-x-3">
@@ -630,24 +1107,33 @@ function displayPredictions() {
     
     // Key Players
     const keyPlayersContent = document.getElementById('keyPlayersContent');
-    const keyPlayers = matchPredictions.keyPlayers;
-    const topKeyPlayers = Object.values(keyPlayers).slice(0, 3);
+    console.log('👥 Key Players element trouvé:', !!keyPlayersContent);
+    console.log('👥 Key Players data:', matchPredictions.keyPlayers);
     
-    keyPlayersContent.innerHTML = `
-        <div class="space-y-3">
-            ${topKeyPlayers.map(player => `
-                <div class="flex items-center space-x-3 text-sm">
-                    <img src="${player.playerData.avatar || '/images/default-avatar.jpg'}" 
-                         class="w-8 h-8 rounded-full" alt="${player.nickname}">
-                    <div class="flex-1">
-                        <div class="font-semibold">${player.nickname}</div>
-                        <div class="text-xs text-gray-400 role-${player.impactScore.role}">${getRoleDisplayName(player.impactScore.role)}</div>
+    if (keyPlayersContent && matchPredictions.keyPlayers) {
+        const keyPlayers = matchPredictions.keyPlayers;
+        const topKeyPlayers = Object.values(keyPlayers).slice(0, 3);
+        
+        console.log('👥 Affichage key players:', topKeyPlayers.length);
+        
+        keyPlayersContent.innerHTML = `
+            <div class="space-y-3">
+                ${topKeyPlayers.map(player => `
+                    <div class="flex items-center space-x-3 text-sm">
+                        <img src="${player.playerData.avatar || '/images/default-avatar.jpg'}" 
+                             class="w-8 h-8 rounded-full" alt="${player.nickname}">
+                        <div class="flex-1">
+                            <div class="font-semibold">${player.nickname}</div>
+                            <div class="text-xs text-gray-400 role-${player.impactScore.role}">${getRoleDisplayName(player.impactScore.role)}</div>
+                        </div>
+                        <div class="text-xs font-semibold">${player.impactScore.score}</div>
                     </div>
-                    <div class="text-xs font-semibold">${player.impactScore.score}</div>
-                </div>
-            `).join('')}
-        </div>
-    `;
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    console.log('✅ Prédictions affichées');
 }
 
 function displayMatchLobby() {
@@ -656,12 +1142,29 @@ function displayMatchLobby() {
     const container = document.getElementById('matchLobby');
     const teams = Object.keys(currentMatchData.teams);
     
+    console.log('🏟️ Affichage lobby avec ordre stable...');
+    
     container.innerHTML = `
         <div class="grid lg:grid-cols-2 gap-8">
-            ${teams.map((teamId, index) => {
+            ${teams.map((teamId, teamIndex) => {
                 const team = currentMatchData.teams[teamId];
-                const teamColor = index === 0 ? 'blue' : 'red';
-                const teamName = team.name || `Équipe ${index + 1}`;
+                const teamColor = teamIndex === 0 ? 'blue' : 'red';
+                const teamName = team.name || `Équipe ${teamIndex + 1}`;
+                
+                // Filtrer et trier les joueurs pour cette équipe dans l'ordre original
+                const teamPlayers = team.roster.map((originalPlayer, playerIndex) => {
+                    const analysis = playersAnalysis.find(p => p.playerId === originalPlayer.player_id);
+                    return {
+                        ...originalPlayer,
+                        analysis: analysis,
+                        playerIndex: playerIndex // Maintenir l'ordre original du roster
+                    };
+                }).sort((a, b) => a.playerIndex - b.playerIndex); // Tri stable par index original
+                
+                console.log(`👥 Équipe ${teamName} - Ordre des joueurs:`, teamPlayers.map(p => ({ 
+                    nickname: p.nickname, 
+                    playerIndex: p.playerIndex 
+                })));
                 
                 return `
                     <div class="space-y-4">
@@ -673,16 +1176,15 @@ function displayMatchLobby() {
                         </div>
                         
                         <div class="space-y-3">
-                            ${team.roster.map(player => {
-                                const analysis = playersAnalysis.find(p => p.playerId === player.player_id);
-                                return createAdvancedPlayerCard(player, analysis, teamColor);
-                            }).join('')}
+                            ${teamPlayers.map(player => createAdvancedPlayerCard(player, player.analysis, teamColor)).join('')}
                         </div>
                     </div>
                 `;
             }).join('')}
         </div>
     `;
+    
+    console.log('✅ Lobby affiché avec ordre stable');
 }
 
 function createAdvancedPlayerCard(player, analysis, teamColor) {
@@ -758,15 +1260,31 @@ function createAdvancedPlayerCard(player, analysis, teamColor) {
 }
 
 function displayTeamStrength() {
-    if (!teamStrengthData) return;
+    console.log('💪 Affichage force des équipes...');
+    console.log('💪 teamStrengthData:', teamStrengthData);
+    
+    if (!teamStrengthData) {
+        console.warn('❌ Pas de données de force d\'équipe');
+        return;
+    }
     
     const container = document.getElementById('teamStrength');
+    console.log('💪 Container trouvé:', !!container);
+    
+    if (!container) {
+        console.error('❌ Element teamStrength non trouvé dans le DOM');
+        return;
+    }
+    
     const teams = Object.keys(teamStrengthData);
+    console.log('💪 Teams à afficher:', teams);
     
     container.innerHTML = teams.map((teamId, index) => {
         const team = teamStrengthData[teamId];
         const teamName = currentMatchData.teams[teamId]?.name || `Équipe ${index + 1}`;
         const teamColor = index === 0 ? 'blue' : 'red';
+        
+        console.log(`💪 Équipe ${index + 1}:`, { teamId, teamName, score: team.score, analysis: team.analysis });
         
         return `
             <div class="bg-faceit-card rounded-2xl p-6 border border-gray-700">
@@ -809,13 +1327,29 @@ function displayTeamStrength() {
             </div>
         `;
     }).join('');
+    
+    console.log('✅ Force des équipes affichée');
 }
 
 function displayAnalysisFactors() {
-    if (!matchPredictions?.keyFactors) return;
+    console.log('🔍 Affichage facteurs d\'analyse...');
+    console.log('🔍 keyFactors:', matchPredictions?.keyFactors);
+    
+    if (!matchPredictions?.keyFactors) {
+        console.warn('❌ Pas de facteurs d\'analyse');
+        return;
+    }
     
     const container = document.getElementById('analysisFactors');
+    console.log('🔍 Container trouvé:', !!container);
+    
+    if (!container) {
+        console.error('❌ Element analysisFactors non trouvé dans le DOM');
+        return;
+    }
+    
     const factors = matchPredictions.keyFactors;
+    console.log('🔍 Nombre de facteurs:', factors.length);
     
     container.innerHTML = `
         <h3 class="text-xl font-bold mb-4">Facteurs Déterminants</h3>
@@ -838,6 +1372,8 @@ function displayAnalysisFactors() {
             `}
         </div>
     `;
+    
+    console.log('✅ Facteurs d\'analyse affichés');
 }
 
 // ===== ÉVÉNEMENTS =====

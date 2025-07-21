@@ -43,8 +43,8 @@
 <!-- Main Content -->
 <div id="mainContent" class="hidden">
     <!-- Match Header -->
-    <div class="bg-gradient-to-br from-faceit-dark via-gray-900 to-faceit-card">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="match-header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div id="matchHeader" class="text-center">
                 <!-- Match header sera injecté ici -->
             </div>
@@ -52,13 +52,28 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- Match Lobby avec analyse des joueurs -->
+        <section>
+            <div class="flex items-center mb-6">
+                <h2 class="text-3xl font-bold text-gradient flex items-center">
+                    <i class="fas fa-users-cog text-faceit-orange mr-3"></i>
+                    Lobby & Analyse des Joueurs
+                </h2>
+                <div class="h-px flex-1 ml-4 bg-gradient-to-r from-faceit-orange/50 to-transparent"></div>
+            </div>
+            
+            <div id="matchLobby" class="bg-faceit-card rounded-2xl p-6 border border-gray-700">
+                <!-- Lobby content sera injecté ici -->
+            </div>
+        </section>
         
         <!-- Prédictions IA -->
         <section class="mb-8">
             <div class="flex items-center mb-6">
                 <h2 class="text-3xl font-bold text-gradient flex items-center">
                     <i class="fas fa-robot text-faceit-orange mr-3"></i>
-                    Prédictions IA
+                    Prédictions
                 </h2>
                 <div class="h-px flex-1 ml-4 bg-gradient-to-r from-faceit-orange/50 to-transparent"></div>
             </div>
@@ -96,21 +111,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- Match Lobby avec analyse des joueurs -->
-        <section>
-            <div class="flex items-center mb-6">
-                <h2 class="text-3xl font-bold text-gradient flex items-center">
-                    <i class="fas fa-users-cog text-faceit-orange mr-3"></i>
-                    Lobby & Analyse des Joueurs
-                </h2>
-                <div class="h-px flex-1 ml-4 bg-gradient-to-r from-faceit-orange/50 to-transparent"></div>
-            </div>
-            
-            <div id="matchLobby" class="bg-faceit-card rounded-2xl p-6 border border-gray-700">
-                <!-- Lobby content sera injecté ici -->
             </div>
         </section>
 
@@ -231,6 +231,111 @@
     .role-awper { color: #8b5cf6; }
     .role-clutcher { color: #10b981; }
     .role-lurker { color: #f59e0b; }
+    
+    /* Grid Pattern Background */
+    .bg-grid-pattern {
+        background-image: 
+            linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+    
+    /* Header Animations */
+    .match-header {
+        background: linear-gradient(135deg, 
+            rgba(17, 24, 39, 0.95) 0%, 
+            rgba(31, 41, 55, 0.98) 50%, 
+            rgba(17, 24, 39, 0.95) 100%
+        );
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 85, 0, 0.2);
+    }
+    
+    .status-badge {
+        backdrop-filter: blur(8px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .winner-badge {
+        animation: winner-glow 2s ease-in-out infinite alternate;
+    }
+    
+    @keyframes winner-glow {
+        from {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+        to {
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
+        }
+    }
+    
+    .ai-indicator {
+        animation: pulse-slow 3s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-slow {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
+    }
+    
+    .match-info-gradient {
+        background: linear-gradient(135deg, 
+            rgba(255, 85, 0, 0.1) 0%, 
+            rgba(59, 130, 246, 0.1) 50%, 
+            rgba(139, 92, 246, 0.1) 100%
+        );
+    }
+    
+    /* Responsive Header */
+    @media (max-width: 768px) {
+        .match-header h1 {
+            font-size: 2.5rem;
+        }
+        
+        .match-header .flex-wrap {
+            gap: 0.5rem;
+        }
+        
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .bg-grid-pattern {
+            background-size: 15px 15px;
+        }
+    }
+    
+    /* Glass Effect */
+    .glass-card {
+        background: rgba(31, 41, 55, 0.8);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Gradient Text */
+    .gradient-text {
+        background: linear-gradient(135deg, #fff, #e5e7eb, #9ca3af);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    /* Match Result Animation */
+    .match-result {
+        animation: result-appear 1s ease-out;
+    }
+    
+    @keyframes result-appear {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
 </style>
 @endpush
 
