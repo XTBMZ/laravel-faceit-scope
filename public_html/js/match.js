@@ -16,6 +16,7 @@ let playersAnalysis = [];
 let selectedPlayersForComparison = [];
 let teamStrengthData = null;
 let matchPredictions = null;
+let teamMapAnalysis = null; // Nouvelle variable pour l'analyse des cartes d'équipe
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
@@ -40,6 +41,7 @@ async function loadMatchAndAnalyze(matchId) {
         'Récupération des données du match...',
         'Analyse des profils des 10 joueurs...',
         'Calcul des algorithmes de performance...',
+        'Analyse des cartes par équipe...',
         'Prédictions IA et MVP...',
         'Finalisation de l\'analyse avancée...'
     ];
@@ -51,23 +53,27 @@ async function loadMatchAndAnalyze(matchId) {
         currentMatchData = matchData;
         
         // Étape 2: Analyser tous les joueurs
-        updateProgress(20, steps[1]);
+        updateProgress(15, steps[1]);
         const playersList = extractAllPlayers(matchData);
         playersAnalysis = await analyzeAllPlayers(playersList);
         
         // Étape 3: Algorithmes de performance
-        updateProgress(50, steps[2]);
+        updateProgress(40, steps[2]);
         const mapAnalysis = calculatePlayerMapAnalysis(playersAnalysis);
         const teamStrength = calculateTeamStrength(matchData, playersAnalysis);
         teamStrengthData = teamStrength;
         
-        // Étape 4: Prédictions IA
-        updateProgress(80, steps[3]);
+        // Étape 4: Analyse des cartes par équipe (NOUVEAU)
+        updateProgress(60, steps[3]);
+        teamMapAnalysis = calculateTeamMapAnalysis(matchData, playersAnalysis);
+        
+        // Étape 5: Prédictions IA
+        updateProgress(80, steps[4]);
         const predictions = generateMatchPredictions(matchData, playersAnalysis, teamStrength);
         matchPredictions = predictions;
         
-        // Étape 5: Affichage
-        updateProgress(100, steps[4]);
+        // Étape 6: Affichage
+        updateProgress(100, steps[5]);
         
         setTimeout(() => {
             displayAdvancedAnalysis();
@@ -78,6 +84,117 @@ async function loadMatchAndAnalyze(matchId) {
         console.error('❌ Erreur analyse:', error);
         showError(error.message);
     }
+}
+
+// ===== NOUVEAU: ANALYSE DES CARTES PAR ÉQUIPE =====
+
+/**
+ * ALGORITHME 5: Calcul des meilleures/pires cartes par équipe
+ * Utilise une pondération basée sur l'ELO des joueurs
+ */
+function calculateTeamMapAnalysis(matchData, playersAnalysis) {
+    console.log('🗺️ Calcul des cartes par équipe...');
+    
+    const teams = Object.keys(matchData.teams);
+    const teamMapsAnalysis = {};
+    
+    teams.forEach((teamId, index) => {
+        const team = matchData.teams[teamId];
+        console.log(`🗺️ Analyse cartes équipe ${index + 1} (${teamId}):`, team.name);
+        
+        // Filtrer les joueurs de l'équipe
+        const teamPlayers = team.roster.map(rosterPlayer => {
+            return playersAnalysis.find(p => p.playerId === rosterPlayer.player_id);
+        }).filter(Boolean);
+        
+        if (teamPlayers.length === 0) {
+            console.warn(`⚠️ Aucun joueur analysé pour ${team.name}`);
+            teamMapsAnalysis[teamId] = { best: null, worst: null, all: [] };
+            return;
+        }
+        
+        // Calcul des ELO pour pondération
+        const totalElo = teamPlayers.reduce((sum, p) => sum + p.elo, 0);
+        const avgElo = totalElo / teamPlayers.length;
+        
+        console.log(`🗺️ Équipe ${team.name} - ELO moyen: ${Math.round(avgElo)}`);
+        
+        // Collecter toutes les cartes disponibles
+        const allMaps = new Map();
+        
+        teamPlayers.forEach(player => {
+            if (player.mapAnalysis && player.mapAnalysis.all) {
+                player.mapAnalysis.all.forEach(mapData => {
+                    const mapName = mapData.name;
+                    
+                    if (!allMaps.has(mapName)) {
+                        allMaps.set(mapName, {
+                            name: mapName,
+                            totalWeight: 0,
+                            weightedScore: 0,
+                            players: []
+                        });
+                    }
+                    
+                    // Calcul du poids basé sur l'ELO du joueur et le nombre de matches
+                    const eloWeight = player.elo / avgElo; // Poids relatif à la moyenne d'équipe
+                    const matchesWeight = Math.min(mapData.matches / 10, 1); // Plus de matches = plus de poids
+                    const finalWeight = eloWeight * matchesWeight;
+                    
+                    const mapInfo = allMaps.get(mapName);
+                    mapInfo.totalWeight += finalWeight;
+                    mapInfo.weightedScore += mapData.score * finalWeight;
+                    mapInfo.players.push({
+                        nickname: player.nickname,
+                        score: mapData.score,
+                        matches: mapData.matches,
+                        weight: finalWeight,
+                        elo: player.elo
+                    });
+                    
+                    console.log(`🗺️ ${mapName} - Joueur: ${player.nickname}, Score: ${mapData.score}, Poids: ${finalWeight.toFixed(2)}`);
+                });
+            }
+        });
+        
+        // Calculer les scores finaux des cartes
+        const teamMaps = Array.from(allMaps.values()).map(mapData => {
+            const finalScore = mapData.totalWeight > 0 ? mapData.weightedScore / mapData.totalWeight : 0;
+            
+            return {
+                name: mapData.name,
+                score: finalScore,
+                playersCount: mapData.players.length,
+                totalMatches: mapData.players.reduce((sum, p) => sum + p.matches, 0),
+                avgMatches: mapData.players.reduce((sum, p) => sum + p.matches, 0) / mapData.players.length,
+                topPlayers: mapData.players
+                    .sort((a, b) => b.score - a.score)
+                    .slice(0, 2), // Top 2 joueurs sur cette carte
+                confidence: Math.min(1, mapData.totalWeight / teamPlayers.length) // Confiance basée sur la couverture
+            };
+        }).filter(map => map.playersCount >= 2); // Au moins 2 joueurs doivent avoir joué la carte
+        
+        // Trier par score
+        teamMaps.sort((a, b) => b.score - a.score);
+        
+        console.log(`🗺️ Cartes calculées pour ${team.name}:`, teamMaps.map(m => ({ 
+            name: m.name, 
+            score: m.score.toFixed(2), 
+            players: m.playersCount 
+        })));
+        
+        teamMapsAnalysis[teamId] = {
+            best: teamMaps[0] || null,
+            worst: teamMaps[teamMaps.length - 1] || null,
+            all: teamMaps
+        };
+        
+        console.log(`✅ Meilleure carte ${team.name}: ${teamMaps[0]?.name} (${teamMaps[0]?.score.toFixed(2)})`);
+        console.log(`❌ Pire carte ${team.name}: ${teamMaps[teamMaps.length - 1]?.name} (${teamMaps[teamMaps.length - 1]?.score.toFixed(2)})`);
+    });
+    
+    console.log('🗺️ Analyse des cartes par équipe terminée');
+    return teamMapsAnalysis;
 }
 
 // ===== API CALLS =====
@@ -880,7 +997,8 @@ function displayAdvancedAnalysis() {
         currentMatchData: !!currentMatchData,
         playersAnalysis: playersAnalysis.length,
         teamStrengthData: !!teamStrengthData,
-        matchPredictions: !!matchPredictions
+        matchPredictions: !!matchPredictions,
+        teamMapAnalysis: !!teamMapAnalysis
     });
     
     displayMatchHeader();
@@ -1145,7 +1263,10 @@ function displayMatchLobby() {
     console.log('🏟️ Affichage lobby avec ordre stable...');
     
     container.innerHTML = `
-        <div class="grid lg:grid-cols-2 gap-8">
+        <!-- NOUVEAU: Analyse des cartes d'équipe -->
+        ${teamMapAnalysis ? displayTeamMapsAnalysis() : ''}
+        
+        <div class="grid lg:grid-cols-2 gap-6">
             ${teams.map((teamId, teamIndex) => {
                 const team = currentMatchData.teams[teamId];
                 const teamColor = teamIndex === 0 ? 'blue' : 'red';
@@ -1167,15 +1288,15 @@ function displayMatchLobby() {
                 })));
                 
                 return `
-                    <div class="space-y-4">
-                        <div class="text-center mb-6">
-                            <h3 class="text-2xl font-bold text-${teamColor}-400 mb-2">${teamName}</h3>
-                            <div class="text-sm text-gray-400">
+                    <div class="space-y-3">
+                        <div class="text-center mb-4">
+                            <h3 class="text-lg font-bold text-${teamColor}-400 mb-1">${teamName}</h3>
+                            <div class="text-xs text-gray-400">
                                 Force: ${teamStrengthData[teamId]?.score || 'N/A'}/10
                             </div>
                         </div>
                         
-                        <div class="space-y-3">
+                        <div class="space-y-2">
                             ${teamPlayers.map(player => createAdvancedPlayerCard(player, player.analysis, teamColor)).join('')}
                         </div>
                     </div>
@@ -1187,17 +1308,97 @@ function displayMatchLobby() {
     console.log('✅ Lobby affiché avec ordre stable');
 }
 
+/**
+ * NOUVELLE FONCTION: Affichage de l'analyse des cartes par équipe
+ */
+function displayTeamMapsAnalysis() {
+    if (!teamMapAnalysis || !currentMatchData) return '';
+    
+    const teams = Object.keys(currentMatchData.teams);
+    
+    console.log('🗺️ Affichage analyse cartes équipes...');
+    
+    return `
+        <div class="mb-6 bg-faceit-elevated/30 rounded-xl p-4 border border-gray-700/50">
+            <div class="flex items-center mb-4">
+                <i class="fas fa-map-marked-alt text-faceit-orange text-lg mr-2"></i>
+                <h3 class="text-lg font-bold text-white">Cartes par Équipe</h3>
+            </div>
+            
+            <div class="grid lg:grid-cols-2 gap-4">
+                ${teams.map((teamId, teamIndex) => {
+                    const team = currentMatchData.teams[teamId];
+                    const teamName = team.name || `Équipe ${teamIndex + 1}`;
+                    const teamColor = teamIndex === 0 ? 'blue' : 'red';
+                    const teamMaps = teamMapAnalysis[teamId];
+                    
+                    console.log(`🗺️ Cartes équipe ${teamName}:`, teamMaps);
+                    
+                    return `
+                        <div class="space-y-3">
+                            <h4 class="text-md font-bold text-${teamColor}-400 text-center">${teamName}</h4>
+                            
+                            ${teamMaps.best ? `
+                                <div class="bg-green-800/20 rounded-lg p-3 border border-green-600/30">
+                                    <div class="flex items-center space-x-2 mb-2">
+                                        <i class="fas fa-trophy text-green-400 text-sm"></i>
+                                        <span class="font-bold text-green-400 text-sm">Meilleure Carte</span>
+                                    </div>
+                                    
+                                    <div class="text-left">
+                                        <span class="text-lg font-bold text-white">${teamMaps.best.name}</span>
+                                    </div>
+                                </div>
+                            ` : `
+                                <div class="bg-gray-800/50 rounded-lg p-3 border border-gray-600/30 text-center">
+                                    <i class="fas fa-question-circle text-gray-400 text-lg mb-1"></i>
+                                    <div class="text-gray-400 text-sm">Pas assez de données</div>
+                                </div>
+                            `}
+                            
+                            ${teamMaps.worst ? `
+                                <div class="bg-red-800/20 rounded-lg p-3 border border-red-600/30">
+                                    <div class="flex items-center space-x-2 mb-2">
+                                        <i class="fas fa-exclamation-triangle text-red-400 text-sm"></i>
+                                        <span class="font-bold text-red-400 text-sm">Pire Carte</span>
+                                    </div>
+                                    
+                                    <div class="text-left">
+                                        <span class="text-lg font-bold text-white">${teamMaps.worst.name}</span>
+                                    </div>
+                                </div>
+                            ` : `
+                                <div class="bg-gray-800/50 rounded-lg p-3 border border-gray-600/30 text-center">
+                                    <i class="fas fa-question-circle text-gray-400 text-lg mb-1"></i>
+                                    <div class="text-gray-400 text-sm">Pas assez de données</div>
+                                </div>
+                            `}
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+            
+            <div class="mt-4 text-center">
+                <div class="text-xs text-gray-500">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Analyse basée sur les performances pondérées par l'ELO
+                </div>
+            </div>
+        </div>
+    `;
+}
+
 function createAdvancedPlayerCard(player, analysis, teamColor) {
     if (!analysis) {
         return `
-            <div class="bg-faceit-elevated/50 rounded-xl p-4 border border-gray-700">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user text-gray-400"></i>
+            <div class="bg-faceit-elevated/50 rounded-lg p-3 border border-gray-700">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-gray-400 text-sm"></i>
                     </div>
                     <div>
-                        <div class="font-bold">${player.nickname}</div>
-                        <div class="text-sm text-gray-400">Données non disponibles</div>
+                        <div class="font-bold text-sm">${player.nickname}</div>
+                        <div class="text-xs text-gray-400">Données non disponibles</div>
                     </div>
                 </div>
             </div>
@@ -1210,25 +1411,27 @@ function createAdvancedPlayerCard(player, analysis, teamColor) {
     const avatar = analysis.playerData.avatar || '/images/default-avatar.jpg';
     
     return `
-        <div class="player-card bg-faceit-elevated rounded-xl p-4 border-2 border-${teamColor}-500/30 hover:border-${teamColor}-500/60 transition-all"
+        <div class="player-card bg-faceit-elevated rounded-lg p-3 border-2 border-${teamColor}-500/30 hover:border-${teamColor}-500/60 transition-all"
              onclick="showPlayerDetails('${player.player_id}')">
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-3">
                 <div class="relative">
-                    <img src="${avatar}" alt="${player.nickname}" class="w-16 h-16 rounded-xl">
+                    <img src="${avatar}" alt="${player.nickname}" class="w-12 h-12 rounded-lg">
                     <div class="absolute -top-1 -right-1">
-                        <img src="${getRankIconUrl(impactScore.level)}" class="w-6 h-6" alt="Level ${impactScore.level}">
+                        <img src="${getRankIconUrl(impactScore.level)}" class="w-5 h-5" alt="Level ${impactScore.level}">
                     </div>
                 </div>
                 
                 <div class="flex-1">
-                    <div class="flex items-center space-x-2 mb-2">
-                        <h4 class="font-bold text-white text-lg">${player.nickname}</h4>
+                    <div class="mb-1">
+                        <h4 class="font-bold text-white text-md">${player.nickname}</h4>
+                    </div>
+                    <div class="mb-2">
                         <span class="role-${impactScore.role} text-xs font-semibold px-2 py-1 rounded-full bg-gray-700">
                             ${getRoleDisplayName(impactScore.role)}
                         </span>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
                             <span class="text-gray-400">ELO:</span>
                             <span class="text-faceit-orange font-bold ml-1">${impactScore.elo}</span>
@@ -1249,10 +1452,9 @@ function createAdvancedPlayerCard(player, analysis, teamColor) {
                 </div>
                 
                 <div class="text-center">
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm ${getScoreColorClass(impactScore.score)}">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs ${getScoreColorClass(impactScore.score)}">
                         ${impactScore.score}
                     </div>
-                    <div class="text-xs text-gray-400 mt-1">Score IA</div>
                 </div>
             </div>
         </div>
@@ -1560,4 +1762,4 @@ function showNotification(message, type) {
 window.showPlayerDetails = showPlayerDetails;
 window.togglePlayerSelection = togglePlayerSelection;
 
-console.log('🤖 Match Advanced Analysis chargé - Algorithmes IA complets');
+console.log('🤖 Match Advanced Analysis chargé - Algorithmes IA complets avec analyse des cartes d\'équipe');
