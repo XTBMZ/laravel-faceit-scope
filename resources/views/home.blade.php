@@ -9,7 +9,7 @@
     <div class="absolute inset-0 bg-grid-pattern opacity-10"></div>
     
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div class="mb-8">
+        <div class="mb-8 mt-16">
             <h1 class="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                 Faceit
                 <span class="text-faceit-orange">Scope</span>

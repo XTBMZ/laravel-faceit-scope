@@ -4,12 +4,11 @@
 <!-- Navigation -->
 <nav class="bg-faceit-card/90 backdrop-blur-sm border-b border-gray-800 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
+        <div class="flex items-center justify-between h-20">
             <!-- Logo -->
             <div class="flex items-center">
                 <a href="{{ route('home') }}" class="flex items-center space-x-2">
-                    <i class="fas fa-chart-line text-faceit-orange text-2xl"></i>
-                    <span class="text-xl font-bold">Faceit Scope</span>
+                    <img src="{{ asset('images/logo.png') }}" alt="Faceit Scope Logo" class="h-36 w-36">
                 </a>
             </div>
             
@@ -21,14 +20,11 @@
                         <a href="{{ route('home') }}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('home') ? 'text-white bg-faceit-orange/20' : '' }}">
                             <i class="fas fa-home mr-2"></i>Accueil
                         </a>
-                        <a href="#" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                            <i class="fas fa-users mr-2"></i>Joueurs
+                        <a href="{{ route('friends') }}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('friends') ? 'text-white bg-faceit-orange/20' : '' }}">
+                            <i class="fas fa-user-friends mr-2"></i>Amis
                         </a>
                         <a href="{{ route('comparison') }}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('comparison') ? 'text-white bg-faceit-orange/20' : '' }}">
                             <i class="fas fa-balance-scale mr-2"></i>Comparer
-                        </a>
-                        <a href="{{ route('friends') }}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('friends') ? 'text-white bg-faceit-orange/20' : '' }}">
-                            <i class="fas fa-user-friends mr-2"></i>Amis
                         </a>
                         <a href="{{ route('leaderboards') }}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('leaderboards') ? 'text-white bg-faceit-orange/20' : '' }}">
                             <i class="fas fa-trophy mr-2"></i>Classements
@@ -70,14 +66,11 @@
             <a href="{{ route('home') }}" class="block px-3 py-2 text-gray-300 hover:text-white rounded-md {{ request()->routeIs('home') ? 'text-white bg-faceit-orange/20' : '' }}">
                 <i class="fas fa-home mr-2"></i>Accueil
             </a>
-            <a href="#" class="block px-3 py-2 text-gray-300 hover:text-white rounded-md">
-                <i class="fas fa-users mr-2"></i>Joueurs
+            <a href="{{ route('friends') }}" class="block px-3 py-2 text-gray-300 hover:text-white rounded-md {{ request()->routeIs('friends') ? 'text-white bg-faceit-orange/20' : '' }}">
+                <i class="fas fa-user-friends mr-2"></i>Amis
             </a>
             <a href="{{ route('comparison') }}" class="block px-3 py-2 text-gray-300 hover:text-white rounded-md {{ request()->routeIs('comparison') ? 'text-white bg-faceit-orange/20' : '' }}">
                 <i class="fas fa-balance-scale mr-2"></i>Comparer
-            </a>
-            <a href="{{ route('friends') }}" class="block px-3 py-2 text-gray-300 hover:text-white rounded-md {{ request()->routeIs('friends') ? 'text-white bg-faceit-orange/20' : '' }}">
-                <i class="fas fa-user-friends mr-2"></i>Amis
             </a>
             <a href="{{ route('leaderboards') }}" class="block px-3 py-2 text-gray-300 hover:text-white rounded-md {{ request()->routeIs('leaderboards') ? 'text-white bg-faceit-orange/20' : '' }}">
                 <i class="fas fa-trophy mr-2"></i>Classements
