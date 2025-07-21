@@ -4,285 +4,379 @@
 
 @section('content')
 <!-- Hero Section -->
-<div class="bg-gradient-to-r from-faceit-dark via-gray-900 to-faceit-dark border-b border-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+<div class="relative py-16 overflow-hidden" style="background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);">
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center">
-            <h1 class="text-5xl font-black mb-4 bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
-                <i class="fas fa-trophy text-faceit-orange mr-4"></i>
-                Classements Globaux CS2
+            <h1 class="text-3xl md:text-4xl font-black text-white mb-3">
+                <i class="fas fa-trophy text-faceit-orange mr-2"></i>
+                Classements CS2
             </h1>
-            <p class="text-xl text-gray-300 max-w-2xl mx-auto">
-                Chargement direct via API FACEIT - Données en temps réel
+            <p class="text-gray-400 text-sm">
+                Meilleurs joueurs en temps réel via API FACEIT
             </p>
-            <div class="flex flex-wrap justify-center items-center gap-6 text-gray-400 mt-6">
-                <div class="flex items-center space-x-2">
-                    <i class="fas fa-globe text-faceit-orange"></i>
-                    <span>API directe FACEIT</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <i class="fas fa-chart-line text-blue-400"></i>
-                    <span>Parallélisation ultra-rapide</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <i class="fas fa-users text-green-400"></i>
-                    <span>Toutes les régions</span>
-                </div>
-            </div>
         </div>
     </div>
 </div>
 
 <!-- Main Content -->
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Stats rapides -->
-    <div id="regionStatsSection" class="mb-8">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div class="bg-gradient-to-br from-faceit-card to-faceit-elevated rounded-xl p-6 border border-gray-800">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <div class="text-sm text-gray-400 mb-1">Joueurs analysés</div>
-                        <div id="totalPlayers" class="text-2xl font-bold text-faceit-orange">-</div>
-                    </div>
-                    <div class="w-12 h-12 bg-faceit-orange/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-users text-faceit-orange text-xl"></i>
-                    </div>
+<div style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        
+        <!-- Stats rapides -->
+        <div id="regionStatsSection" class="mb-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="rounded-xl p-4 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
+                    <div class="text-xs text-gray-400 mb-1">Joueurs</div>
+                    <div id="totalPlayers" class="text-lg font-bold text-faceit-orange">-</div>
                 </div>
-            </div>
-            
-            <div class="bg-gradient-to-br from-faceit-card to-faceit-elevated rounded-xl p-6 border border-gray-800">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <div class="text-sm text-gray-400 mb-1">ELO moyen</div>
-                        <div id="averageElo" class="text-2xl font-bold text-blue-400">-</div>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-chart-line text-blue-400 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-gradient-to-br from-faceit-card to-faceit-elevated rounded-xl p-6 border border-gray-800">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <div class="text-sm text-gray-400 mb-1">Pays dominant</div>
-                        <div id="topCountry" class="text-2xl font-bold text-green-400">-</div>
-                    </div>
-                    <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-flag text-green-400 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-gradient-to-br from-faceit-card to-faceit-elevated rounded-xl p-6 border border-gray-800">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <div class="text-sm text-gray-400 mb-1">Niveau populaire</div>
-                        <div id="topLevel" class="text-2xl font-bold text-purple-400">-</div>
-                    </div>
-                    <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-star text-purple-400 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Filtres optimisés -->
-    <div class="bg-gradient-to-br from-faceit-card to-faceit-elevated rounded-2xl p-6 border border-gray-800 mb-8 shadow-2xl">
-        <div class="grid md:grid-cols-5 gap-4">
-            <div>
-                <label class="block text-sm font-semibold text-gray-300 mb-3">
-                    <i class="fas fa-globe text-faceit-orange mr-2"></i>Région
-                </label>
-                <select id="regionSelect" class="w-full px-4 py-3 bg-faceit-elevated/80 border-2 border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-faceit-orange focus:border-faceit-orange transition-all hover:border-gray-600">
-                    <option value="EU">🌍 Europe</option>
-                    <option value="NA">🌎 Amérique du Nord</option>
-                    <option value="SA">🌎 Amérique du Sud</option>
-                    <option value="AS">🌏 Asie</option>
-                    <option value="AF">🌍 Afrique</option>
-                    <option value="OC">🌏 Océanie</option>
-                </select>
-            </div>
-            
-            <div>
-                <label class="block text-sm font-semibold text-gray-300 mb-3">
-                    <i class="fas fa-flag text-blue-400 mr-2"></i>Pays
-                </label>
-                <select id="countrySelect" class="w-full px-4 py-3 bg-faceit-elevated/80 border-2 border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-600">
-                    <option value="">Tous les pays</option>
-                    <option value="FR">🇫🇷 France (FR)</option>
-                    <option value="DE">🇩🇪 Allemagne (DE)</option>
-                    <option value="GB">🇬🇧 Royaume-Uni (GB)</option>
-                    <option value="ES">🇪🇸 Espagne (ES)</option>
-                    <option value="IT">🇮🇹 Italie (IT)</option>
-                    <option value="US">🇺🇸 États-Unis (US)</option>
-                    <option value="CA">🇨🇦 Canada (CA)</option>
-                    <option value="BR">🇧🇷 Brésil (BR)</option>
-                    <option value="RU">🇷🇺 Russie (RU)</option>
-                    <option value="PL">🇵🇱 Pologne (PL)</option>
-                    <option value="SE">🇸🇪 Suède (SE)</option>
-                    <option value="DK">🇩🇰 Danemark (DK)</option>
-                    <option value="NO">🇳🇴 Norvège (NO)</option>
-                    <option value="FI">🇫🇮 Finlande (FI)</option>
-                    <option value="NL">🇳🇱 Pays-Bas (NL)</option>
-                    <option value="BE">🇧🇪 Belgique (BE)</option>
-                    <option value="CH">🇨🇭 Suisse (CH)</option>
-                    <option value="AT">🇦🇹 Autriche (AT)</option>
-                    <option value="CZ">🇨🇿 République tchèque (CZ)</option>
-                    <option value="UA">🇺🇦 Ukraine (UA)</option>
-                    <option value="TR">🇹🇷 Turquie (TR)</option>
-                </select>
-            </div>
-            
-            <div>
-                <label class="block text-sm font-semibold text-gray-300 mb-3">
-                    <i class="fas fa-list text-purple-400 mr-2"></i>Limite
-                </label>
-                <select id="limitSelect" class="w-full px-4 py-3 bg-faceit-elevated/80 border-2 border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all hover:border-gray-600">
-                    <option value="20">Top 20</option>
-                    <option value="50">Top 50</option>
-                    <option value="100">Top 100</option>
-                </select>
-            </div>
-            
-            <div class="flex items-end">
-                <button id="refreshButton" class="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-500 hover:to-gray-600 px-4 py-3 rounded-xl font-semibold transition-all transform hover:scale-105 shadow-lg">
-                    <i class="fas fa-sync-alt mr-2"></i>Actualiser
-                </button>
-            </div>
-            
-            <div class="flex items-end">
-                <button id="toggleSearchButton" class="w-full bg-gradient-to-r from-faceit-orange to-red-500 hover:from-faceit-orange-dark hover:to-red-600 px-4 py-3 rounded-xl font-semibold transition-all transform hover:scale-105 shadow-lg">
-                    <i class="fas fa-search mr-2"></i>Rechercher
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Recherche de joueur -->
-    <div id="playerSearchSection" class="hidden mb-8">
-        <div class="bg-gradient-to-br from-faceit-card to-faceit-elevated rounded-2xl p-6 border border-gray-800 shadow-2xl">
-            <h3 class="text-xl font-bold mb-4 flex items-center">
-                <i class="fas fa-search text-faceit-orange mr-3"></i>
-                Rechercher un joueur dans le classement
-            </h3>
-            <div class="flex space-x-4">
-                <input 
-                    id="playerSearchInput" 
-                    type="text" 
-                    placeholder="Nom du joueur FACEIT..."
-                    class="flex-1 px-4 py-3 bg-faceit-elevated/80 border-2 border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-faceit-orange focus:border-faceit-orange transition-all"
-                >
-                <button id="searchPlayerButton" class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105 shadow-lg">
-                    <i class="fas fa-search mr-2"></i>Rechercher
-                </button>
-            </div>
-            <div id="playerSearchResult" class="mt-4"></div>
-        </div>
-    </div>
-
-    <!-- Loading State optimisé -->
-    <div id="loadingState" class="text-center py-16">
-        <div class="relative">
-            <div class="animate-spin rounded-full h-24 w-24 border-4 border-gray-600 border-t-faceit-orange mx-auto mb-6"></div>
-            <div class="absolute inset-0 flex items-center justify-center">
-                <i class="fas fa-trophy text-faceit-orange text-2xl animate-pulse"></i>
-            </div>
-        </div>
-        <h2 class="text-2xl font-bold mb-4">Chargement...</h2>
-        <p id="loadingProgress" class="text-gray-400 animate-pulse">Connexion directe à l'API FACEIT</p>
-    </div>
-
-    <!-- Error State -->
-    <div id="errorState" class="hidden text-center py-16">
-        <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
-        </div>
-        <h2 class="text-xl font-semibold mb-2 text-red-400">Erreur de chargement</h2>
-        <p id="errorMessage" class="text-gray-400 mb-4">Une erreur est survenue</p>
-        <button onclick="loadLeaderboardOptimized()" class="bg-faceit-orange hover:bg-faceit-orange-dark px-6 py-3 rounded-lg font-medium transition-colors">
-            <i class="fas fa-redo mr-2"></i>Réessayer
-        </button>
-    </div>
-
-    <!-- Classement optimisé -->
-    <div id="leaderboardContainer" class="hidden">
-        <div class="bg-gradient-to-br from-faceit-card to-faceit-elevated rounded-2xl border border-gray-800 overflow-hidden shadow-2xl">
-            <!-- Header -->
-            <div class="px-6 py-6 border-b border-gray-700 bg-gradient-to-r from-faceit-orange/10 via-purple-500/10 to-blue-500/10">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-2xl font-bold flex items-center">
-                        <i class="fas fa-trophy text-faceit-orange mr-3"></i>
-                        <span id="leaderboardTitle">Classement Global</span>
-                    </h2>
-                    <div class="flex items-center space-x-4">
-                        <div class="text-sm text-gray-400">
-                            <i class="fas fa-clock mr-2"></i>
-                            <span id="lastUpdated">Mis à jour maintenant</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Table Header -->
-            <div class="bg-faceit-elevated/80 px-6 py-4 border-b border-gray-700">
-                <div class="grid grid-cols-12 gap-4 text-sm font-semibold text-gray-300">
-                    <div class="col-span-1 text-center">
-                        <i class="fas fa-medal mr-1"></i>Position
-                    </div>
-                    <div class="col-span-4">
-                        <i class="fas fa-user mr-1"></i>Joueur
-                    </div>
-                    <div class="col-span-2 text-center">
-                        <i class="fas fa-fire mr-1"></i>ELO FACEIT
-                    </div>
-                    <div class="col-span-2 text-center">
-                        <i class="fas fa-star mr-1"></i>Niveau
-                    </div>
-                    <div class="col-span-2 text-center">
-                        <i class="fas fa-chart-line mr-1"></i>Stats
-                    </div>
-                    <div class="col-span-1 text-center">Actions</div>
-                </div>
-            </div>
-            
-            <!-- Table Body -->
-            <div id="leaderboardTable" class="divide-y divide-gray-700/50">
-                <!-- Players will be inserted here -->
-            </div>
-            
-            <!-- Pagination -->
-            <div class="px-6 py-4 border-t border-gray-700 flex justify-between items-center bg-faceit-elevated/50">
-                <button id="prevPageButton" class="bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105 disabled:hover:scale-100 shadow-lg flex items-center" disabled>
-                    <i class="fas fa-chevron-left mr-2"></i>Précédent
-                </button>
                 
-                <div class="flex items-center space-x-6">
-                    <div class="flex items-center space-x-2">
-                        <i class="fas fa-file-alt text-gray-400"></i>
-                        <span id="pageInfo" class="text-gray-300 font-semibold">Page 1</span>
+                <div class="rounded-xl p-4 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
+                    <div class="text-xs text-gray-400 mb-1">ELO moyen</div>
+                    <div id="averageElo" class="text-lg font-bold text-blue-400">-</div>
+                </div>
+                
+                <div class="rounded-xl p-4 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
+                    <div class="text-xs text-gray-400 mb-1">Pays</div>
+                    <div id="topCountry" class="text-lg font-bold text-green-400">-</div>
+                </div>
+
+                <div class="rounded-xl p-4 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
+                    <div class="text-xs text-gray-400 mb-1">Niveau</div>
+                    <div id="topLevel" class="text-lg font-bold text-purple-400">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Filtres -->
+        <div class="mb-8">
+            <div class="rounded-xl p-6 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
+                <div class="grid md:grid-cols-5 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-white mb-2">Région</label>
+                        <select id="regionSelect" class="w-full px-3 py-2 bg-faceit-elevated border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-faceit-orange">
+                            <option value="EU">🌍 Europe</option>
+                            <option value="NA">🌎 Amérique du Nord</option>
+                            <option value="SA">🌎 Amérique du Sud</option>
+                            <option value="AS">🌏 Asie</option>
+                            <option value="AF">🌍 Afrique</option>
+                            <option value="OC">🌏 Océanie</option>
+                        </select>
                     </div>
-                    <div class="text-sm text-gray-500">
-                        <i class="fas fa-users mr-1"></i>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-white mb-2">Pays</label>
+                        <select id="countrySelect" class="w-full px-3 py-2 bg-faceit-elevated border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="">Tous</option>
+                            <option value="FR">🇫🇷 France</option>
+                            <option value="DE">🇩🇪 Allemagne</option>
+                            <option value="GB">🇬🇧 Royaume-Uni</option>
+                            <option value="ES">🇪🇸 Espagne</option>
+                            <option value="IT">🇮🇹 Italie</option>
+                            <option value="US">🇺🇸 États-Unis</option>
+                            <option value="CA">🇨🇦 Canada</option>
+                            <option value="BR">🇧🇷 Brésil</option>
+                            <option value="RU">🇷🇺 Russie</option>
+                            <option value="PL">🇵🇱 Pologne</option>
+                            <option value="SE">🇸🇪 Suède</option>
+                            <option value="DK">🇩🇰 Danemark</option>
+                            <option value="NO">🇳🇴 Norvège</option>
+                            <option value="FI">🇫🇮 Finlande</option>
+                            <option value="NL">🇳🇱 Pays-Bas</option>
+                            <option value="BE">🇧🇪 Belgique</option>
+                            <option value="CH">🇨🇭 Suisse</option>
+                            <option value="AT">🇦🇹 Autriche</option>
+                            <option value="CZ">🇨🇿 République tchèque</option>
+                            <option value="UA">🇺🇦 Ukraine</option>
+                            <option value="TR">🇹🇷 Turquie</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-white mb-2">Limite</label>
+                        <select id="limitSelect" class="w-full px-3 py-2 bg-faceit-elevated border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500">
+                            <option value="20">Top 20</option>
+                            <option value="50">Top 50</option>
+                            <option value="100">Top 100</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-end">
+                        <button id="refreshButton" class="w-full bg-gray-600 hover:bg-gray-500 px-3 py-2 rounded-lg text-sm font-medium transition-all">
+                            <i class="fas fa-sync-alt mr-2"></i>Actualiser
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-end">
+                        <button id="toggleSearchButton" class="w-full bg-faceit-orange hover:bg-faceit-orange-dark px-3 py-2 rounded-lg text-sm font-medium transition-all">
+                            <i class="fas fa-search mr-2"></i>Rechercher
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recherche de joueur -->
+        <div id="playerSearchSection" class="hidden mb-8">
+            <div class="rounded-xl p-6 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
+                <h3 class="text-lg font-bold mb-4 flex items-center justify-center">
+                    <i class="fas fa-search text-faceit-orange mr-2"></i>
+                    Rechercher un joueur
+                </h3>
+                <div class="flex space-x-4">
+                    <input 
+                        id="playerSearchInput" 
+                        type="text" 
+                        placeholder="Nom du joueur FACEIT..."
+                        class="flex-1 px-4 py-2 bg-faceit-elevated border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-faceit-orange"
+                    >
+                    <button id="searchPlayerButton" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg font-medium transition-all">
+                        <i class="fas fa-search mr-2"></i>Rechercher
+                    </button>
+                </div>
+                <div id="playerSearchResult" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-16">
+            <div class="relative mb-8">
+                <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-600 border-t-faceit-orange mx-auto"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <i class="fas fa-trophy text-faceit-orange text-lg"></i>
+                </div>
+            </div>
+            <h2 class="text-xl font-bold text-white mb-4">Chargement...</h2>
+            <p id="loadingProgress" class="text-gray-400 animate-pulse mb-6">Connexion à l'API FACEIT</p>
+            
+            <div class="max-w-sm mx-auto">
+                <div class="bg-gray-800 rounded-full h-2 overflow-hidden border border-gray-700">
+                    <div id="progressBar" class="bg-gradient-to-r from-faceit-orange via-blue-500 to-purple-500 h-full transition-all duration-500" style="width: 25%"></div>
+                </div>
+                <div class="mt-2 text-xs text-gray-500" id="progressDetails">Chargement...</div>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="hidden text-center py-16">
+            <div class="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle text-red-400 text-lg"></i>
+            </div>
+            <h2 class="text-lg font-bold text-white mb-2">Erreur de chargement</h2>
+            <p id="errorMessage" class="text-gray-400 mb-4">Une erreur est survenue</p>
+            <button onclick="loadLeaderboardOptimized()" class="bg-faceit-orange hover:bg-faceit-orange-dark px-4 py-2 rounded-lg font-medium transition-all">
+                <i class="fas fa-redo mr-2"></i>Réessayer
+            </button>
+        </div>
+
+        <!-- Section Classement -->
+        <div id="leaderboardContainer" class="hidden">
+            <div class="text-center mb-6">
+                <h2 class="text-xl font-bold text-white mb-2">
+                    <span id="leaderboardTitle">Classement Global</span>
+                </h2>
+                <div class="text-sm text-gray-400">
+                    <i class="fas fa-clock mr-1"></i>
+                    <span id="lastUpdated">Mis à jour maintenant</span>
+                </div>
+            </div>
+            
+            <div class="rounded-xl border border-gray-700 overflow-hidden" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
+                <!-- Table Header -->
+                <div class="px-4 py-3 border-b border-gray-700 bg-faceit-elevated/50">
+                    <div class="grid grid-cols-12 gap-4 text-sm font-medium text-gray-300">
+                        <div class="col-span-1 text-center">#</div>
+                        <div class="col-span-3">Joueur</div>
+                        <div class="col-span-2 text-center"></div>
+                        <div class="col-span-2 text-center">ELO</div>
+                        <div class="col-span-2 text-center">Niveau</div>
+                        <div class="col-span-1 text-center">Forme</div>
+                        <div class="col-span-1 text-center">Actions</div>
+                    </div>
+                </div>
+                
+                <!-- Table Body -->
+                <div id="leaderboardTable" class="divide-y divide-gray-700/50">
+                    <!-- Players will be inserted here -->
+                </div>
+                
+                <!-- Pagination -->
+                <div class="px-4 py-3 border-t border-gray-700 flex justify-between items-center bg-faceit-elevated/50">
+                    <button id="prevPageButton" class="bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center" disabled>
+                        <i class="fas fa-chevron-left mr-2"></i>Précédent
+                    </button>
+                    
+                    <div class="flex items-center space-x-4 text-sm text-gray-400">
+                        <span id="pageInfo" class="text-white font-medium">Page 1</span>
                         <span id="playerCount">Joueurs 1-20</span>
                     </div>
+                    
+                    <button id="nextPageButton" class="bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center">
+                        Suivant<i class="fas fa-chevron-right ml-2"></i>
+                    </button>
                 </div>
-                
-                <button id="nextPageButton" class="bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105 disabled:hover:scale-100 shadow-lg flex items-center">
-                    Suivant<i class="fas fa-chevron-right ml-2"></i>
-                </button>
             </div>
         </div>
-    </div>
-
-    <!-- Load More Button pour affichage progressif -->
-    <div id="loadMoreContainer" class="hidden text-center mt-8">
-        <button id="loadMoreButton" class="bg-gray-700 hover:bg-gray-600 px-8 py-3 rounded-xl font-medium transition-colors">
-            <i class="fas fa-plus mr-2"></i>Charger plus de joueurs
-        </button>
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    /* Grid Pattern Background */
+    .bg-grid-pattern {
+        background-image: 
+            linear-gradient(rgba(255, 85, 0, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 85, 0, 0.1) 1px, transparent 1px);
+        background-size: 40px 40px;
+        background-position: 0 0, 0 0;
+        animation: grid-move 20s linear infinite;
+    }
+    
+    @keyframes grid-move {
+        0% { background-position: 0 0, 0 0; }
+        100% { background-position: 40px 40px, 40px 40px; }
+    }
+
+    /* Cards Hover Effects */
+    .card-hover {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .card-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px rgba(255, 85, 0, 0.1);
+    }
+
+    /* Leaderboard Row Animations */
+    .leaderboard-row {
+        transition: all 0.3s ease;
+    }
+    
+    .leaderboard-row:hover {
+        background: rgba(255, 85, 0, 0.05) !important;
+        border-left: 4px solid #ff5500 !important;
+        transform: translateX(4px);
+    }
+
+    /* Winner Badge Animation */
+    .winner-badge {
+        animation: winner-pulse 2s ease-in-out infinite;
+        background: linear-gradient(135deg, #10b981, #059669) !important;
+    }
+    
+    @keyframes winner-pulse {
+        0%, 100% { 
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+            transform: scale(1);
+        }
+        50% { 
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.7);
+            transform: scale(1.05);
+        }
+    }
+
+    /* Form Colors */
+    .confidence-high { 
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.15);
+        padding: 0.5rem 1rem;
+        border-radius: 1.5rem;
+        font-weight: 600;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .confidence-moderate { 
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.15);
+        padding: 0.5rem 1rem;
+        border-radius: 1.5rem;
+        font-weight: 600;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .confidence-low { 
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.15);
+        padding: 0.5rem 1rem;
+        border-radius: 1.5rem;
+        font-weight: 600;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* Search Results Animation */
+    .animate-scale-in {
+        animation: scale-in 0.5s ease-out;
+    }
+    
+    @keyframes scale-in {
+        0% {
+            transform: scale(0.9);
+            opacity: 0;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .animate-slide-up {
+        animation: slide-up 0.5s ease-out;
+    }
+    
+    @keyframes slide-up {
+        0% {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        100% {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .animate-shake {
+        animation: shake 0.5s ease-in-out;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+
+    /* Pulse Orange Animation */
+    .animate-pulse-orange {
+        animation: pulse-orange 2s infinite;
+    }
+    
+    @keyframes pulse-orange {
+        0%, 100% {
+            color: #ff5500;
+            text-shadow: 0 0 10px rgba(255, 85, 0, 0.5);
+        }
+        50% {
+            color: #ff7733;
+            text-shadow: 0 0 20px rgba(255, 85, 0, 0.8);
+        }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #1a1a1a;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #404040;
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #ff5500;
+    }
+</style>
+@endpush
 
 @push('scripts')
 <script>
@@ -685,13 +779,13 @@ function setupEventListeners() {
     const refreshButton = document.getElementById('refreshButton');
     if (refreshButton) {
         refreshButton.addEventListener('click', function() {
-            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Actualisation...';
+            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i>Actualisation...';
             this.disabled = true;
             
             clearAllCaches();
             currentOffset = 0;
             loadLeaderboardOptimized().finally(() => {
-                this.innerHTML = '<i class="fas fa-sync-alt mr-2"></i>Actualiser';
+                this.innerHTML = '<i class="fas fa-sync-alt mr-3"></i>Actualiser';
                 this.disabled = false;
             });
         });
@@ -753,13 +847,13 @@ async function handlePlayerSearch() {
     }
     
     const originalText = searchButton.innerHTML;
-    searchButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Recherche...';
+    searchButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i>Recherche...';
     searchButton.disabled = true;
     
     searchResult.innerHTML = `
-        <div class="flex items-center justify-center py-4 bg-faceit-elevated/50 rounded-lg">
-            <i class="fas fa-spinner fa-spin text-faceit-orange mr-2"></i>
-            <span class="text-gray-300">Recherche ultra-rapide de ${playerName}...</span>
+        <div class="flex items-center justify-center py-8 rounded-2xl border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
+            <i class="fas fa-spinner fa-spin text-faceit-orange mr-3 text-xl"></i>
+            <span class="text-gray-300 text-lg">Recherche ultra-rapide de ${playerName}...</span>
         </div>
     `;
     
@@ -792,40 +886,37 @@ function displayPlayerSearchResult(player) {
     const formConfig = getFormConfig(recentForm);
     
     searchResult.innerHTML = `
-        <div class="bg-gradient-to-r from-faceit-elevated to-faceit-card rounded-xl p-6 border border-gray-700 shadow-lg animate-scale-in">
+        <div class="rounded-xl p-6 border border-gray-700 animate-scale-in" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
                     <div class="relative">
                         <img src="${avatar}" alt="Avatar" 
-                             class="w-16 h-16 rounded-xl border-2 border-faceit-orange shadow-lg transition-transform hover:scale-110" 
+                             class="w-12 h-12 rounded-xl border-2 border-faceit-orange shadow-lg" 
                              onerror="this.src='${getDefaultAvatar(player.nickname)}'"
                              loading="lazy">
-                        <div class="absolute -bottom-2 -right-2 bg-faceit-orange rounded-full p-1">
-                            <img src="${getRankIconUrl(level)}" alt="Rank" class="w-6 h-6">
+                        <div class="absolute -bottom-1 -right-1 bg-faceit-orange rounded-full p-1">
+                            <img src="https://cdn-frontend.faceit.com/web/960/src/app/assets/images-compress/skill-icons/skill_level_${level}_svg.svg" alt="Rank" class="w-4 h-4">
                         </div>
                     </div>
                     <div>
-                        <h4 class="text-xl font-bold text-white">${player.nickname}</h4>
-                        <div class="flex items-center space-x-3 text-sm text-gray-400 mt-1">
-                            <div class="flex items-center space-x-1">
-                                <img src="${getCountryFlagUrl(country)}" alt="${country}" class="w-4 h-4">
-                                <span>${getCountryName(country) || country}</span>
-                            </div>
+                        <h4 class="text-lg font-bold text-white">${player.nickname}</h4>
+                        <div class="flex items-center space-x-2 text-sm text-gray-400">
+                            <img src="${getCountryFlagUrl(country)}" alt="${country}" class="w-4 h-4">
+                            <span>${getCountryName(country) || country}</span>
                             <span>•</span>
-                            <span class="${getRankColor(level)} font-semibold">${formatNumber(elo)} ELO</span>
+                            <span class="${getRankColor(level)} font-medium">${formatNumber(elo)} ELO</span>
                         </div>
-                        <div class="grid grid-cols-3 gap-4 mt-3">
+                        <div class="grid grid-cols-3 gap-3 mt-2">
                             <div class="text-center p-2 bg-black/20 rounded-lg">
-                                <div class="text-sm font-semibold text-blue-400">${winRate}%</div>
-                                <div class="text-xs text-gray-500">Win Rate</div>
+                                <div class="text-sm font-medium text-blue-400">${winRate}%</div>
+                                <div class="text-xs text-gray-500">WR</div>
                             </div>
                             <div class="text-center p-2 bg-black/20 rounded-lg">
-                                <div class="text-sm font-semibold text-green-400">${kdRatio}</div>
-                                <div class="text-xs text-gray-500">K/D Ratio</div>
+                                <div class="text-sm font-medium text-green-400">${kdRatio}</div>
+                                <div class="text-xs text-gray-500">K/D</div>
                             </div>
                             <div class="text-center p-2 bg-black/20 rounded-lg">
-                                <div class="px-2 py-1 rounded-full text-xs font-semibold ${formConfig.class}">
-                                    <i class="${formConfig.icon} mr-1"></i>
+                                <div class="px-2 py-1 rounded-full text-xs font-medium ${formConfig.class}">
                                     ${formConfig.text}
                                 </div>
                             </div>
@@ -834,21 +925,20 @@ function displayPlayerSearchResult(player) {
                 </div>
                 
                 <div class="text-right">
-                    <div class="text-3xl font-black text-faceit-orange animate-pulse-orange">
+                    <div class="text-2xl font-black text-faceit-orange">
                         ${position !== 'N/A' ? '#' + formatNumber(position) : 'N/A'}
                     </div>
                     <div class="text-sm text-gray-400">Position ${currentRegion}</div>
-                    ${position !== 'N/A' && position <= 100 ? '<div class="text-xs text-green-400 mt-1"><i class="fas fa-star mr-1"></i>Top 100</div>' : ''}
                 </div>
                 
-                <div class="flex flex-col space-y-2">
+                <div class="flex space-x-2">
                     <button onclick="navigateToPlayer('${player.player_id}')" 
-                            class="bg-gradient-to-r from-faceit-orange to-red-500 hover:from-faceit-orange-dark hover:to-red-600 px-4 py-2 rounded-lg text-sm font-semibold transition-all transform hover:scale-105 shadow-lg">
-                        <i class="fas fa-chart-line mr-2"></i>Statistiques
+                            class="bg-faceit-orange hover:bg-faceit-orange-dark px-3 py-2 rounded-lg text-sm font-medium transition-all">
+                        <i class="fas fa-chart-line mr-1"></i>Stats
                     </button>
                     <button onclick="navigateToComparison('${encodeURIComponent(player.nickname)}')" 
-                            class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 px-4 py-2 rounded-lg text-sm font-semibold transition-all transform hover:scale-105 shadow-lg">
-                        <i class="fas fa-balance-scale mr-2"></i>Comparer
+                            class="bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-lg text-sm font-medium transition-all">
+                        <i class="fas fa-balance-scale mr-1"></i>Comparer
                     </button>
                 </div>
             </div>
@@ -905,7 +995,7 @@ function displayLeaderboardOptimized() {
 
 function createOptimizedPlayerRow(player, index) {
     const row = document.createElement('div');
-    row.className = 'leaderboard-row px-6 py-4 transition-all duration-300 hover:bg-faceit-elevated/50 border-l-4 border-transparent hover:border-faceit-orange cursor-pointer';
+    row.className = 'leaderboard-row px-4 py-3 transition-all duration-300 hover:bg-faceit-elevated/50 border-l-4 border-transparent cursor-pointer';
     
     const position = player.position;
     const avatar = player.avatar || getDefaultAvatar(player.nickname);
@@ -926,15 +1016,15 @@ function createOptimizedPlayerRow(player, index) {
     
     if (position === 1) {
         positionClass = 'text-yellow-400';
-        positionIcon = '<i class="fas fa-crown text-yellow-400 mr-2 animate-bounce"></i>';
+        positionIcon = '<i class="fas fa-crown text-yellow-400 mr-3 animate-bounce"></i>';
         rowClass = 'bg-gradient-to-r from-yellow-500/10 to-transparent';
     } else if (position === 2) {
         positionClass = 'text-gray-300';
-        positionIcon = '<i class="fas fa-medal text-gray-300 mr-2"></i>';
+        positionIcon = '<i class="fas fa-medal text-gray-300 mr-3"></i>';
         rowClass = 'bg-gradient-to-r from-gray-500/10 to-transparent';
     } else if (position === 3) {
         positionClass = 'text-orange-400';
-        positionIcon = '<i class="fas fa-medal text-orange-400 mr-2"></i>';
+        positionIcon = '<i class="fas fa-medal text-orange-400 mr-3"></i>';
         rowClass = 'bg-gradient-to-r from-orange-500/10 to-transparent';
     }
     
@@ -952,79 +1042,74 @@ function createOptimizedPlayerRow(player, index) {
                 </span>
             </div>
             
-            <div class="col-span-4 flex items-center space-x-4">
+            <div class="col-span-3 flex items-center space-x-3">
                 <div class="relative">
                     <img src="${avatar}" alt="Avatar" 
-                         class="w-12 h-12 rounded-lg border-2 border-gray-600 hover:border-faceit-orange transition-all duration-300 shadow-lg" 
+                         class="w-10 h-10 rounded-lg border border-gray-600 hover:border-faceit-orange transition-all" 
                          onerror="this.src='${getDefaultAvatar(nickname)}'"
                          loading="lazy">
-                    <div class="absolute -bottom-1 -right-1 bg-faceit-orange rounded-full p-1">
-                        <img src="${getRankIconUrl(level)}" alt="Rank" class="w-4 h-4" loading="lazy">
-                    </div>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <div class="font-bold text-white hover:text-faceit-orange transition-colors truncate" 
+                    <div class="font-medium text-white hover:text-faceit-orange transition-colors truncate text-sm" 
                          title="${nickname}">
                         ${nickname}
                     </div>
-                    <div class="flex items-center space-x-2 text-sm text-gray-400 mt-1">
-                        <img src="${getCountryFlagUrl(country)}" alt="${country}" class="w-4 h-4" 
+                    <div class="flex items-center space-x-2 text-xs text-gray-400">
+                        <img src="${getCountryFlagUrl(country)}" alt="${country}" class="w-3 h-3" 
                              onerror="this.style.display='none'" loading="lazy">
-                        <span class="truncate">${getCountryName(country) || country}</span>
                     </div>
-                </div>
-            </div>
-            
-            <div class="col-span-2 text-center">
-                <div class="flex items-center justify-center space-x-2">
-                    <i class="fas fa-fire text-faceit-orange"></i>
-                    <span class="text-lg font-bold text-faceit-orange">${formatNumber(elo)}</span>
-                </div>
-                <div class="text-xs text-gray-500 mt-1">ELO officiel</div>
-            </div>
-            
-            <div class="col-span-2 text-center">
-                <div class="flex items-center justify-center space-x-2">
-                    <img src="${getRankIconUrl(level)}" alt="Rank" class="w-6 h-6" 
-                         onerror="this.style.display='none'" loading="lazy">
-                    <span class="${getRankColor(level)} font-semibold">Niveau ${level}</span>
                 </div>
             </div>
             
             <div class="col-span-2 text-center">
                 ${winRate > 0 || kdRatio > 0 ? `
-                    <div class="grid grid-cols-2 gap-2">
-                        <div class="text-xs">
+                    <div class="grid grid-cols-2 gap-1 text-xs">
+                        <div>
                             <span class="text-gray-500">WR:</span>
-                            <span class="text-blue-400 font-semibold">${winRate}%</span>
+                            <div class="text-blue-400 font-medium">${winRate}%</div>
                         </div>
-                        <div class="text-xs">
+                        <div>
                             <span class="text-gray-500">K/D:</span>
-                            <span class="text-green-400 font-semibold">${kdRatio}</span>
+                            <div class="text-green-400 font-medium">${kdRatio}</div>
                         </div>
-                    </div>
-                    <div class="flex items-center justify-center mt-1">
-                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${formConfig.class}">
-                            <i class="${formConfig.icon} mr-1"></i>
-                            ${formConfig.text}
-                        </span>
                     </div>
                 ` : `
                     <div class="text-xs text-gray-500">
                         <i class="fas fa-lock mr-1"></i>
-                        Données privées
+                        Privé
                     </div>
                 `}
             </div>
             
+            <div class="col-span-2 text-center">
+                <div class="flex items-center justify-center space-x-1">
+                    <i class="fas fa-fire text-faceit-orange text-xs"></i>
+                    <span class="text-lg font-bold text-faceit-orange">${formatNumber(elo)}</span>
+                </div>
+            </div>
+            
+            <div class="col-span-2 text-center">
+                <div class="flex items-center justify-center space-x-2">
+                    <img src="https://cdn-frontend.faceit.com/web/960/src/app/assets/images-compress/skill-icons/skill_level_${level}_svg.svg" alt="Rank" class="w-5 h-5" 
+                         onerror="this.style.display='none'" loading="lazy">
+                    <span class="${getRankColor(level)} font-medium text-sm">Lvl ${level}</span>
+                </div>
+            </div>
+            
             <div class="col-span-1 text-center">
                 <div class="flex justify-center">
-                    <button onclick="event.stopPropagation(); navigateToPlayer('${playerId}')" 
-                            class="bg-gradient-to-r from-faceit-orange to-red-500 hover:from-faceit-orange-dark hover:to-red-600 p-2 rounded-lg text-sm transition-all transform hover:scale-110 shadow-lg"
-                            title="Voir les statistiques">
-                        <i class="fas fa-chart-line"></i>
-                    </button>
+                    <span class="px-2 py-0.5 rounded-full text-xs font-medium ${formConfig.class}">
+                        ${formConfig.text}
+                    </span>
                 </div>
+            </div>
+            
+            <div class="col-span-1 text-center">
+                <button onclick="event.stopPropagation(); navigateToPlayer('${playerId}')" 
+                        class="bg-faceit-orange hover:bg-faceit-orange-dark p-1.5 rounded-lg text-xs transition-all"
+                        title="Voir les statistiques">
+                    <i class="fas fa-chart-line"></i>
+                </button>
             </div>
         </div>
     `;
@@ -1151,7 +1236,7 @@ function calculateRegionStats() {
     
     const topCountryEl = document.getElementById('topCountry');
     if (topCountryEl) {
-        topCountryEl.textContent = getCountryName(topCountry) || topCountry;
+        topCountryEl.innerHTML = `<img src="${getCountryFlagUrl(topCountry)}" alt="${topCountry}" class="w-4 h-4 inline mr-1" onerror="this.style.display='none'"> ${getCountryName(topCountry) || topCountry}`;    
     }
     
     const topLevelEl = document.getElementById('topLevel');
@@ -1189,7 +1274,7 @@ function toggleSearchSection() {
     if (searchSectionVisible) {
         searchSection.classList.remove('hidden');
         searchSection.classList.add('animate-slide-up');
-        toggleButton.innerHTML = '<i class="fas fa-times mr-2"></i>Fermer';
+        toggleButton.innerHTML = '<i class="fas fa-times mr-3"></i>Fermer';
         toggleButton.classList.remove('from-faceit-orange', 'to-red-500');
         toggleButton.classList.add('from-gray-600', 'to-gray-700');
         
@@ -1200,7 +1285,7 @@ function toggleSearchSection() {
     } else {
         searchSection.classList.add('hidden');
         searchSection.classList.remove('animate-slide-up');
-        toggleButton.innerHTML = '<i class="fas fa-search mr-2"></i>Rechercher';
+        toggleButton.innerHTML = '<i class="fas fa-search mr-3"></i>Rechercher';
         toggleButton.classList.add('from-faceit-orange', 'to-red-500');
         toggleButton.classList.remove('from-gray-600', 'to-gray-700');
         
@@ -1227,10 +1312,10 @@ function handleSearchError(error, playerName, searchResult) {
     }
     
     searchResult.innerHTML = `
-        <div class="${errorClass} rounded-xl p-4 backdrop-blur-sm animate-shake">
+        <div class="${errorClass} rounded-2xl p-6 backdrop-blur-sm animate-shake border">
             <div class="flex items-center">
-                <i class="${errorIcon} mr-3"></i>
-                <span class="text-white">${errorMessage}</span>
+                <i class="${errorIcon} mr-4 text-xl"></i>
+                <span class="text-white text-lg">${errorMessage}</span>
             </div>
         </div>
     `;
@@ -1240,10 +1325,10 @@ function showSearchError(message) {
     const searchResult = document.getElementById('playerSearchResult');
     if (searchResult) {
         searchResult.innerHTML = `
-            <div class="bg-red-500/20 border-red-500/50 rounded-xl p-4">
+            <div class="bg-red-500/20 border-red-500/50 rounded-2xl p-6 border">
                 <div class="flex items-center">
-                    <i class="fas fa-exclamation-triangle text-red-400 mr-3"></i>
-                    <span class="text-white">${message}</span>
+                    <i class="fas fa-exclamation-triangle text-red-400 mr-4 text-xl"></i>
+                    <span class="text-white text-lg">${message}</span>
                 </div>
             </div>
         `;
@@ -1315,8 +1400,64 @@ function getRegionName(region) {
     return regions[region] || region;
 }
 
+function getCountryName(countryCode) {
+    const countries = {
+        'FR': 'France',
+        'DE': 'Allemagne',
+        'GB': 'Royaume-Uni',
+        'ES': 'Espagne',
+        'IT': 'Italie',
+        'US': 'États-Unis',
+        'CA': 'Canada',
+        'BR': 'Brésil',
+        'RU': 'Russie',
+        'PL': 'Pologne',
+        'SE': 'Suède',
+        'DK': 'Danemark',
+        'NO': 'Norvège',
+        'FI': 'Finlande',
+        'NL': 'Pays-Bas',
+        'BE': 'Belgique',
+        'CH': 'Suisse',
+        'AT': 'Autriche',
+        'CZ': 'République tchèque',
+        'UA': 'Ukraine',
+        'TR': 'Turquie'
+    };
+    return countries[countryCode] || countryCode;
+}
+
 function getDefaultAvatar(nickname) {
     return '/images/default-avatar.jpg';
+}
+
+function getCountryFlagUrl(country) {
+    return `https://flagcdn.com/24x18/${country.toLowerCase()}.png`;
+}
+
+function getRankColor(level) {
+    const colors = {
+        1: 'text-gray-400',
+        2: 'text-gray-300',
+        3: 'text-yellow-600',
+        4: 'text-yellow-500',
+        5: 'text-yellow-400',
+        6: 'text-orange-500',
+        7: 'text-orange-400',
+        8: 'text-red-500',
+        9: 'text-red-400',
+        10: 'text-red-300'
+    };
+    return colors[level] || 'text-gray-400';
+}
+
+function formatNumber(num) {
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
 }
 
 // Export global des fonctions
