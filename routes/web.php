@@ -11,12 +11,15 @@ use App\Http\Controllers\Auth\FaceitAuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FriendsController;
 use App\Http\Controllers\ExtensionController;
+use App\Http\Controllers\AboutController;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 */
+
+Route::get('/about', [AboutController::class, 'index'])->name('about');
 
 Route::middleware(['cors'])->group(function () {
     
