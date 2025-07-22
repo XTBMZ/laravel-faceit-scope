@@ -410,16 +410,16 @@ function displayStats(stats) {
     const recentPercentage = stats.total > 0 ? Math.round((stats.recent / stats.total) * 100) : 0;
 
     statsContainer.innerHTML = `
-        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800">
-            <div class="flex items-center mb-2">
+        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800 text-center">
+            <div class="flex items-center justify-center mb-2">
                 <i class="fas fa-users text-blue-400 mr-2"></i>
                 <span class="text-sm text-gray-400">Total</span>
             </div>
             <div class="text-2xl font-bold">${stats.total}</div>
         </div>
         
-        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800">
-            <div class="flex items-center mb-2">
+        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800 text-center">
+            <div class="flex items-center justify-center mb-2">
                 <i class="fas fa-clock text-green-400 mr-2"></i>
                 <span class="text-sm text-gray-400">Actifs (7j)</span>
             </div>
@@ -427,16 +427,16 @@ function displayStats(stats) {
             <div class="text-xs text-gray-500">${recentPercentage}%</div>
         </div>
         
-        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800">
-            <div class="flex items-center mb-2">
+        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800 text-center">
+            <div class="flex items-center justify-center mb-2">
                 <i class="fas fa-chart-line text-faceit-orange mr-2"></i>
                 <span class="text-sm text-gray-400">ELO Moyen</span>
             </div>
             <div class="text-2xl font-bold text-faceit-orange">${stats.average_elo}</div>
         </div>
         
-        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800">
-            <div class="flex items-center mb-2">
+        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800 text-center">
+            <div class="flex items-center justify-center mb-2">
                 <i class="fas fa-crown text-yellow-400 mr-2"></i>
                 <span class="text-sm text-gray-400">Meilleur</span>
             </div>
@@ -598,12 +598,11 @@ function createFriendCard(friend) {
             
             <div class="flex items-center justify-center space-x-2 mb-2">
                 ${friend.country ? `<img src="${getCountryFlagUrl(friend.country)}" alt="${friend.country}" class="w-3 h-3">` : ''}
-                <span class="text-xs text-gray-400">Level ${friend.skill_level}</span>
+                <span class="text-xs text-faceit-orange">${friend.skill_level}</span>
             </div>
             
             <div class="space-y-2">
                 <div class="text-lg font-bold text-faceit-orange">${formatNumber(friend.faceit_elo)}</div>
-                <div class="text-xs text-${friend.rank_info.color}">${friend.rank_info.name}</div>
                 <div class="text-xs text-gray-500">${friend.last_activity.text}</div>
             </div>
         </div>
@@ -632,7 +631,7 @@ function createFriendListItem(friend) {
                     ${friend.country ? `<img src="${getCountryFlagUrl(friend.country)}" alt="${friend.country}" class="w-4 h-4">` : ''}
                 </div>
                 <div class="text-sm text-gray-400">
-                    Level ${friend.skill_level} • ${friend.last_activity.text}
+                    ${friend.skill_level} • ${friend.last_activity.text}
                 </div>
             </div>
             
@@ -680,7 +679,6 @@ function showFriendDetails(friend) {
                             <span>${getCountryName(friend.country)}</span>
                         </div>
                     ` : ''}
-                    <span>Level ${friend.skill_level}</span>
                 </div>
             </div>
             
