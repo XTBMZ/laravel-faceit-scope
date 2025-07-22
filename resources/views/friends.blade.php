@@ -598,7 +598,6 @@ function createFriendCard(friend) {
             
             <div class="flex items-center justify-center space-x-2 mb-2">
                 ${friend.country ? `<img src="${getCountryFlagUrl(friend.country)}" alt="${friend.country}" class="w-3 h-3">` : ''}
-                <span class="text-xs text-faceit-orange">${friend.skill_level}</span>
             </div>
             
             <div class="space-y-2">
@@ -631,7 +630,7 @@ function createFriendListItem(friend) {
                     ${friend.country ? `<img src="${getCountryFlagUrl(friend.country)}" alt="${friend.country}" class="w-4 h-4">` : ''}
                 </div>
                 <div class="text-sm text-gray-400">
-                    ${friend.skill_level} • ${friend.last_activity.text}
+                    ${friend.last_activity.text}
                 </div>
             </div>
             
@@ -676,7 +675,6 @@ function showFriendDetails(friend) {
                     ${friend.country ? `
                         <div class="flex items-center space-x-1">
                             <img src="${getCountryFlagUrl(friend.country)}" alt="${friend.country}" class="w-4 h-4">
-                            <span>${getCountryName(friend.country)}</span>
                         </div>
                     ` : ''}
                 </div>
