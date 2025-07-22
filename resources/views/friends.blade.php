@@ -160,8 +160,8 @@
 @push('scripts')
 <script>
 /**
- * Friends.js OPTIMISÉ - Chargement progressif des amis
- * Affiche les 20 premiers rapidement, puis charge le reste en arrière-plan
+ * Friends.js OPTIMISÉ - Chargement de tous les amis en parallèle
+ * Tous les appels API sont faits simultanément pour un chargement plus rapide
  */
 
 // Configuration API
@@ -178,7 +178,6 @@ let currentPage = 1;
 const friendsPerPage = 20;
 let currentViewMode = 'grid';
 let isLoading = false;
-let isLoadingMore = false; // Nouvelle variable pour le chargement en arrière-plan
 
 // Cache
 const cache = new Map();
@@ -186,7 +185,7 @@ const CACHE_DURATION = 5 * 60 * 1000;
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Friends Progressive Loading chargé');
+    console.log('🚀 Friends All-at-once Loading chargé');
     setupEventListeners();
     loadFriends();
 });
@@ -321,7 +320,7 @@ function getRankInfo(skillLevel) {
     return ranks[skillLevel] || ranks[1];
 }
 
-// ===== CHARGEMENT PROGRESSIF =====
+// ===== CHARGEMENT PRINCIPAL =====
 
 async function loadFriends() {
     if (isLoading) return;
@@ -354,26 +353,28 @@ async function loadFriends() {
         const friendIds = playerData.friends_ids;
         console.log(`📋 ${friendIds.length} amis trouvés`);
         
-        // 3. NOUVEAU: Charger d'abord les 20 premiers
-        updateProgress('Chargement des premiers amis...', 50);
-        const firstBatch = friendIds.slice(0, friendsPerPage);
-        await loadFriendsBatch(firstBatch, 0, friendIds.length, true);
+        // 3. Chargement de TOUS les amis d'un coup
+        updateProgress('Chargement de tous les amis...', 50);
+        console.log('🚀 Démarrage du chargement de tous les amis simultanément');
         
-        // 4. Afficher immédiatement les premiers résultats
-        if (allFriends.length > 0) {
-            updateProgress('Affichage...', 90);
-            displayStats(calculateStats());
-            filterFriends();
-            showFriendsContent();
-            
-            // Afficher un indicateur de chargement en cours
-            showBackgroundLoadingIndicator(allFriends.length, friendIds.length);
-        }
+        // Créer toutes les promesses en parallèle
+        const promises = friendIds.map(id => getPlayerWithStats(id));
         
-        // 5. NOUVEAU: Charger le reste en arrière-plan
-        if (friendIds.length > friendsPerPage) {
-            loadRemainingFriendsInBackground(friendIds.slice(friendsPerPage), friendIds.length);
-        }
+        // Exécuter toutes les promesses en parallèle
+        const results = await Promise.allSettled(promises);
+        
+        // Traiter les résultats
+        allFriends = results
+            .filter(result => result.status === 'fulfilled' && result.value)
+            .map(result => result.value);
+        
+        console.log(`✅ ${allFriends.length} amis chargés sur ${friendIds.length} (${Math.round((allFriends.length / friendIds.length) * 100)}% de succès)`);
+        
+        // 4. Affichage
+        updateProgress('Finalisation...', 90);
+        displayStats(calculateStats());
+        filterFriends();
+        showFriendsContent();
         
     } catch (error) {
         console.error('❌ Erreur:', error);
@@ -383,109 +384,7 @@ async function loadFriends() {
     }
 }
 
-async function loadFriendsBatch(friendIds, startIndex, totalFriends, isFirstBatch = false) {
-    const promises = friendIds.map(id => getPlayerWithStats(id));
-    const results = await Promise.allSettled(promises);
-    
-    const validFriends = results
-        .filter(result => result.status === 'fulfilled' && result.value)
-        .map(result => result.value);
-    
-    allFriends.push(...validFriends);
-    
-    if (isFirstBatch) {
-        console.log(`✅ Premier lot: ${validFriends.length} amis chargés`);
-    } else {
-        console.log(`📦 Lot suivant: ${validFriends.length} amis ajoutés (${allFriends.length}/${totalFriends})`);
-    }
-}
-
-async function loadRemainingFriendsInBackground(remainingIds, totalFriends) {
-    isLoadingMore = true;
-    const batchSize = 10; // Plus petit pour un chargement plus fluide
-    
-    try {
-        for (let i = 0; i < remainingIds.length; i += batchSize) {
-            const batch = remainingIds.slice(i, i + batchSize);
-            const currentIndex = friendsPerPage + i;
-            
-            // Mettre à jour l'indicateur de progression
-            updateBackgroundProgress(allFriends.length, totalFriends);
-            
-            await loadFriendsBatch(batch, currentIndex, totalFriends);
-            
-            // Mettre à jour l'affichage après chaque lot
-            displayStats(calculateStats());
-            
-            // Si l'utilisateur voit actuellement tous les amis chargés, actualiser l'affichage
-            if (filteredFriends.length <= allFriends.length) {
-                filterFriends();
-            }
-            
-            // Petite pause pour ne pas surcharger l'API
-            await new Promise(resolve => setTimeout(resolve, 100));
-        }
-        
-        console.log(`🎉 Chargement terminé: ${allFriends.length} amis au total`);
-        hideBackgroundLoadingIndicator();
-        
-        // Mettre à jour une dernière fois
-        displayStats(calculateStats());
-        filterFriends();
-        
-    } catch (error) {
-        console.error('❌ Erreur chargement arrière-plan:', error);
-        hideBackgroundLoadingIndicator();
-    } finally {
-        isLoadingMore = false;
-    }
-}
-
-// ===== INDICATEURS DE CHARGEMENT ARRIÈRE-PLAN =====
-
-function showBackgroundLoadingIndicator(loaded, total) {
-    // Ajouter un petit indicateur discret en haut à droite
-    const indicator = document.createElement('div');
-    indicator.id = 'backgroundLoadingIndicator';
-    indicator.className = 'fixed top-4 right-4 bg-faceit-card border border-gray-700 rounded-lg p-3 z-40 shadow-lg';
-    indicator.innerHTML = `
-        <div class="flex items-center space-x-3">
-            <div class="animate-spin w-4 h-4 border-2 border-gray-600 border-t-faceit-orange rounded-full"></div>
-            <div class="text-sm">
-                <div class="text-white font-medium">Chargement...</div>
-                <div class="text-gray-400 text-xs">${loaded}/${total} amis</div>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(indicator);
-}
-
-function updateBackgroundProgress(loaded, total) {
-    const indicator = document.getElementById('backgroundLoadingIndicator');
-    if (indicator) {
-        const progressText = indicator.querySelector('.text-gray-400');
-        if (progressText) {
-            progressText.textContent = `${loaded}/${total} amis`;
-        }
-    }
-}
-
-function hideBackgroundLoadingIndicator() {
-    const indicator = document.getElementById('backgroundLoadingIndicator');
-    if (indicator) {
-        // Animation de disparition
-        indicator.style.opacity = '0';
-        indicator.style.transform = 'translateX(100%)';
-        indicator.style.transition = 'all 0.3s ease';
-        
-        setTimeout(() => {
-            indicator.remove();
-        }, 300);
-    }
-}
-
-// ===== STATS =====
+// ===== INDICATEURS DE CHARGEMENT =====
 
 function calculateStats() {
     if (allFriends.length === 0) {
@@ -509,9 +408,6 @@ function displayStats(stats) {
     if (!statsContainer) return;
 
     const recentPercentage = stats.total > 0 ? Math.round((stats.recent / stats.total) * 100) : 0;
-    
-    // Ajouter un indicateur si le chargement est en cours
-    const loadingIndicator = isLoadingMore ? '<i class="fas fa-sync-alt animate-spin text-xs ml-1"></i>' : '';
 
     statsContainer.innerHTML = `
         <div class="bg-faceit-card rounded-xl p-4 border border-gray-800">
@@ -519,7 +415,7 @@ function displayStats(stats) {
                 <i class="fas fa-users text-blue-400 mr-2"></i>
                 <span class="text-sm text-gray-400">Total</span>
             </div>
-            <div class="text-2xl font-bold">${stats.total}${loadingIndicator}</div>
+            <div class="text-2xl font-bold">${stats.total}</div>
         </div>
         
         <div class="bg-faceit-card rounded-xl p-4 border border-gray-800">
@@ -621,8 +517,7 @@ function updateDisplay() {
     const filteredCountElement = document.getElementById('filteredCount');
     
     if (friendsCountElement) {
-        const loadingIndicator = isLoadingMore ? ' <i class="fas fa-sync-alt animate-spin text-xs"></i>' : '';
-        friendsCountElement.innerHTML = totalCount + loadingIndicator;
+        friendsCountElement.textContent = totalCount;
     }
     
     if (filteredCountElement) {
@@ -862,10 +757,6 @@ function updateLoadMoreButton(endIndex) {
 }
 
 async function refreshFriends() {
-    // Arrêter le chargement en arrière-plan s'il est en cours
-    isLoadingMore = false;
-    hideBackgroundLoadingIndicator();
-    
     cache.clear();
     allFriends = [];
     await loadFriends();
@@ -952,6 +843,6 @@ function buildFaceitProfileUrl(friend) {
 window.closeFriendModal = closeFriendModal;
 window.showPlayerStats = showPlayerStats;
 
-console.log('🚀 Friends Progressive Loading optimisé !');
+console.log('🚀 Friends All-at-once Loading optimisé !');
 </script>
 @endpush
