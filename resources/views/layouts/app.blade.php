@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Faceit Scope')</title>
+
+    <link rel="icon" type="image/png" href="{{ asset('images/ico.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/ico.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/ico.png') }}">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>

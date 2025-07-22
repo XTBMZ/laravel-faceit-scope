@@ -8,7 +8,7 @@
             <!-- Logo -->
             <div class="flex items-center">
                 <a href="{{ route('home') }}" class="flex items-center space-x-2">
-                    <img src="{{ asset('images/logo.png') }}" alt="Faceit Scope Logo" class="h-36 w-36">
+                    <img src="{{ asset('images/logo.png') }}" alt="Faceit Scope Logo" class="h-16 w-auto">
                 </a>
             </div>
             
