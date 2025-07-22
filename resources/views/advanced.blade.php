@@ -4,86 +4,81 @@
 
 @section('content')
 <!-- Loading State -->
-<div id="loadingState" class="min-h-screen flex items-center justify-center">
+<div id="loadingState" class="min-h-screen flex items-center justify-center" style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
     <div class="text-center">
         <div class="relative mb-8">
-            <div class="animate-spin rounded-full h-20 w-20 border-4 border-gray-800 border-t-faceit-orange mx-auto"></div>
+            <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-800 border-t-faceit-orange mx-auto"></div>
             <div class="absolute inset-0 flex items-center justify-center">
-                <i class="fas fa-user text-faceit-orange text-lg"></i>
+                <i class="fas fa-chart-line text-faceit-orange text-lg"></i>
             </div>
         </div>
-        <h2 class="text-2xl font-bold mb-2">Analyse en cours...</h2>
-        <p class="text-gray-400 animate-pulse" id="loadingText">Récupération des données du joueur</p>
+        <h2 class="text-xl font-bold text-white mb-2">Analyse en cours</h2>
+        <p class="text-gray-400 animate-pulse" id="loadingText">Récupération des données</p>
     </div>
 </div>
 
 <!-- Main Content -->
-<div id="mainContent" class="hidden">
-    <!-- Hero Section avec Header Joueur -->
-    <div class="relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-faceit-dark via-gray-900 to-faceit-card"></div>
-        <div class="absolute inset-0 opacity-10">
-            <div class="w-full h-full bg-gradient-to-r from-transparent via-faceit-orange/20 to-transparent transform -skew-y-1"></div>
-        </div>
-        
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div id="playerHeader" class="animate-fade-in">
+<div id="mainContent" class="hidden" style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
+    
+    <!-- Hero Section Compact -->
+    <div class="relative py-24">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div id="playerHeader" class="text-center">
                 <!-- Le header sera injecté ici -->
             </div>
         </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <!-- Section 1: Vue d'ensemble -->
-        <section class="animate-slide-up">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-gradient">Vue d'ensemble</h2>
-                <div class="h-px flex-1 ml-4 bg-gradient-to-r from-faceit-orange/50 to-transparent"></div>
+    <!-- Main Container -->
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 space-y-16">
+
+        <!-- Vue d'ensemble -->
+        <section>
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-black text-white mb-4">Vue d'ensemble</h2>
+                <div class="w-16 h-1 bg-faceit-orange mx-auto"></div>
             </div>
             
-            <!-- Stats principales en grid responsive -->
-            <div id="mainStatsGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div id="mainStatsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 <!-- Stats principales injectées ici -->
             </div>
         </section>
 
-        <!-- Section 2: Performance détaillée -->
-        <section class="animate-slide-up" style="animation-delay: 0.1s">
-            <div class="section-divider"></div>
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-gradient">Performance de combat</h2>
-                <div class="h-px flex-1 ml-4 bg-gradient-to-r from-faceit-orange/50 to-transparent"></div>
+        <!-- Performance de combat -->
+        <section>
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-black text-white mb-4">Performance de combat</h2>
+                <div class="w-16 h-1 bg-faceit-orange mx-auto"></div>
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Clutch Performance -->
-                <div id="clutchStats" class="glass-effect rounded-xl p-6 stat-card">
+                <div id="clutchStats" class="rounded-2xl p-6 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
                     <!-- Stats clutch injectées ici -->
                 </div>
                 
                 <!-- Entry Fragging -->
-                <div id="entryStats" class="glass-effect rounded-xl p-6 stat-card">
+                <div id="entryStats" class="rounded-2xl p-6 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
                     <!-- Stats entry injectées ici -->
                 </div>
                 
                 <!-- Support/Utility -->
-                <div id="utilityStats" class="glass-effect rounded-xl p-6 stat-card">
+                <div id="utilityStats" class="rounded-2xl p-6 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
                     <!-- Stats utility injectées ici -->
                 </div>
             </div>
         </section>
 
-        <!-- Section 3: Graphiques de performance -->
-        <section class="animate-slide-up" style="animation-delay: 0.2s">
-            <div class="section-divider"></div>
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-gradient">Analyse graphique</h2>
-                <div class="h-px flex-1 ml-4 bg-gradient-to-r from-faceit-orange/50 to-transparent"></div>
+        <!-- Graphiques de performance -->
+        <section>
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-black text-white mb-4">Analyse graphique</h2>
+                <div class="w-16 h-1 bg-faceit-orange mx-auto"></div>
             </div>
             
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="glass-effect rounded-xl p-6">
-                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="rounded-2xl p-6 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center justify-center">
                         <i class="fas fa-chart-radar text-faceit-orange mr-2"></i>
                         Radar de performance
                     </h3>
@@ -92,8 +87,8 @@
                     </div>
                 </div>
                 
-                <div class="glass-effect rounded-xl p-6">
-                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                <div class="rounded-2xl p-6 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center justify-center">
                         <i class="fas fa-chart-pie text-faceit-orange mr-2"></i>
                         Répartition par carte
                     </h3>
@@ -104,12 +99,11 @@
             </div>
         </section>
 
-        <!-- Section 4: Performance par carte -->
-        <section class="animate-slide-up" style="animation-delay: 0.3s">
-            <div class="section-divider"></div>
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-gradient">Analyse par carte</h2>
-                <div class="h-px flex-1 ml-4 bg-gradient-to-r from-faceit-orange/50 to-transparent"></div>
+        <!-- Performance par carte -->
+        <section>
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-black text-white mb-4">Analyse par carte</h2>
+                <div class="w-16 h-1 bg-faceit-orange mx-auto"></div>
             </div>
             
             <div id="mapStatsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -117,12 +111,11 @@
             </div>
         </section>
 
-        <!-- Section 5: Multi-kills et achievements -->
-        <section class="animate-slide-up" style="animation-delay: 0.4s">
-            <div class="section-divider"></div>
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-gradient">Achievements & Réalisations</h2>
-                <div class="h-px flex-1 ml-4 bg-gradient-to-r from-faceit-orange/50 to-transparent"></div>
+        <!-- Multi-kills et achievements -->
+        <section>
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-black text-white mb-4">Achievements</h2>
+                <div class="w-16 h-1 bg-faceit-orange mx-auto"></div>
             </div>
             
             <div id="achievementsGrid" class="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -130,38 +123,37 @@
             </div>
         </section>
 
-        <!-- Section 6: Forme récente -->
-        <section class="animate-slide-up" style="animation-delay: 0.5s">
-            <div class="section-divider"></div>
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-gradient">Forme récente</h2>
-                <div class="h-px flex-1 ml-4 bg-gradient-to-r from-faceit-orange/50 to-transparent"></div>
+        <!-- Forme récente -->
+        <section>
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-black text-white mb-4">Forme récente</h2>
+                <div class="w-16 h-1 bg-faceit-orange mx-auto"></div>
             </div>
             
-            <div class="glass-effect rounded-xl p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold">Derniers résultats</h3>
-                    <span class="text-sm text-gray-400">5 derniers matches</span>
-                </div>
-                <div id="recentResults" class="flex justify-center space-x-2">
+            <div class="rounded-2xl p-8 border border-gray-700 text-center" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
+                <h3 class="text-lg font-bold text-white mb-6">Derniers résultats</h3>
+                <div id="recentResults" class="flex justify-center space-x-3 mb-6">
                     <!-- Résultats récents injectés ici -->
                 </div>
+                <p class="text-sm text-gray-400">5 derniers matches</p>
             </div>
         </section>
 
         <!-- Actions -->
-        <section class="animate-slide-up" style="animation-delay: 0.6s">
-            <div class="section-divider"></div>
-            <div class="flex flex-wrap justify-center gap-4">
-                <button id="comparePlayerBtn" class="gradient-orange px-8 py-3 rounded-xl font-medium transition-all transform hover:scale-105 animate-pulse-orange">
-                    <i class="fas fa-balance-scale mr-2"></i>Comparer ce joueur
-                </button>
-                <button id="downloadReportBtn" class="bg-gray-700 hover:bg-gray-600 px-8 py-3 rounded-xl font-medium transition-all transform hover:scale-105">
-                    <i class="fas fa-download mr-2"></i>Télécharger le rapport
-                </button>
-                <button id="viewProgressionBtn" class="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-xl font-medium transition-all transform hover:scale-105">
-                    <i class="fas fa-chart-line mr-2"></i>Voir la progression
-                </button>
+        <section>
+            <div class="rounded-2xl p-8 text-center border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
+                <h3 class="text-xl font-bold text-white mb-8">Actions rapides</h3>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button id="comparePlayerBtn" class="bg-faceit-orange hover:bg-faceit-orange-dark px-6 py-3 rounded-xl font-medium transition-all">
+                        <i class="fas fa-balance-scale mr-2"></i>Comparer ce joueur
+                    </button>
+                    <button id="downloadReportBtn" class="bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-xl font-medium transition-all">
+                        <i class="fas fa-download mr-2"></i>Télécharger le rapport
+                    </button>
+                    <button id="viewProgressionBtn" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-medium transition-all">
+                        <i class="fas fa-chart-line mr-2"></i>Voir la progression
+                    </button>
+                </div>
             </div>
         </section>
     </div>
@@ -169,13 +161,281 @@
 
 <!-- Popup Modal pour les détails de carte -->
 <div id="mapStatsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-faceit-card rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto popup-content">
+    <div class="rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
         <div id="mapStatsModalContent">
             <!-- Contenu du popup injecté ici -->
         </div>
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    /* Suppression des effets visuels complexes pour un design plus clean */
+    
+    /* Stats Cards - Design minimaliste */
+    .stat-card {
+        background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);
+        border: 1px solid #404040;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        border-color: #ff5500;
+        transform: translateY(-2px);
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #ff5500;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    /* Map Cards */
+    .map-card {
+        background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);
+        border: 1px solid #404040;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .map-card:hover {
+        border-color: #ff5500;
+        transform: translateY(-2px);
+    }
+    
+    .map-image {
+        width: 100%;
+        height: 8rem;
+        object-fit: cover;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Achievement Cards */
+    .achievement-card {
+        background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);
+        border: 1px solid #404040;
+        border-radius: 1rem;
+        padding: 1rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .achievement-card:hover {
+        border-color: #ff5500;
+        transform: translateY(-2px);
+    }
+    
+    .achievement-icon {
+        font-size: 2rem;
+        color: #ff5500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .achievement-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0.25rem;
+    }
+    
+    .achievement-label {
+        font-size: 0.75rem;
+        color: #9ca3af;
+        text-transform: uppercase;
+    }
+    
+    /* Recent Results */
+    .result-indicator {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.875rem;
+    }
+    
+    .result-win {
+        background: #10b981;
+        color: white;
+    }
+    
+    .result-loss {
+        background: #ef4444;
+        color: white;
+    }
+    
+    /* Progress Bars */
+    .progress-bar {
+        height: 0.5rem;
+        background: #374151;
+        border-radius: 0.25rem;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ff5500, #ff7733);
+        border-radius: 0.25rem;
+        transition: width 0.5s ease;
+    }
+    
+    /* Performance indicators */
+    .performance-excellent {
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .performance-good {
+        color: #3b82f6;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .performance-average {
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .performance-poor {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    /* Player Header */
+    .player-avatar {
+        width: 5rem;
+        height: 5rem;
+        border-radius: 50%;
+        border: 3px solid #ff5500;
+        margin: 0 auto 1rem;
+    }
+    
+    .player-rank {
+        width: 3rem;
+        height: 3rem;
+        margin: 0 auto 1rem;
+    }
+    
+    .player-elo {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #ff5500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .player-level {
+        color: #9ca3af;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .grid {
+            gap: 0.75rem;
+        }
+        
+        .stat-card, .map-card, .achievement-card {
+            padding: 1rem;
+        }
+        
+        .player-avatar {
+            width: 4rem;
+            height: 4rem;
+        }
+        
+        .player-rank {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+        
+        .player-elo {
+            font-size: 1.5rem;
+        }
+    }
+    
+    /* Animations subtiles */
+    .fade-in {
+        animation: fadeIn 0.5s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .slide-up {
+        animation: slideUp 0.6s ease-out;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Suppression du scrollbar personnalisé pour plus de simplicité */
+    /* Focus states simples */
+    button:focus {
+        outline: 2px solid #ff5500;
+        outline-offset: 2px;
+    }
+    
+    /* Clean modal */
+    .modal-content {
+        border-radius: 1rem;
+        border: 1px solid #404040;
+    }
+</style>
+@endpush
 
 @push('scripts')
 <script>
