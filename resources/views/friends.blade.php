@@ -45,17 +45,17 @@
                         </div>
                     </div>
                     <div>
-                        <select id="levelFilter" class="w-full py-3 px-4 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-faceit-orange">
-                            <option value="all">Tous les niveaux</option>
-                            <option value="1-3">Niveaux 1-3</option>
-                            <option value="4-6">Niveaux 4-6</option>
-                            <option value="7-8">Niveaux 7-8</option>
-                            <option value="9-10">Niveaux 9-10</option>
+                        <select id="activityFilter" class="w-full py-3 px-4 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-faceit-orange">
+                            <option value="all">Toute activité</option>
+                            <option value="recent">Récent (7j)</option>
+                            <option value="month">Ce mois</option>
+                            <option value="inactive">Inactif (30j+)</option>
                         </select>
                     </div>
                     <div>
                         <select id="sortBy" class="w-full py-3 px-4 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-faceit-orange">
                             <option value="elo">ELO</option>
+                            <option value="activity">Activité</option>
                             <option value="name">Nom</option>
                             <option value="level">Niveau</option>
                         </select>
@@ -229,7 +229,20 @@ async function getPlayerWithStats(playerId) {
             return null; // Pas de données CS
         }
 
-        const enrichedPlayer = enrichPlayerData(player);
+        // Récupérer le dernier match pour avoir la date d'activité
+        let lastMatchDate = null;
+        try {
+            const history = await faceitApiCall(`players/${playerId}/history?game=cs2&limit=1`);
+            if (history.items && history.items.length > 0) {
+                const lastMatchId = history.items[0].match_id;
+                const matchDetails = await faceitApiCall(`matches/${lastMatchId}`);
+                lastMatchDate = matchDetails.finished_at || matchDetails.started_at;
+            }
+        } catch (historyError) {
+            console.warn(`Pas d'historique pour ${playerId}`);
+        }
+
+        const enrichedPlayer = enrichPlayerData(player, lastMatchDate);
         cache.set(cacheKey, { data: enrichedPlayer, timestamp: Date.now() });
         return enrichedPlayer;
         
@@ -239,9 +252,9 @@ async function getPlayerWithStats(playerId) {
     }
 }
 
-// ===== ENRICHISSEMENT DES DONNÉES (SANS STATUT D'ACTIVITÉ) =====
+// ===== ENRICHISSEMENT DES DONNÉES (AVEC DERNIÈRE ACTIVITÉ) =====
 
-function enrichPlayerData(player) {
+function enrichPlayerData(player, lastMatchDate) {
     const csGame = player.games?.cs2 || player.games?.csgo || {};
     
     const enriched = { ...player };
@@ -249,7 +262,48 @@ function enrichPlayerData(player) {
     enriched.skill_level = csGame.skill_level || 1;
     enriched.rank_info = getRankInfo(enriched.skill_level);
     
+    // Calculer la dernière activité basée sur le dernier match
+    enriched.last_activity = calculateLastActivity(lastMatchDate);
+    
     return enriched;
+}
+
+function calculateLastActivity(lastMatchTimestamp) {
+    if (!lastMatchTimestamp) {
+        return {
+            days_ago: 999,
+            text: 'Aucune activité récente',
+            category: 'inactive'
+        };
+    }
+
+    const matchTime = new Date(lastMatchTimestamp * 1000).getTime(); // FACEIT timestamps are in seconds
+    const now = Date.now();
+    const diff = now - matchTime;
+    const daysAgo = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    let text, category;
+    
+    if (daysAgo === 0) {
+        text = "Aujourd'hui";
+        category = 'recent';
+    } else if (daysAgo === 1) {
+        text = "Hier";
+        category = 'recent';
+    } else if (daysAgo <= 7) {
+        text = `Il y a ${daysAgo} jours`;
+        category = 'recent';
+    } else if (daysAgo <= 30) {
+        const weeks = Math.floor(daysAgo / 7);
+        text = `Il y a ${weeks} semaine${weeks > 1 ? 's' : ''}`;
+        category = 'month';
+    } else {
+        const months = Math.floor(daysAgo / 30);
+        text = `Il y a ${months} mois`;
+        category = 'inactive';
+    }
+
+    return { days_ago: daysAgo, text, category };
 }
 
 function getRankInfo(skillLevel) {
@@ -337,18 +391,20 @@ async function loadFriends() {
     }
 }
 
-// ===== STATS (SANS STATUT D'ACTIVITÉ) =====
+// ===== STATS (AVEC ACTIVITÉ) =====
 
 function calculateStats() {
     if (allFriends.length === 0) {
-        return { total: 0, average_elo: 0, highest_elo: 0 };
+        return { total: 0, recent: 0, average_elo: 0, highest_elo: 0 };
     }
 
+    const recentFriends = allFriends.filter(f => f.last_activity.category === 'recent').length;
     const totalElo = allFriends.reduce((sum, f) => sum + f.faceit_elo, 0);
     const highestElo = Math.max(...allFriends.map(f => f.faceit_elo));
 
     return {
         total: allFriends.length,
+        recent: recentFriends,
         average_elo: Math.round(totalElo / allFriends.length),
         highest_elo: highestElo
     };
@@ -358,6 +414,8 @@ function displayStats(stats) {
     const statsContainer = document.getElementById('friendsStats');
     if (!statsContainer) return;
 
+    const recentPercentage = stats.total > 0 ? Math.round((stats.recent / stats.total) * 100) : 0;
+
     statsContainer.innerHTML = `
         <div class="bg-faceit-card rounded-xl p-4 border border-gray-800">
             <div class="flex items-center mb-2">
@@ -365,6 +423,15 @@ function displayStats(stats) {
                 <span class="text-sm text-gray-400">Total</span>
             </div>
             <div class="text-2xl font-bold">${stats.total}</div>
+        </div>
+        
+        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800">
+            <div class="flex items-center mb-2">
+                <i class="fas fa-clock text-green-400 mr-2"></i>
+                <span class="text-sm text-gray-400">Actifs (7j)</span>
+            </div>
+            <div class="text-2xl font-bold text-green-400">${stats.recent}</div>
+            <div class="text-xs text-gray-500">${recentPercentage}%</div>
         </div>
         
         <div class="bg-faceit-card rounded-xl p-4 border border-gray-800">
@@ -389,7 +456,7 @@ function displayStats(stats) {
 
 function setupEventListeners() {
     const searchInput = document.getElementById('searchInput');
-    const levelFilter = document.getElementById('levelFilter');
+    const activityFilter = document.getElementById('activityFilter');
     const sortBy = document.getElementById('sortBy');
     const refreshButton = document.getElementById('refreshFriends');
     const retryButton = document.getElementById('retryButton');
@@ -398,7 +465,7 @@ function setupEventListeners() {
     const friendModal = document.getElementById('friendModal');
 
     if (searchInput) searchInput.addEventListener('input', debounce(filterFriends, 300));
-    if (levelFilter) levelFilter.addEventListener('change', filterFriends);
+    if (activityFilter) activityFilter.addEventListener('change', filterFriends);
     if (sortBy) sortBy.addEventListener('change', filterFriends);
     if (refreshButton) refreshButton.addEventListener('click', () => refreshFriends());
     if (retryButton) retryButton.addEventListener('click', loadFriends);
@@ -416,11 +483,11 @@ function setupEventListeners() {
     });
 }
 
-// ===== FILTRAGE (SANS STATUT D'ACTIVITÉ) =====
+// ===== FILTRAGE (AVEC ACTIVITÉ) =====
 
 function filterFriends() {
     const searchQuery = document.getElementById('searchInput')?.value.toLowerCase() || '';
-    const levelFilter = document.getElementById('levelFilter')?.value || 'all';
+    const activityFilter = document.getElementById('activityFilter')?.value || 'all';
     const sortBy = document.getElementById('sortBy')?.value || 'elo';
 
     filteredFriends = allFriends.filter(friend => {
@@ -429,19 +496,10 @@ function filterFriends() {
             friend.nickname.toLowerCase().includes(searchQuery) ||
             (friend.country || '').toLowerCase().includes(searchQuery);
         
-        // Filtre de niveau
-        let matchesLevel = true;
-        if (levelFilter !== 'all') {
-            const level = friend.skill_level;
-            switch (levelFilter) {
-                case '1-3': matchesLevel = level >= 1 && level <= 3; break;
-                case '4-6': matchesLevel = level >= 4 && level <= 6; break;
-                case '7-8': matchesLevel = level >= 7 && level <= 8; break;
-                case '9-10': matchesLevel = level >= 9 && level <= 10; break;
-            }
-        }
+        // Filtre d'activité
+        const matchesActivity = activityFilter === 'all' || friend.last_activity.category === activityFilter;
         
-        return matchesSearch && matchesLevel;
+        return matchesSearch && matchesActivity;
     });
 
     // Tri
@@ -454,6 +512,7 @@ function filterFriends() {
 function sortFriends(friends, sortBy) {
     const sortFunctions = {
         elo: (a, b) => b.faceit_elo - a.faceit_elo,
+        activity: (a, b) => a.last_activity.days_ago - b.last_activity.days_ago,
         name: (a, b) => a.nickname.localeCompare(b.nickname),
         level: (a, b) => b.skill_level - a.skill_level
     };
@@ -556,6 +615,7 @@ function createFriendCard(friend) {
             <div class="space-y-2">
                 <div class="text-lg font-bold text-faceit-orange">${formatNumber(friend.faceit_elo)}</div>
                 <div class="text-xs text-${friend.rank_info.color}">${friend.rank_info.name}</div>
+                <div class="text-xs text-gray-500">${friend.last_activity.text}</div>
             </div>
         </div>
     `;
@@ -583,7 +643,7 @@ function createFriendListItem(friend) {
                     ${friend.country ? `<img src="${getCountryFlagUrl(friend.country)}" alt="${friend.country}" class="w-4 h-4">` : ''}
                 </div>
                 <div class="text-sm text-gray-400">
-                    Level ${friend.skill_level}
+                    Level ${friend.skill_level} • ${friend.last_activity.text}
                 </div>
             </div>
             
@@ -635,10 +695,15 @@ function showFriendDetails(friend) {
                 </div>
             </div>
             
-            <div class="grid grid-cols-1 gap-4 mb-6">
+            <div class="grid grid-cols-2 gap-4 mb-6">
                 <div class="bg-faceit-card rounded-lg p-4 text-center">
                     <div class="text-xl font-bold text-faceit-orange mb-1">${formatNumber(friend.faceit_elo)}</div>
                     <div class="text-sm text-gray-400">ELO FACEIT</div>
+                </div>
+                
+                <div class="bg-faceit-card rounded-lg p-4 text-center">
+                    <div class="text-sm font-bold text-gray-300 mb-1">${friend.last_activity.text}</div>
+                    <div class="text-sm text-gray-400">Dernière activité</div>
                 </div>
             </div>
             
@@ -789,6 +854,6 @@ function buildFaceitProfileUrl(friend) {
 window.closeFriendModal = closeFriendModal;
 window.showPlayerStats = showPlayerStats;
 
-console.log('🚀 Friends Compact chargé - API corrigée, statut supprimé !');
+console.log('🚀 Friends Compact chargé - API corrigée, avec dernière activité !');
 </script>
 @endpush
