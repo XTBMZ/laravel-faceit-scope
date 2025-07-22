@@ -24,7 +24,7 @@
         
         <!-- Stats Overview Compact -->
         <div class="mb-12">
-            <div id="friendsStats" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div id="friendsStats" class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <!-- Stats cards will be inserted here -->
             </div>
         </div>
