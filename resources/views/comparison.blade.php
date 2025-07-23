@@ -19,33 +19,60 @@
 
 <!-- Search Section -->
 <div id="searchSection" class="min-h-screen flex items-center justify-center" style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
-    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <div class="max-w-4xl mx-auto px-6 text-center">
         <div class="mb-12">
-            <h1 class="text-4xl font-black text-white mb-4">Comparaison de joueurs</h1>
+            <h1 class="text-4xl font-bold text-white mb-4">Comparaison de joueurs</h1>
             <p class="text-xl text-gray-400">Comparez les performances de deux joueurs CS2</p>
-            <div class="w-16 h-1 bg-faceit-orange mx-auto mt-6"></div>
+            <div class="w-16 h-1 bg-gradient-to-r from-cs-ct to-cs-t mx-auto mt-6"></div>
         </div>
 
-        <div class="bg-faceit-card rounded-2xl p-8 border border-gray-700">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Joueur 1</label>
-                    <input type="text" id="player1Input" placeholder="Pseudo Faceit" 
-                           class="w-full px-4 py-3 bg-faceit-dark border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-faceit-orange focus:outline-none">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <!-- Player 1 Input - CT Style -->
+            <div class="cs-card ct-card">
+                <div class="flex items-center mb-6">
+                    <div class="ml-3">
+                        <h3 class="text-lg font-semibold text-white">Joueur 1</h3>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Joueur 2</label>
-                    <input type="text" id="player2Input" placeholder="Pseudo Faceit" 
-                           class="w-full px-4 py-3 bg-faceit-dark border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-faceit-orange focus:outline-none">
+                <div class="cs-input-wrapper">
+                    <input 
+                        type="text" 
+                        id="player1Input" 
+                        placeholder="Pseudo Faceit..." 
+                        class="cs-input ct-input"
+                    >
+                    <div class="cs-glow ct-glow"></div>
                 </div>
+                <div class="ct-pattern"></div>
             </div>
-            
-            <button id="compareBtn" class="w-full bg-faceit-orange hover:bg-faceit-orange-dark px-8 py-4 rounded-xl font-medium text-lg transition-all transform hover:scale-105">
-                <i class="fas fa-balance-scale mr-2"></i>Comparer les joueurs
-            </button>
+
+            <!-- Player 2 Input - T Style -->
+            <div class="cs-card t-card">
+                <div class="flex items-center mb-6">
+                    <div class="ml-3">
+                        <h3 class="text-lg font-semibold text-white">Joueur 2</h3>
+                    </div>
+                </div>
+                <div class="cs-input-wrapper">
+                    <input 
+                        type="text" 
+                        id="player2Input" 
+                        placeholder="Pseudo Faceit..." 
+                        class="cs-input t-input"
+                    >
+                    <div class="cs-glow t-glow"></div>
+                </div>
+                <div class="t-pattern"></div>
+            </div>
         </div>
+        
+        <button id="compareBtn" class="cs-button">
+            <span class="button-text">Lancer la comparaison</span>
+            <div class="button-effects"></div>
+        </button>
     </div>
 </div>
+
 
 <!-- Main Content -->
 <div id="mainContent" class="hidden" style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
@@ -246,6 +273,274 @@
     .confidence-low {
         color: #ef4444;
     }
+
+    :root {
+    --cs-ct: #4A90E2;
+    --cs-ct-light: #6BA3E8;
+    --cs-ct-dark: #2E5A8A;
+    --cs-t: #D2691E;
+    --cs-t-light: #E6944A;
+    --cs-t-dark: #B8580F;
+}
+
+.cs-card {
+    border-radius: 16px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.ct-card {
+    background: linear-gradient(135deg, rgba(74, 144, 226, 0.15) 0%, rgba(46, 90, 138, 0.1) 100%);
+    border: 2px solid var(--cs-ct);
+    box-shadow: 0 0 20px rgba(74, 144, 226, 0.2);
+}
+
+.ct-card:hover {
+    border-color: var(--cs-ct-light);
+    box-shadow: 0 0 30px rgba(74, 144, 226, 0.3);
+}
+
+.t-card {
+    background: linear-gradient(135deg, rgba(210, 105, 30, 0.15) 0%, rgba(184, 88, 15, 0.1) 100%);
+    border: 2px solid var(--cs-t);
+    box-shadow: 0 0 20px rgba(210, 105, 30, 0.2);
+}
+
+.t-card:hover {
+    border-color: var(--cs-t-light);
+    box-shadow: 0 0 30px rgba(210, 105, 30, 0.3);
+}
+
+.cs-badge {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+}
+
+.ct-badge {
+    background: linear-gradient(135deg, var(--cs-ct) 0%, var(--cs-ct-dark) 100%);
+    color: white;
+    box-shadow: 0 0 15px rgba(74, 144, 226, 0.4);
+}
+
+.t-badge {
+    background: linear-gradient(135deg, var(--cs-t) 0%, var(--cs-t-dark) 100%);
+    color: white;
+    box-shadow: 0 0 15px rgba(210, 105, 30, 0.4);
+}
+
+.cs-input-wrapper {
+    position: relative;
+}
+
+.cs-input {
+    width: 100%;
+    padding: 16px 20px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid;
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.ct-input {
+    border-color: var(--cs-ct);
+}
+
+.ct-input:focus {
+    outline: none;
+    border-color: var(--cs-ct-light);
+    box-shadow: 
+        0 0 15px rgba(74, 144, 226, 0.3),
+        inset 0 0 10px rgba(74, 144, 226, 0.1);
+}
+
+.t-input {
+    border-color: var(--cs-t);
+}
+
+.t-input:focus {
+    outline: none;
+    border-color: var(--cs-t-light);
+    box-shadow: 
+        0 0 15px rgba(210, 105, 30, 0.3),
+        inset 0 0 10px rgba(210, 105, 30, 0.1);
+}
+
+.cs-input::placeholder {
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.cs-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 12px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.ct-glow {
+    background: linear-gradient(45deg, transparent, rgba(74, 144, 226, 0.1), transparent);
+}
+
+.t-glow {
+    background: linear-gradient(45deg, transparent, rgba(210, 105, 30, 0.1), transparent);
+}
+
+.cs-input:focus + .cs-glow {
+    opacity: 1;
+    animation: tactical-glow 2s ease-in-out infinite alternate;
+}
+
+.ct-pattern {
+    position: absolute;
+    top: -50%;
+    right: -20px;
+    width: 100px;
+    height: 200%;
+    background: linear-gradient(45deg, transparent 40%, rgba(74, 144, 226, 0.05) 50%, transparent 60%);
+    transform: rotate(15deg);
+    animation: ct-patrol 4s linear infinite;
+}
+
+.t-pattern {
+    position: absolute;
+    top: -50%;
+    right: -20px;
+    width: 100px;
+    height: 200%;
+    background: linear-gradient(45deg, transparent 40%, rgba(210, 105, 30, 0.05) 50%, transparent 60%);
+    transform: rotate(15deg);
+    animation: t-patrol 4s linear infinite;
+}
+
+.cs-button {
+    background: linear-gradient(135deg, #0c6ddd 0%, #f56c0a 90%);
+    border: none;
+    border-radius: 12px;
+    padding: 18px 48px;
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 
+        0 0 25px rgba(74, 144, 226, 0.2),
+        0 0 25px rgba(210, 105, 30, 0.2),
+        0 4px 15px rgba(0, 0, 0, 0.3);
+    text-transform: uppercase;
+}
+
+.cs-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 0 35px rgba(74, 144, 226, 0.3),
+        0 0 35px rgba(210, 105, 30, 0.3),
+        0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.button-text {
+    position: relative;
+    z-index: 2;
+}
+
+.button-effects {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s ease;
+}
+
+.cs-button:hover .button-effects {
+    left: 100%;
+}
+
+.cs-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--cs-t) 0%, var(--cs-ct) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.cs-button:hover::before {
+    opacity: 1;
+}
+
+@keyframes tactical-glow {
+    0% {
+        box-shadow: 0 0 5px rgba(74, 144, 226, 0.2);
+    }
+    100% {
+        box-shadow: 0 0 20px rgba(74, 144, 226, 0.4);
+    }
+}
+
+@keyframes ct-patrol {
+    0% {
+        transform: translateX(-100px) rotate(15deg);
+    }
+    100% {
+        transform: translateX(150px) rotate(15deg);
+    }
+}
+
+@keyframes t-patrol {
+    0% {
+        transform: translateX(-100px) rotate(15deg);
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 0.6;
+    }
+    100% {
+        transform: translateX(150px) rotate(15deg);
+        opacity: 0.3;
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .cs-card {
+        padding: 1.5rem;
+    }
+    
+    .cs-badge {
+        width: 40px;
+        height: 40px;
+        font-size: 12px;
+    }
+}
 </style>
 @endpush
 

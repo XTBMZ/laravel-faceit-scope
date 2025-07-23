@@ -853,7 +853,7 @@ async function handlePlayerSearch() {
     searchResult.innerHTML = `
         <div class="flex items-center justify-center py-8 rounded-2xl border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
             <i class="fas fa-spinner fa-spin text-faceit-orange mr-3 text-xl"></i>
-            <span class="text-gray-300 text-lg">Recherche ultra-rapide de ${playerName}...</span>
+            <span class="text-gray-300 text-lg">Recherche de ${playerName}...</span>
         </div>
     `;
     

@@ -381,136 +381,71 @@ async function displayMapStats(stats) {
         const mapImage = MAP_IMAGES[mapImageKey] || null;
         
         const positionBadge = index < 3 ? `
-            <div class="absolute top-4 left-4 w-8 h-8 bg-faceit-orange rounded-full flex items-center justify-center text-white font-bold text-sm" style="z-index: 3;">
+            <div class="absolute top-3 left-3 w-6 h-6 bg-faceit-orange rounded-full flex items-center justify-center text-white font-bold text-xs z-10">
                 ${index + 1}
             </div>
         ` : '';
         
-        if (mapImage) {
-            return `
-                <div class="glass-effect rounded-xl overflow-hidden stat-card relative cursor-pointer hover:scale-105 transition-transform" 
-                     onclick="showMapStatsModal(${index})">
-                    ${positionBadge}
-                    <div class="map-card-banner" style="background-image: url('${mapImage}')">
-                        <div class="absolute inset-0 flex items-end p-4" style="z-index: 2;">
-                            <div class="flex items-center justify-between w-full">
-                                <h4 class="text-xl font-bold text-white drop-shadow-lg">${mapName}</h4>
-                                <span class="px-3 py-1 bg-black/80 rounded-full text-xs font-medium text-gray-200">
-                                    ${matches} matches
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+        return `
+            <div class="glass-effect rounded-xl overflow-hidden stat-card relative cursor-pointer hover:scale-105 transition-all duration-300 group" 
+                 onclick="showMapStatsModal(${index})">
+                ${positionBadge}
+                
+                <!-- Header avec image et infos principales -->
+                <div class="relative h-24 ${mapImage ? '' : 'bg-gradient-to-br from-faceit-orange/30 to-faceit-orange-dark/20'}">
+                    ${mapImage ? `
+                        <img src="${mapImage}" alt="${mapName}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    ` : ''}
                     
-                    <div class="p-6">
-                        <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div class="text-center p-3 bg-faceit-card/80 backdrop-blur-sm rounded-lg border border-gray-700">
-                                <div class="${winRateColor} text-2xl font-black">${winRate}%</div>
-                                <div class="text-xs text-gray-300">Win Rate</div>
+                    <div class="absolute inset-0 flex items-end p-3">
+                        <div class="flex items-center justify-between w-full">
+                            <div>
+                                <h4 class="text-lg font-bold text-white drop-shadow-lg">${mapName}</h4>
+                                <span class="text-xs text-gray-200 font-medium">${matches} matches</span>
                             </div>
-                            <div class="text-center p-3 bg-faceit-card/80 backdrop-blur-sm rounded-lg border border-gray-700">
-                                <div class="${kdColor} text-2xl font-black">${kd}</div>
-                                <div class="text-xs text-gray-300">K/D</div>
+                            <div class="text-right">
+                                <div class="${winRateColor} text-lg font-black drop-shadow-lg">${winRate}%</div>
+                                <div class="text-xs text-gray-200">Win Rate</div>
                             </div>
-                        </div>
-                        
-                        <div class="space-y-2 text-sm">
-                            <div class="flex justify-between items-center p-2 bg-faceit-elevated/60 rounded border border-gray-700">
-                                <span class="text-gray-200">Headshots</span>
-                                <span class="text-purple-400 font-semibold">${headshotPct}%</span>
-                            </div>
-                            <div class="flex justify-between items-center p-2 bg-faceit-elevated/60 rounded border border-gray-700">
-                                <span class="text-gray-200">MVPs</span>
-                                <span class="text-yellow-400 font-semibold">${mvps}</span>
-                            </div>
-                            ${penta > 0 ? `
-                            <div class="flex justify-between items-center p-2 bg-red-500/20 rounded border border-red-500/30">
-                                <span class="text-gray-200">Ace</span>
-                                <span class="text-red-400 font-semibold">${penta}</span>
-                            </div>
-                            ` : ''}
-                            ${quadro > 0 ? `
-                            <div class="flex justify-between items-center p-2 bg-orange-500/20 rounded border border-orange-500/30">
-                                <span class="text-gray-200">4K</span>
-                                <span class="text-orange-400 font-semibold">${quadro}</span>
-                            </div>
-                            ` : ''}
-                            ${triple > 0 ? `
-                            <div class="flex justify-between items-center p-2 bg-yellow-500/20 rounded border border-yellow-500/30">
-                                <span class="text-gray-200">3K</span>
-                                <span class="text-yellow-400 font-semibold">${triple}</span>
-                            </div>
-                            ` : ''}
-                        </div>
-                        
-                        <div class="mt-4 text-center">
-                            <span class="text-xs text-gray-500 bg-faceit-orange/20 px-3 py-1 rounded-full">
-                                <i class="fas fa-mouse-pointer mr-1"></i>Cliquer pour plus de détails
-                            </span>
                         </div>
                     </div>
                 </div>
-            `;
-        } else {
-            return `
-                <div class="glass-effect rounded-xl p-6 stat-card relative cursor-pointer hover:scale-105 transition-transform" 
-                     onclick="showMapStatsModal(${index})">
-                    ${positionBadge}
-                    <div class="flex items-center justify-between mb-4">
-                        <h4 class="text-xl font-bold text-white">${mapName}</h4>
-                        <span class="px-3 py-1 bg-faceit-elevated rounded-full text-xs font-medium text-gray-300">
-                            ${matches} matches
-                        </span>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div class="text-center p-3 bg-faceit-elevated rounded-lg">
-                            <div class="${winRateColor} text-2xl font-black">${winRate}%</div>
-                            <div class="text-xs text-gray-300">Win Rate</div>
+                
+                <!-- Stats compactes -->
+                <div class="p-4 space-y-3">
+                    <!-- K/D et Headshots sur une ligne -->
+                    <div class="flex justify-between items-center">
+                        <div class="text-center">
+                            <div class="${kdColor} text-xl font-black">${kd}</div>
+                            <div class="text-xs text-gray-400">K/D</div>
                         </div>
-                        <div class="text-center p-3 bg-faceit-elevated rounded-lg">
-                            <div class="${kdColor} text-2xl font-black">${kd}</div>
-                            <div class="text-xs text-gray-300">K/D</div>
+                        <div class="text-center">
+                            <div class="text-purple-400 text-xl font-black">${headshotPct}%</div>
+                            <div class="text-xs text-gray-400">HS</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-yellow-400 text-xl font-black">${mvps}</div>
+                            <div class="text-xs text-gray-400">MVP</div>
                         </div>
                     </div>
                     
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between items-center p-2 bg-faceit-elevated rounded">
-                            <span class="text-gray-300">Headshots</span>
-                            <span class="text-purple-400 font-semibold">${headshotPct}%</span>
-                        </div>
-                        <div class="flex justify-between items-center p-2 bg-faceit-elevated rounded">
-                            <span class="text-gray-300">MVPs</span>
-                            <span class="text-yellow-400 font-semibold">${mvps}</span>
-                        </div>
-                        ${penta > 0 ? `
-                        <div class="flex justify-between items-center p-2 bg-red-500/20 rounded">
-                            <span class="text-gray-300">Ace</span>
-                            <span class="text-red-400 font-semibold">${penta}</span>
-                        </div>
-                        ` : ''}
-                        ${quadro > 0 ? `
-                        <div class="flex justify-between items-center p-2 bg-orange-500/20 rounded">
-                            <span class="text-gray-300">4K</span>
-                            <span class="text-orange-400 font-semibold">${quadro}</span>
-                        </div>
-                        ` : ''}
-                        ${triple > 0 ? `
-                        <div class="flex justify-between items-center p-2 bg-yellow-500/20 rounded">
-                            <span class="text-gray-300">3K</span>
-                            <span class="text-yellow-400 font-semibold">${triple}</span>
-                        </div>
-                        ` : ''}
+                    <!-- Multi-kills compacts -->
+                    <div class="flex justify-center gap-3">
+                        ${penta > 0 ? `<span class="px-2 py-1 bg-red-500/20 border border-red-500/40 rounded-full text-xs font-bold text-red-400">Ace ${penta}</span>` : ''}
+                        ${quadro > 0 ? `<span class="px-2 py-1 bg-orange-500/20 border border-orange-500/40 rounded-full text-xs font-bold text-orange-400">4K ${quadro}</span>` : ''}
+                        ${triple > 0 ? `<span class="px-2 py-1 bg-yellow-500/20 border border-yellow-500/40 rounded-full text-xs font-bold text-yellow-400">3K ${triple}</span>` : ''}
                     </div>
                     
-                    <div class="mt-4 text-center">
-                        <span class="text-xs text-gray-500 bg-faceit-orange/20 px-3 py-1 rounded-full">
-                            <i class="fas fa-mouse-pointer mr-1"></i>Cliquer pour plus de détails
+                    <!-- Call to action -->
+                    <div class="text-center pt-2 border-t border-gray-700/50">
+                        <span class="text-xs text-gray-500 group-hover:text-faceit-orange transition-colors">
+                            <i class="fas fa-expand-arrows-alt mr-1"></i>Voir les détails
                         </span>
                     </div>
                 </div>
-            `;
-        }
+            </div>
+        `;
     }).join('');
 }
 

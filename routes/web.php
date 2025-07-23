@@ -147,3 +147,6 @@ Route::prefix('test')->group(function () {
         return view('test.popup');
     })->name('test.popup');
 });
+
+Route::get('/contact', [App\Http\Controllers\ContactController::class, 'index'])->name('contact');
+Route::post('/contact', [App\Http\Controllers\ContactController::class, 'submit'])->name('contact.submit');

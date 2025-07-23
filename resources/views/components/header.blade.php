@@ -20,17 +20,17 @@
                         <a href="{{ route('home') }}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('home') ? 'text-white bg-faceit-orange/20' : '' }}">
                             <i class="fas fa-home mr-2"></i>Accueil
                         </a>
-                        <a href="{{ route('friends') }}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('friends') ? 'text-white bg-faceit-orange/20' : '' }}">
-                            <i class="fas fa-user-friends mr-2"></i>Amis
-                        </a>
                         <a href="{{ route('comparison') }}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('comparison') ? 'text-white bg-faceit-orange/20' : '' }}">
-                            <i class="fas fa-balance-scale mr-2"></i>Comparer
+                            <i class="fas fa-balance-scale mr-2"></i>Comparaison
                         </a>
                         <a href="{{ route('leaderboards') }}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('leaderboards') ? 'text-white bg-faceit-orange/20' : '' }}">
                             <i class="fas fa-trophy mr-2"></i>Classements
                         </a>
                         <a href="{{ route('tournaments') }}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('tournaments') ? 'text-white bg-faceit-orange/20' : '' }}">
                             <i class="fas fa-medal mr-2"></i>Tournois
+                        </a>
+                        <a href="{{ route('friends') }}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('friends') ? 'text-white bg-faceit-orange/20' : '' }}">
+                            <i class="fas fa-user-friends mr-2"></i>Amis
                         </a>
                     </div>
                     

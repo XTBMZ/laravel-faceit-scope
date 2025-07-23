@@ -95,7 +95,6 @@
         }
         
         .stat-card:hover {
-            transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(255, 85, 0, 0.15);
         }
         
