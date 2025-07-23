@@ -15,4 +15,5 @@ return [
     'swedish' => 'Svenska',
     'turkish' => 'Türkçe',
     'ukrainian' => 'Українська',
+    'finnish' => 'Suomi',
 ];
