@@ -9,6 +9,11 @@
     <link rel="icon" type="image/png" href="{{ asset('images/ico.png') }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('images/ico.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/ico.png') }}">
+
+    <script>
+        window.authTranslations = {!! json_encode(__('auth')) !!};
+        window.currentLocale = '{{ app()->getLocale() }}';
+    </script>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>

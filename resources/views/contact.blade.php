@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Contact - Faceit Scope')
+@section('title', __('contact.title'))
 
 @section('content')
 <!-- Hero Section Épuré -->
@@ -8,7 +8,7 @@
     <div class="max-w-5xl mx-auto px-6">
         <div class="text-center">
             <h1 class="text-4xl font-light text-white mb-4 tracking-wide">
-                Contact
+                {{ __('contact.hero.title') }}
             </h1>
             <div class="w-16 h-px bg-faceit-orange mx-auto mb-3"></div>
         </div>
@@ -30,22 +30,22 @@
                     
                     <!-- Développeur -->
                     <div class="p-8 rounded-lg border border-gray-700/50" style="background: rgba(255, 255, 255, 0.02);">
-                        <h3 class="text-xl font-light text-white mb-6 tracking-wide">Développeur</h3>
+                        <h3 class="text-xl font-light text-white mb-6 tracking-wide">{{ __('contact.sidebar.developer.title') }}</h3>
                         <div class="space-y-4 text-gray-400">
                             <div class="flex items-center justify-between">
-                                <span class="text-sm uppercase tracking-wider">Nom</span>
-                                <span class="text-white font-medium">XTBMZ</span>
+                                <span class="text-sm uppercase tracking-wider">{{ __('contact.sidebar.developer.name_label') }}</span>
+                                <span class="text-white font-medium">{{ __('contact.sidebar.developer.name_value') }}</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Temps de réponse -->
                     <div class="p-8 rounded-lg border border-gray-700/50" style="background: rgba(255, 255, 255, 0.02);">
-                        <h3 class="text-xl font-light text-white mb-6 tracking-wide">Réponse</h3>
+                        <h3 class="text-xl font-light text-white mb-6 tracking-wide">{{ __('contact.sidebar.response.title') }}</h3>
                         <div class="space-y-4">
                             <div class="flex items-center justify-between text-gray-400">
-                                <span class="text-sm uppercase tracking-wider">Délai moyen</span>
-                                <span class="text-white font-medium">24h</span>
+                                <span class="text-sm uppercase tracking-wider">{{ __('contact.sidebar.response.average_delay') }}</span>
+                                <span class="text-white font-medium">{{ __('contact.sidebar.response.delay_value') }}</span>
                             </div>
                         </div>
                     </div>
@@ -62,7 +62,7 @@
                         <div class="grid md:grid-cols-2 gap-8">
                             <div>
                                 <label class="block text-sm uppercase tracking-widest text-gray-400 mb-4">
-                                    Type de message <span class="text-faceit-orange">*</span>
+                                    {{ __('contact.form.type.label') }} <span class="text-faceit-orange">{{ __('contact.form.type.required') }}</span>
                                 </label>
                                 <select 
                                     id="type" 
@@ -70,19 +70,19 @@
                                     required
                                     class="w-full bg-gray-800/50 border border-gray-600 rounded-lg text-white px-4 py-3 focus:outline-none focus:border-faceit-orange focus:ring-1 focus:ring-faceit-orange transition-all appearance-none"
                                 >
-                                    <option value="" class="bg-gray-900">Sélectionner un type</option>
-                                    <option value="bug" class="bg-gray-900">Signaler un bug</option>
-                                    <option value="suggestion" class="bg-gray-900">Suggestion</option>
-                                    <option value="question" class="bg-gray-900">Question</option>
-                                    <option value="feedback" class="bg-gray-900">Feedback</option>
-                                    <option value="other" class="bg-gray-900">Autre</option>
+                                    <option value="" class="bg-gray-900">{{ __('contact.form.type.placeholder') }}</option>
+                                    <option value="bug" class="bg-gray-900">{{ __('contact.form.type.options.bug') }}</option>
+                                    <option value="suggestion" class="bg-gray-900">{{ __('contact.form.type.options.suggestion') }}</option>
+                                    <option value="question" class="bg-gray-900">{{ __('contact.form.type.options.question') }}</option>
+                                    <option value="feedback" class="bg-gray-900">{{ __('contact.form.type.options.feedback') }}</option>
+                                    <option value="other" class="bg-gray-900">{{ __('contact.form.type.options.other') }}</option>
                                 </select>
                                 <div class="text-red-400 text-sm mt-2 hidden" id="type-error"></div>
                             </div>
 
                             <div>
                                 <label class="block text-sm uppercase tracking-widest text-gray-400 mb-4">
-                                    Sujet <span class="text-faceit-orange">*</span>
+                                    {{ __('contact.form.subject.label') }} <span class="text-faceit-orange">{{ __('contact.form.subject.required') }}</span>
                                 </label>
                                 <input 
                                     type="text" 
@@ -100,7 +100,7 @@
                         <div class="grid md:grid-cols-2 gap-8">
                             <div>
                                 <label class="block text-sm uppercase tracking-widest text-gray-400 mb-4">
-                                    Email <span class="text-faceit-orange">*</span>
+                                    {{ __('contact.form.email.label') }} <span class="text-faceit-orange">{{ __('contact.form.email.required') }}</span>
                                 </label>
                                 <input 
                                     type="email" 
@@ -114,7 +114,7 @@
                             
                             <div>
                                 <label class="block text-sm uppercase tracking-widest text-gray-400 mb-4">
-                                    Pseudo Faceit <span class="text-gray-600 text-xs lowercase normal-case">(optionnel)</span>
+                                    {{ __('contact.form.pseudo.label') }} <span class="text-gray-600 text-xs lowercase normal-case">{{ __('contact.form.pseudo.optional') }}</span>
                                 </label>
                                 <input 
                                     type="text" 
@@ -130,7 +130,7 @@
                         <!-- Message -->
                         <div>
                             <label class="block text-sm uppercase tracking-widest text-gray-400 mb-4">
-                                Message <span class="text-faceit-orange">*</span>
+                                {{ __('contact.form.message.label') }} <span class="text-faceit-orange">{{ __('contact.form.message.required') }}</span>
                             </label>
                             <textarea 
                                 id="message" 
@@ -144,7 +144,7 @@
                             <div class="flex justify-between items-center mt-3">
                                 <div class="text-red-400 text-sm hidden" id="message-error"></div>
                                 <div class="text-xs text-gray-500">
-                                    <span id="message-count">0</span>/5000 caractères
+                                    <span id="message-count">0</span>/5000 {{ __('contact.form.message.character_count') }}
                                 </div>
                             </div>
                         </div>
@@ -157,7 +157,7 @@
                                 class="group relative overflow-hidden bg-faceit-orange hover:bg-faceit-orange/90 text-white px-8 py-4 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-w-[140px]"
                             >
                                 <span class="relative z-10 text-sm uppercase tracking-wide" id="submitText">
-                                    Envoyer
+                                    {{ __('contact.form.submit.send') }}
                                 </span>
                                 <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                             </button>
@@ -167,7 +167,7 @@
                         <div class="text-xs text-gray-500 pt-4 border-t border-gray-700/50">
                             <div class="flex items-center">
                                 <div class="w-1 h-1 bg-gray-500 rounded-full mr-2"></div>
-                                Vos données sont utilisées uniquement pour traiter votre demande
+                                {{ __('contact.form.privacy_note') }}
                             </div>
                         </div>
                     </form>
@@ -180,6 +180,11 @@
 
 @push('scripts')
 <script>
+// Injecter les traductions dans le JavaScript
+window.translations = {!! json_encode([
+    'contact' => __('contact'),
+]) !!};
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('contactForm');
     const submitButton = document.getElementById('submitButton');
@@ -208,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearErrors();
         
         submitButton.disabled = true;
-        submitText.textContent = 'Envoi...';
+        submitText.textContent = window.translations.contact.form.submit.sending;
         
         try {
             const formData = new FormData(form);
@@ -232,15 +237,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (result.errors) {
                     showValidationErrors(result.errors);
                 } else {
-                    showErrorMessage(result.message || 'Une erreur est survenue.');
+                    showErrorMessage(result.message || window.translations.contact.messages.error.generic);
                 }
             }
             
         } catch (error) {
-            showErrorMessage('Erreur de connexion. Veuillez réessayer.');
+            showErrorMessage(window.translations.contact.messages.error.connection);
         } finally {
             submitButton.disabled = false;
-            submitText.textContent = 'Envoyer';
+            submitText.textContent = window.translations.contact.form.submit.send;
         }
     });
 
@@ -280,9 +285,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="inline-block p-3 rounded-full bg-green-500/20 mb-4">
                         <div class="w-3 h-3 bg-green-400 rounded-full"></div>
                     </div>
-                    <h4 class="text-white text-xl font-light mb-2 tracking-wide">Message envoyé avec succès</h4>
+                    <h4 class="text-white text-xl font-light mb-2 tracking-wide">${window.translations.contact.messages.success.title}</h4>
                     <p class="text-green-200 mb-2">${message}</p>
-                    <p class="text-green-300 text-sm">Ticket ID: <span class="font-medium">${ticketId}</span></p>
+                    <p class="text-green-300 text-sm">${window.translations.contact.messages.success.ticket_id} <span class="font-medium">${ticketId}</span></p>
                 </div>
             </div>
         `;
@@ -298,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="inline-block p-3 rounded-full bg-red-500/20 mb-4">
                         <div class="w-3 h-3 bg-red-400 rounded-full"></div>
                     </div>
-                    <h4 class="text-white text-xl font-light mb-2 tracking-wide">Erreur d'envoi</h4>
+                    <h4 class="text-white text-xl font-light mb-2 tracking-wide">${window.translations.contact.messages.error.title}</h4>
                     <p class="text-red-200">${message}</p>
                 </div>
             </div>
