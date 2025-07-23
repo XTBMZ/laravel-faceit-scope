@@ -248,7 +248,7 @@ async function displayMainStats(stats) {
         {
             icon: 'fas fa-fire',
             label: window.translations.advanced.stats.kr_ratio,
-            value: lifetime["Average K/R Ratio"] || '0.00',
+            value: lifetime["ADR"] || '0.00',
             color: 'text-red-400',
             bgColor: 'bg-red-500/10 border-red-500/30'
         },
@@ -895,7 +895,7 @@ function showMapStatsModal(mapIndex) {
                         <div class="flex justify-between"><span class="text-gray-300">${t.total_kills}</span><span class="font-bold text-white">${formatNumber(totalKills)}</span></div>
                         <div class="flex justify-between"><span class="text-gray-300">${t.total_deaths}</span><span class="font-bold text-white">${formatNumber(totalDeaths)}</span></div>
                         <div class="flex justify-between"><span class="text-gray-300">${t.total_assists}</span><span class="font-bold text-white">${formatNumber(totalAssists)}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">K/R Ratio</span><span class="font-bold text-orange-400">${kr}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">ADR</span><span class="font-bold text-orange-400">${kr}</span></div>
                         <div class="flex justify-between"><span class="text-gray-300">${t.kills_per_round}</span><span class="font-bold text-green-400">${killsPerRound}</span></div>
                         <div class="flex justify-between"><span class="text-gray-300">${t.deaths_per_round}</span><span class="font-bold text-red-400">${deathsPerRound}</span></div>
                         <div class="flex justify-between"><span class="text-gray-300">${t.opening_kill_ratio}</span><span class="font-bold text-blue-400">${entrySuccessRate}%</span></div>
