@@ -1,0 +1,27 @@
+<?php
+// resources/lang/fr/common.php
+return [
+    'loading' => 'Chargement...',
+    'error' => 'Erreur',
+    'success' => 'Succès',
+    'retry' => 'Réessayer',
+    'cancel' => 'Annuler',
+    'confirm' => 'Confirmer',
+    'close' => 'Fermer',
+    'search' => 'Rechercher',
+    'filter' => 'Filtrer',
+    'sort' => 'Trier',
+    'refresh' => 'Actualiser',
+    'save' => 'Sauvegarder',
+    'delete' => 'Supprimer',
+    'edit' => 'Modifier',
+    'view' => 'Voir',
+    'today' => 'Aujourd\'hui',
+    'yesterday' => 'Hier',
+    'days_ago' => 'Il y a :count jours',
+    'weeks_ago' => 'Il y a :count semaines',
+    'months_ago' => 'Il y a :count mois',
+    'no_data' => 'Aucune donnée disponible',
+    'server_error' => 'Erreur serveur. Veuillez réessayer plus tard.',
+    'network_error' => 'Erreur de connexion. Vérifiez votre connexion internet.',
+];

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Mes Amis FACEIT - Faceit Scope')
+@section('title', __('friends.title') . ' - Faceit Scope')
 
 @section('content')
 <!-- Hero Section Compact -->
@@ -8,11 +8,11 @@
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center space-y-4">
             <h1 class="text-4xl md:text-5xl font-black text-white">
-                Mes Amis <span class="text-faceit-orange">FACEIT</span>
+                {{ __('friends.title') }}
             </h1>
             <div class="w-16 h-1 bg-faceit-orange mx-auto"></div>
             <p class="text-lg text-gray-400 max-w-2xl mx-auto">
-                Découvrez les performances de votre cercle de joueurs
+                {{ __('friends.subtitle') }}
             </p>
         </div>
     </div>
@@ -38,7 +38,7 @@
                             <input 
                                 id="searchInput" 
                                 type="text" 
-                                placeholder="Rechercher un ami..." 
+                                placeholder="{{ __('friends.search_placeholder') }}" 
                                 class="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-faceit-orange focus:border-transparent transition-all"
                             >
                             <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
@@ -46,29 +46,29 @@
                     </div>
                     <div>
                         <select id="activityFilter" class="w-full py-3 px-4 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-faceit-orange">
-                            <option value="all">Toute activité</option>
-                            <option value="recent">Récent (7j)</option>
-                            <option value="month">Ce mois</option>
-                            <option value="inactive">Inactif (30j+)</option>
+                            <option value="all">{{ __('friends.activity_filter.all') }}</option>
+                            <option value="recent">{{ __('friends.activity_filter.recent') }}</option>
+                            <option value="month">{{ __('friends.activity_filter.month') }}</option>
+                            <option value="inactive">{{ __('friends.activity_filter.inactive') }}</option>
                         </select>
                     </div>
                     <div>
                         <select id="sortBy" class="w-full py-3 px-4 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-faceit-orange">
-                            <option value="elo">ELO</option>
-                            <option value="activity">Activité</option>
-                            <option value="name">Nom</option>
-                            <option value="level">Niveau</option>
+                            <option value="elo">{{ __('friends.sort_by.elo') }}</option>
+                            <option value="activity">{{ __('friends.sort_by.activity') }}</option>
+                            <option value="name">{{ __('friends.sort_by.name') }}</option>
+                            <option value="level">{{ __('friends.sort_by.level') }}</option>
                         </select>
                     </div>
                 </div>
                 <div class="flex justify-between items-center mt-4">
                     <div class="flex items-center space-x-4">
                         <span class="text-sm text-gray-400">
-                            <span id="friendsCount">0</span> amis
+                            <span id="friendsCount">0</span> {{ trans_choice('friends.count', 0) }}
                             <span id="filteredCount" class="text-faceit-orange"></span>
                         </span>
                         <button id="refreshFriends" class="text-sm bg-faceit-orange hover:bg-faceit-orange-dark px-4 py-2 rounded-lg transition-colors">
-                            <i class="fas fa-sync-alt mr-1"></i>Actualiser
+                            <i class="fas fa-sync-alt mr-1"></i>{{ __('common.refresh') }}
                         </button>
                         <div id="lastUpdate" class="text-xs text-gray-500"></div>
                     </div>
@@ -92,8 +92,8 @@
                     <i class="fas fa-users text-faceit-orange"></i>
                 </div>
             </div>
-            <h2 class="text-xl font-semibold mb-2">Chargement des amis...</h2>
-            <p id="loadingProgress" class="text-gray-400">Récupération des données FACEIT</p>
+            <h2 class="text-xl font-semibold mb-2">{{ __('friends.loading.title') }}</h2>
+            <p id="loadingProgress" class="text-gray-400">{{ __('friends.loading.connecting') }}</p>
             <div class="max-w-sm mx-auto mt-4">
                 <div class="bg-gray-800 rounded-full h-2 overflow-hidden">
                     <div id="progressBar" class="bg-faceit-orange h-full transition-all duration-500" style="width: 0%"></div>
@@ -106,10 +106,10 @@
             <div class="w-16 h-16 bg-red-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
             </div>
-            <h2 class="text-xl font-semibold mb-2 text-red-400">Erreur de chargement</h2>
+            <h2 class="text-xl font-semibold mb-2 text-red-400">{{ __('friends.error.title') }}</h2>
             <p id="errorMessage" class="text-gray-400 mb-4"></p>
             <button id="retryButton" class="bg-faceit-orange hover:bg-faceit-orange-dark px-6 py-3 rounded-lg font-medium transition-colors">
-                <i class="fas fa-redo mr-2"></i>Réessayer
+                <i class="fas fa-redo mr-2"></i>{{ __('common.retry') }}
             </button>
         </div>
 
@@ -118,10 +118,10 @@
             <div class="w-16 h-16 bg-gray-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-user-friends text-gray-400 text-2xl"></i>
             </div>
-            <h2 class="text-xl font-semibold mb-2">Aucun ami trouvé</h2>
-            <p class="text-gray-400 mb-4">Vous n'avez pas encore d'amis sur FACEIT</p>
+            <h2 class="text-xl font-semibold mb-2">{{ __('friends.empty.title') }}</h2>
+            <p class="text-gray-400 mb-4">{{ __('friends.empty.description') }}</p>
             <a href="https://www.faceit.com" target="_blank" class="inline-flex items-center bg-faceit-orange hover:bg-faceit-orange-dark px-6 py-3 rounded-lg font-medium transition-colors">
-                <i class="fas fa-external-link-alt mr-2"></i>Aller sur FACEIT
+                <i class="fas fa-external-link-alt mr-2"></i>{{ __('friends.empty.action') }}
             </a>
         </div>
 
@@ -140,7 +140,7 @@
             <!-- Load More Button -->
             <div id="loadMoreContainer" class="hidden text-center mt-8">
                 <button id="loadMoreButton" class="bg-gray-700 hover:bg-gray-600 px-8 py-3 rounded-xl font-medium transition-colors">
-                    <i class="fas fa-plus mr-2"></i>Voir plus d'amis
+                    <i class="fas fa-plus mr-2"></i>{{ __('friends.load_more', ['count' => 10]) }}
                 </button>
             </div>
         </div>
@@ -155,12 +155,23 @@
         </div>
     </div>
 </div>
+
+<!-- Script avec traductions injectées -->
+<script>
+// Injecter les traductions dans le JavaScript
+window.translations = @json([
+    'common' => __('common'),
+    'friends' => __('friends'),
+    'navigation' => __('navigation'),
+]);
+window.currentLocale = '{{ app()->getLocale() }}';
+</script>
 @endsection
 
 @push('scripts')
 <script>
 /**
- * Friends.js OPTIMISÉ - Chargement de tous les amis en parallèle
+ * Friends.js OPTIMISÉ - VERSION TRADUITE
  * Tous les appels API sont faits simultanément pour un chargement plus rapide
  */
 
@@ -183,9 +194,21 @@ let isLoading = false;
 const cache = new Map();
 const CACHE_DURATION = 5 * 60 * 1000;
 
+// Fonction de traduction
+function __(key, replacements = {}) {
+    let translation = key.split('.').reduce((obj, k) => obj && obj[k], window.translations) || key;
+    
+    // Remplacer les placeholders
+    for (const [placeholder, value] of Object.entries(replacements)) {
+        translation = translation.replace(`:${placeholder}`, value);
+    }
+    
+    return translation;
+}
+
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Friends All-at-once Loading chargé');
+    console.log('🚀 Friends All-at-once Loading chargé (traduit)');
     setupEventListeners();
     loadFriends();
 });
@@ -270,7 +293,7 @@ function calculateLastActivity(lastMatchTimestamp) {
     if (!lastMatchTimestamp) {
         return {
             days_ago: 999,
-            text: 'Aucune activité récente',
+            text: __('friends.activity.no_recent'),
             category: 'inactive'
         };
     }
@@ -283,21 +306,23 @@ function calculateLastActivity(lastMatchTimestamp) {
     let text, category;
     
     if (daysAgo === 0) {
-        text = "Aujourd'hui";
+        text = __('friends.activity.today');
         category = 'recent';
     } else if (daysAgo === 1) {
-        text = "Hier";
+        text = __('friends.activity.yesterday');
         category = 'recent';
     } else if (daysAgo <= 7) {
-        text = `Il y a ${daysAgo} jours`;
+        text = __('friends.activity.days_ago', { count: daysAgo });
         category = 'recent';
     } else if (daysAgo <= 30) {
         const weeks = Math.floor(daysAgo / 7);
-        text = `Il y a ${weeks} semaine${weeks > 1 ? 's' : ''}`;
+        text = weeks === 1 
+            ? __('friends.activity.weeks_ago', { count: weeks })
+            : __('friends.activity.weeks_ago_plural', { count: weeks });
         category = 'month';
     } else {
         const months = Math.floor(daysAgo / 30);
-        text = `Il y a ${months} mois`;
+        text = __('friends.activity.months_ago', { count: months });
         category = 'inactive';
     }
 
@@ -328,19 +353,19 @@ async function loadFriends() {
     try {
         isLoading = true;
         showLoading();
-        updateProgress('Connexion...', 10);
+        updateProgress(__('friends.loading.connecting'), 10);
         
         // 1. Récupérer l'utilisateur actuel
         const userResponse = await fetch('/api/auth/user');
-        if (!userResponse.ok) throw new Error('Non authentifié');
+        if (!userResponse.ok) throw new Error(__('friends.error.not_authenticated'));
         
         const userData = await userResponse.json();
         if (!userData.authenticated || !userData.user?.player_data?.player_id) {
-            throw new Error('Données utilisateur manquantes');
+            throw new Error(__('friends.error.missing_data'));
         }
         
         const currentUserId = userData.user.player_data.player_id;
-        updateProgress('Récupération de la liste d\'amis...', 30);
+        updateProgress(__('friends.loading.fetching_friends'), 30);
         
         // 2. Récupérer la liste d'amis
         const playerData = await faceitApiCall(`players/${currentUserId}`);
@@ -351,10 +376,10 @@ async function loadFriends() {
         }
         
         const friendIds = playerData.friends_ids;
-        console.log(`📋 ${friendIds.length} amis trouvés`);
+        console.log(`📋 ${friendIds.length} ${__('friends.count', { count: friendIds.length })}`);
         
         // 3. Chargement de TOUS les amis d'un coup
-        updateProgress('Chargement de tous les amis...', 50);
+        updateProgress(__('friends.loading.loading_all'), 50);
         console.log('🚀 Démarrage du chargement de tous les amis simultanément');
         
         // Créer toutes les promesses en parallèle
@@ -368,10 +393,12 @@ async function loadFriends() {
             .filter(result => result.status === 'fulfilled' && result.value)
             .map(result => result.value);
         
-        console.log(`✅ ${allFriends.length} amis chargés sur ${friendIds.length} (${Math.round((allFriends.length / friendIds.length) * 100)}% de succès)`);
+        const successRate = Math.round((allFriends.length / friendIds.length) * 100);
+        console.log(__('friends.friends_loaded', { loaded: allFriends.length, total: friendIds.length }));
+        console.log(__('friends.success_rate', { percentage: successRate }));
         
         // 4. Affichage
-        updateProgress('Finalisation...', 90);
+        updateProgress(__('friends.loading.finalizing'), 90);
         displayStats(calculateStats());
         filterFriends();
         showFriendsContent();
@@ -412,33 +439,8 @@ function displayStats(stats) {
     statsContainer.innerHTML = `
         <div class="bg-faceit-card rounded-xl p-4 border border-gray-800 text-center">
             <div class="flex items-center justify-center mb-2">
-                <i class="fas fa-users text-blue-400 mr-2"></i>
-                <span class="text-sm text-gray-400">Total</span>
-            </div>
-            <div class="text-2xl font-bold">${stats.total}</div>
-        </div>
-        
-        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800 text-center">
-            <div class="flex items-center justify-center mb-2">
-                <i class="fas fa-clock text-green-400 mr-2"></i>
-                <span class="text-sm text-gray-400">Actifs (7j)</span>
-            </div>
-            <div class="text-2xl font-bold text-green-400">${stats.recent}</div>
-            <div class="text-xs text-gray-500">${recentPercentage}%</div>
-        </div>
-        
-        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800 text-center">
-            <div class="flex items-center justify-center mb-2">
-                <i class="fas fa-chart-line text-faceit-orange mr-2"></i>
-                <span class="text-sm text-gray-400">ELO Moyen</span>
-            </div>
-            <div class="text-2xl font-bold text-faceit-orange">${stats.average_elo}</div>
-        </div>
-        
-        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800 text-center">
-            <div class="flex items-center justify-center mb-2">
                 <i class="fas fa-crown text-yellow-400 mr-2"></i>
-                <span class="text-sm text-gray-400">Meilleur</span>
+                <span class="text-sm text-gray-400">${__('friends.stats.best')}</span>
             </div>
             <div class="text-2xl font-bold text-yellow-400">${stats.highest_elo}</div>
         </div>
@@ -522,7 +524,7 @@ function updateDisplay() {
     
     if (filteredCountElement) {
         if (filteredCount !== totalCount) {
-            filteredCountElement.textContent = ` (${filteredCount} affichés)`;
+            filteredCountElement.textContent = ` ${__('friends.filtered_count', { count: filteredCount })}`;
         } else {
             filteredCountElement.textContent = '';
         }
@@ -655,7 +657,7 @@ function showFriendDetails(friend) {
     modalContent.innerHTML = `
         <div class="p-6">
             <div class="flex justify-between items-start mb-6">
-                <h2 class="text-xl font-bold">Détails de l'ami</h2>
+                <h2 class="text-xl font-bold">${__('friends.modal.title')}</h2>
                 <button onclick="closeFriendModal()" class="text-gray-400 hover:text-white p-2">
                     <i class="fas fa-times"></i>
                 </button>
@@ -683,21 +685,21 @@ function showFriendDetails(friend) {
             <div class="grid grid-cols-2 gap-4 mb-6">
                 <div class="bg-faceit-card rounded-lg p-4 text-center">
                     <div class="text-xl font-bold text-faceit-orange mb-1">${formatNumber(friend.faceit_elo)}</div>
-                    <div class="text-sm text-gray-400">ELO FACEIT</div>
+                    <div class="text-sm text-gray-400">${__('friends.modal.elo_faceit')}</div>
                 </div>
                 
                 <div class="bg-faceit-card rounded-lg p-4 text-center">
                     <div class="text-sm font-bold text-gray-300 mb-1">${friend.last_activity.text}</div>
-                    <div class="text-sm text-gray-400">Dernière activité</div>
+                    <div class="text-sm text-gray-400">${__('friends.modal.last_activity')}</div>
                 </div>
             </div>
             
             <div class="flex space-x-3">
                 <a href="${buildFaceitProfileUrl(friend)}" target="_blank" class="flex-1 bg-faceit-orange hover:bg-faceit-orange-dark py-3 px-4 rounded-lg text-center font-medium transition-colors">
-                    <i class="fas fa-external-link-alt mr-2"></i>Voir sur FACEIT
+                    <i class="fas fa-external-link-alt mr-2"></i>${__('friends.modal.view_faceit')}
                 </a>
                 <button onclick="showPlayerStats('${friend.player_id}', '${friend.nickname}')" class="flex-1 bg-blue-600 hover:bg-blue-700 py-3 px-4 rounded-lg text-center font-medium transition-colors">
-                    <i class="fas fa-chart-line mr-2"></i>Voir les stats
+                    <i class="fas fa-chart-line mr-2"></i>${__('friends.modal.view_stats')}
                 </button>
             </div>
         </div>
@@ -745,7 +747,7 @@ function updateLoadMoreButton(endIndex) {
     if (endIndex < filteredFriends.length) {
         loadMoreContainer.classList.remove('hidden');
         const remaining = filteredFriends.length - endIndex;
-        loadMoreButton.innerHTML = `<i class="fas fa-plus mr-2"></i>Voir ${remaining} de plus`;
+        loadMoreButton.innerHTML = `<i class="fas fa-plus mr-2"></i>${__('friends.load_more', { count: remaining })}`;
         loadMoreButton.onclick = () => { currentPage++; displayFriends(); };
     } else {
         loadMoreContainer.classList.add('hidden');
@@ -835,10 +837,7 @@ function buildFaceitProfileUrl(friend) {
     return `https://www.faceit.com/fr/players/${friend.nickname}`;
 }
 
-// Export global
+// Export global pour les autres scripts
 window.closeFriendModal = closeFriendModal;
 window.showPlayerStats = showPlayerStats;
-
-console.log('🚀 Friends All-at-once Loading optimisé !');
 </script>
-@endpush

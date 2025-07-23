@@ -12,12 +12,23 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FriendsController;
 use App\Http\Controllers\ExtensionController;
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\LanguageController;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 */
+
+// Routes pour le changement de langue
+Route::prefix('language')->name('language.')->group(function () {
+    Route::get('/set/{locale}', [LanguageController::class, 'setLanguage'])->name('set');
+    Route::get('/current', [LanguageController::class, 'getCurrentLanguage'])->name('current');
+    Route::post('/api/set', [LanguageController::class, 'apiSetLanguage'])->name('api.set');
+});
+
+// API pour le changement de langue (compatible avec le JavaScript)
+Route::post('/api/language/set', [LanguageController::class, 'apiSetLanguage'])->name('api.language.set');
 
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/privacy', [AboutController::class, 'privacy'])->name('privacy');
