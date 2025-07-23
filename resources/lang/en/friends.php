@@ -2,6 +2,7 @@
 return [
     'title' => 'My FACEIT Friends',
     'subtitle' => 'Discover your gaming circle\'s performance',
+    'load_more' => 'Voir :count de plus',
     'stats' => [
         'total' => 'Total',
         'active_7d' => 'Active (7d)',

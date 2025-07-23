@@ -773,7 +773,7 @@ function updateLoadMoreButton(endIndex) {
     if (endIndex < filteredFriends.length) {
         loadMoreContainer.classList.remove('hidden');
         const remaining = filteredFriends.length - endIndex;
-        loadMoreButton.innerHTML = `<i class="fas fa-plus mr-2"></i>Voir ${remaining} de plus`;
+        loadMoreButton.innerHTML = `<i class="fas fa-plus mr-2"></i>${__('friends.load_more', { count: remaining })}`;
         loadMoreButton.onclick = () => { currentPage++; displayFriends(); };
     } else {
         loadMoreContainer.classList.add('hidden');
