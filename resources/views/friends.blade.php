@@ -64,7 +64,7 @@
                 <div class="flex justify-between items-center mt-4">
                     <div class="flex items-center space-x-4">
                         <span class="text-sm text-gray-400">
-                            <span id="friendsCount">0</span> {{ trans_choice('friends.count', 0) }}
+                            <span id="friendsCount">0</span> {{ __('friends.count', ['count' => 0]) }}
                             <span id="filteredCount" class="text-faceit-orange"></span>
                         </span>
                         <button id="refreshFriends" class="text-sm bg-faceit-orange hover:bg-faceit-orange-dark px-4 py-2 rounded-lg transition-colors">
@@ -171,7 +171,7 @@ window.currentLocale = '{{ app()->getLocale() }}';
 @push('scripts')
 <script>
 /**
- * Friends.js OPTIMISÉ - VERSION TRADUITE
+ * Friends.js OPTIMISÉ - VERSION TRADUITE COMPLÈTE
  * Tous les appels API sont faits simultanément pour un chargement plus rapide
  */
 
@@ -437,6 +437,31 @@ function displayStats(stats) {
     const recentPercentage = stats.total > 0 ? Math.round((stats.recent / stats.total) * 100) : 0;
 
     statsContainer.innerHTML = `
+        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800 text-center">
+            <div class="flex items-center justify-center mb-2">
+                <i class="fas fa-users text-blue-400 mr-2"></i>
+                <span class="text-sm text-gray-400">${__('friends.stats.total')}</span>
+            </div>
+            <div class="text-2xl font-bold">${stats.total}</div>
+        </div>
+        
+        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800 text-center">
+            <div class="flex items-center justify-center mb-2">
+                <i class="fas fa-clock text-green-400 mr-2"></i>
+                <span class="text-sm text-gray-400">${__('friends.stats.active_7d')}</span>
+            </div>
+            <div class="text-2xl font-bold text-green-400">${stats.recent}</div>
+            <div class="text-xs text-gray-500">${recentPercentage}%</div>
+        </div>
+        
+        <div class="bg-faceit-card rounded-xl p-4 border border-gray-800 text-center">
+            <div class="flex items-center justify-center mb-2">
+                <i class="fas fa-chart-line text-faceit-orange mr-2"></i>
+                <span class="text-sm text-gray-400">${__('friends.stats.average_elo')}</span>
+            </div>
+            <div class="text-2xl font-bold text-faceit-orange">${stats.average_elo}</div>
+        </div>
+        
         <div class="bg-faceit-card rounded-xl p-4 border border-gray-800 text-center">
             <div class="flex items-center justify-center mb-2">
                 <i class="fas fa-crown text-yellow-400 mr-2"></i>
@@ -840,4 +865,7 @@ function buildFaceitProfileUrl(friend) {
 // Export global pour les autres scripts
 window.closeFriendModal = closeFriendModal;
 window.showPlayerStats = showPlayerStats;
+
+console.log('🚀 Friends All-at-once Loading optimisé et traduit !');
 </script>
+@endpush
