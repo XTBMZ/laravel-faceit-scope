@@ -7,14 +7,14 @@
                 <span class="text-lg font-semibold">Faceit Scope</span>
             </div>
             <div class="flex space-x-6 text-sm text-gray-400">
-                <a href="#" class="hover:text-white transition-colors">À propos</a>
+                <a href="{{ route('about') }}" class="hover:text-white transition-colors">À propos</a>
+                <a href="{{ route('privacy') }}" class="hover:text-white transition-colors">Confidentialité</a>
                 <a href="#" class="hover:text-white transition-colors">Contact</a>
                 <a href="#" class="hover:text-white transition-colors">API</a>
-                <a href="#" class="hover:text-white transition-colors">Confidentialité</a>
             </div>
         </div>
         <div class="border-t border-gray-800 mt-6 pt-6 text-center text-sm text-gray-500">
-            © {{ date('Y') }} Faceit Scope. Données fournies par FACEIT API.
+             {{ date('Y') }} Faceit Scope. Données fournies par FACEIT API.
         </div>
     </div>
 </footer>

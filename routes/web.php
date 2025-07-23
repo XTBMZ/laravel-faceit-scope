@@ -20,6 +20,7 @@ use App\Http\Controllers\AboutController;
 */
 
 Route::get('/about', [AboutController::class, 'index'])->name('about');
+Route::get('/privacy', [AboutController::class, 'privacy'])->name('privacy');
 
 Route::middleware(['cors'])->group(function () {
     

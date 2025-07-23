@@ -21,4 +21,12 @@ class AboutController extends Controller
 
         return view('about', compact('stats'));
     }
+
+    /**
+     * Affiche la page Politique de confidentialité
+     */
+    public function privacy()
+    {
+        return view('privacy');
+    }
 }
