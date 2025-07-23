@@ -33,7 +33,7 @@ return [
         'win_rate' => 'Wskaźnik wygranych',
         'kd_ratio' => 'Stosunek K/D',
         'headshots' => 'Headshot',
-        'kr_ratio' => 'Stosunek K/R',
+        'ADR' => 'ADR',
         'entry_rate' => 'Wskaźnik entry',
         'clutch_master' => 'Mistrz clutch',
         'total_clutches' => 'Łączne clutche',

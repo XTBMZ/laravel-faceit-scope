@@ -33,7 +33,7 @@ return [
         'win_rate' => 'Vindrate',
         'kd_ratio' => 'K/D-forhold',
         'headshots' => 'Headshots',
-        'kr_ratio' => 'K/R-forhold',
+        'ADR' => 'ADR',
         'entry_rate' => 'Entry rate',
         'clutch_master' => 'Clutch master',
         'total_clutches' => 'Total clutches',

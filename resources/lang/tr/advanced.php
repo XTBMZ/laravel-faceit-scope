@@ -33,7 +33,7 @@ return [
         'win_rate' => 'Kazanma Oranı',
         'kd_ratio' => 'K/D Oranı',
         'headshots' => 'Kafadan Vuruşlar',
-        'kr_ratio' => 'K/R Oranı',
+        'ADR' => 'ADR',
         'entry_rate' => 'Giriş Oranı',
         'clutch_master' => 'Clutch Master',
         'total_clutches' => 'Toplam Clutch',

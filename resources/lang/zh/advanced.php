@@ -33,7 +33,7 @@ return [
         'win_rate' => '胜率',
         'kd_ratio' => 'K/D 比率',
         'headshots' => '爆头',
-        'kr_ratio' => 'K/R 比率',
+        'ADR' => 'ADR',
         'entry_rate' => '进攻率',
         'clutch_master' => '残局大师',
         'total_clutches' => '总残局数',

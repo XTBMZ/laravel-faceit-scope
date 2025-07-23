@@ -33,7 +33,7 @@ return [
         'win_rate' => 'Процент побед',
         'kd_ratio' => 'Соотношение K/D',
         'headshots' => 'Хедшоты',
-        'kr_ratio' => 'Соотношение K/R',
+        'ADR' => 'ADR',
         'entry_rate' => 'Процент входа',
         'clutch_master' => 'Мастер клатча',
         'total_clutches' => 'Всего клатчей',

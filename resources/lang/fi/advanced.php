@@ -33,7 +33,7 @@ return [
         'win_rate' => 'Voittoprosentti',
         'kd_ratio' => 'K/D-suhde',
         'headshots' => 'Pääosumit',
-        'kr_ratio' => 'K/R-suhde',
+        'ADR' => 'ADR',
         'entry_rate' => 'Entry-prosentti',
         'clutch_master' => 'Clutch-mestari',
         'total_clutches' => 'Clutchit yhteensä',

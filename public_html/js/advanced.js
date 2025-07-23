@@ -247,7 +247,7 @@ async function displayMainStats(stats) {
         },
         {
             icon: 'fas fa-fire',
-            label: window.translations.advanced.stats.kr_ratio,
+            label: window.translations.advanced.stats.adr,
             value: lifetime["ADR"] || '0.00',
             color: 'text-red-400',
             bgColor: 'bg-red-500/10 border-red-500/30'

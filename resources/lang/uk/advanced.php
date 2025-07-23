@@ -33,7 +33,7 @@ return [
         'win_rate' => 'Показник перемог',
         'kd_ratio' => 'Співвідношення K/D',
         'headshots' => 'Хедшоти',
-        'kr_ratio' => 'Співвідношення K/R',
+        'ADR' => 'ADR',
         'entry_rate' => 'Показник entry',
         'clutch_master' => 'Майстер clutch',
         'total_clutches' => 'Загальні clutch',
