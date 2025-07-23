@@ -155,20 +155,20 @@
         </div>
     </div>
 </div>
-
-<!-- Script avec traductions injectées -->
-<script>
-// Injecter les traductions dans le JavaScript
-window.translations = @json([
-    'common' => __('common'),
-    'friends' => __('friends'),
-    'navigation' => __('navigation'),
-]);
-window.currentLocale = '{{ app()->getLocale() }}';
-</script>
 @endsection
 
 @push('scripts')
+<!-- Script avec traductions injectées -->
+<script>
+// Injecter les traductions dans le JavaScript
+window.translations = {!! json_encode([
+    'common' => __('common'),
+    'friends' => __('friends'),
+    'navigation' => __('navigation'),
+]) !!};
+window.currentLocale = '{{ app()->getLocale() }}';
+</script>
+
 <script>
 /**
  * Friends.js OPTIMISÉ - VERSION TRADUITE COMPLÈTE
@@ -196,11 +196,13 @@ const CACHE_DURATION = 5 * 60 * 1000;
 
 // Fonction de traduction
 function __(key, replacements = {}) {
+    if (!window.translations) return key;
+    
     let translation = key.split('.').reduce((obj, k) => obj && obj[k], window.translations) || key;
     
     // Remplacer les placeholders
     for (const [placeholder, value] of Object.entries(replacements)) {
-        translation = translation.replace(`:${placeholder}`, value);
+        translation = translation.replace(':' + placeholder, value);
     }
     
     return translation;
@@ -376,7 +378,7 @@ async function loadFriends() {
         }
         
         const friendIds = playerData.friends_ids;
-        console.log(`📋 ${friendIds.length} ${__('friends.count', { count: friendIds.length })}`);
+        console.log(`📋 ${friendIds.length} amis trouvés`);
         
         // 3. Chargement de TOUS les amis d'un coup
         updateProgress(__('friends.loading.loading_all'), 50);
@@ -394,8 +396,7 @@ async function loadFriends() {
             .map(result => result.value);
         
         const successRate = Math.round((allFriends.length / friendIds.length) * 100);
-        console.log(__('friends.friends_loaded', { loaded: allFriends.length, total: friendIds.length }));
-        console.log(__('friends.success_rate', { percentage: successRate }));
+        console.log(`✅ ${allFriends.length} amis chargés sur ${friendIds.length} (${successRate}% de succès)`);
         
         // 4. Affichage
         updateProgress(__('friends.loading.finalizing'), 90);
@@ -549,7 +550,7 @@ function updateDisplay() {
     
     if (filteredCountElement) {
         if (filteredCount !== totalCount) {
-            filteredCountElement.textContent = ` ${__('friends.filtered_count', { count: filteredCount })}`;
+            filteredCountElement.textContent = ` (${filteredCount} affichés)`;
         } else {
             filteredCountElement.textContent = '';
         }
@@ -772,7 +773,7 @@ function updateLoadMoreButton(endIndex) {
     if (endIndex < filteredFriends.length) {
         loadMoreContainer.classList.remove('hidden');
         const remaining = filteredFriends.length - endIndex;
-        loadMoreButton.innerHTML = `<i class="fas fa-plus mr-2"></i>${__('friends.load_more', { count: remaining })}`;
+        loadMoreButton.innerHTML = `<i class="fas fa-plus mr-2"></i>Voir ${remaining} de plus`;
         loadMoreButton.onclick = () => { currentPage++; displayFriends(); };
     } else {
         loadMoreContainer.classList.add('hidden');
