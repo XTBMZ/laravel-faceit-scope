@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Championnats CS2 - FACEIT Stats Pro')
+@section('title', __('tournaments.title'))
 
 @push('styles')
 <style>
@@ -170,23 +170,23 @@
                     <i class="fas fa-crown text-5xl text-purple-400 animate-float ml-4" style="animation-delay: 1s;"></i>
                 </div>
                 <h1 class="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
-                    Championnats CS2
+                    {{ __('tournaments.hero.title') }}
                 </h1>
                 <p class="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-8">
-                    Découvrez les championnats CS2 officiels FACEIT et suivez les meilleurs événements eSport en temps réel
+                    {{ __('tournaments.hero.subtitle') }}
                 </p>
                 <div class="flex flex-wrap justify-center items-center gap-6 text-gray-400">
                     <div class="flex items-center space-x-2">
                         <i class="fas fa-fire text-orange-500"></i>
-                        <span>Championnats en cours</span>
+                        <span>{{ __('tournaments.hero.features.ongoing') }}</span>
                     </div>
                     <div class="flex items-center space-x-2">
                         <i class="fas fa-calendar text-blue-400"></i>
-                        <span>Événements à venir</span>
+                        <span>{{ __('tournaments.hero.features.upcoming') }}</span>
                     </div>
                     <div class="flex items-center space-x-2">
                         <i class="fas fa-star text-yellow-400"></i>
-                        <span>Championnats premium</span>
+                        <span>{{ __('tournaments.hero.features.premium') }}</span>
                     </div>
                 </div>
             </div>
@@ -203,16 +203,16 @@
                     <!-- Tabs -->
                     <div class="flex flex-wrap gap-2">
                         <button class="tab-button active" data-type="ongoing">
-                            <i class="fas fa-play mr-2"></i>En cours
+                            <i class="fas fa-play mr-2"></i>{{ __('tournaments.filters.tabs.ongoing') }}
                         </button>
                         <button class="tab-button" data-type="upcoming">
-                            <i class="fas fa-calendar-plus mr-2"></i>À venir
+                            <i class="fas fa-calendar-plus mr-2"></i>{{ __('tournaments.filters.tabs.upcoming') }}
                         </button>
                         <button class="tab-button" data-type="past">
-                            <i class="fas fa-history mr-2"></i>Terminés
+                            <i class="fas fa-history mr-2"></i>{{ __('tournaments.filters.tabs.past') }}
                         </button>
                         <button class="tab-button" data-type="featured">
-                            <i class="fas fa-crown mr-2"></i>Premium
+                            <i class="fas fa-crown mr-2"></i>{{ __('tournaments.filters.tabs.featured') }}
                         </button>
                     </div>
                     
@@ -222,13 +222,13 @@
                             <input 
                                 id="championshipSearchInput" 
                                 type="text" 
-                                placeholder="Rechercher un championnat..."
+                                placeholder="{{ __('tournaments.filters.search.placeholder') }}"
                                 class="w-64 px-4 py-3 bg-gray-800/80 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
                             >
                             <i class="fas fa-search absolute right-4 top-4 text-gray-400"></i>
                         </div>
                         <button id="searchChampionshipButton" class="bg-orange-500 hover:bg-orange-600 px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105 btn-glow">
-                            Rechercher
+                            {{ __('tournaments.filters.search.button') }}
                         </button>
                     </div>
                 </div>
@@ -237,19 +237,19 @@
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-700/30">
                     <div class="text-center">
                         <div class="text-2xl font-bold text-orange-500" id="ongoingChampionships">-</div>
-                        <div class="text-sm text-gray-400">En cours</div>
+                        <div class="text-sm text-gray-400">{{ __('tournaments.filters.stats.ongoing') }}</div>
                     </div>
                     <div class="text-center">
                         <div class="text-2xl font-bold text-blue-400" id="upcomingChampionships">-</div>
-                        <div class="text-sm text-gray-400">À venir</div>
+                        <div class="text-sm text-gray-400">{{ __('tournaments.filters.stats.upcoming') }}</div>
                     </div>
                     <div class="text-center">
                         <div class="text-2xl font-bold text-green-400" id="totalPrizePool">-</div>
-                        <div class="text-sm text-gray-400">Prize pools</div>
+                        <div class="text-sm text-gray-400">{{ __('tournaments.filters.stats.prize_pools') }}</div>
                     </div>
                     <div class="text-center">
                         <div class="text-2xl font-bold text-purple-400" id="totalPlayers">-</div>
-                        <div class="text-sm text-gray-400">Participants</div>
+                        <div class="text-sm text-gray-400">{{ __('tournaments.filters.stats.participants') }}</div>
                     </div>
                 </div>
             </div>
@@ -275,10 +275,10 @@
         <div id="emptyState" class="hidden text-center py-20">
             <div class="glass-effect rounded-2xl p-12 max-w-md mx-auto">
                 <i class="fas fa-trophy text-gray-600 text-6xl mb-6"></i>
-                <h3 class="text-2xl font-bold mb-4">Aucun championnat trouvé</h3>
-                <p class="text-gray-400 mb-6">Essayez de modifier vos filtres ou de rechercher autre chose</p>
+                <h3 class="text-2xl font-bold mb-4">{{ __('tournaments.empty_state.title') }}</h3>
+                <p class="text-gray-400 mb-6">{{ __('tournaments.empty_state.subtitle') }}</p>
                 <button onclick="resetFilters()" class="bg-orange-500 hover:bg-orange-600 px-6 py-3 rounded-xl font-medium transition-all btn-glow">
-                    Réinitialiser les filtres
+                    {{ __('tournaments.empty_state.reset_button') }}
                 </button>
             </div>
         </div>
@@ -296,9 +296,14 @@
         </div>
     </div>
 @endsection
-
 @push('scripts')
 <script>
+// Injecter les traductions dans le JavaScript 
+window.translations = {!! json_encode([
+    'tournaments' => __('tournaments'),
+]) !!};
+window.currentLocale = '{{ app()->getLocale() }}';
+
 // Configuration des endpoints Laravel basés sur l'API FACEIT
 const API_ENDPOINTS = {
     championships: '{{ route("api.championships.list") }}',
@@ -387,13 +392,13 @@ async function loadChampionshipsByType(type, page = 0) {
 
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error(`Erreur API: ${response.status}`);
+            throw new Error(`${window.translations.tournaments.errors.api}: ${response.status}`);
         }
         
         const data = await response.json();
         
         if (!data.success) {
-            throw new Error(data.error || 'Erreur inconnue');
+            throw new Error(data.error || window.translations.tournaments.errors.loading);
         }
         
         const championships = data.championships || [];
@@ -467,7 +472,7 @@ function createChampionshipCard(championship) {
 
     // Utiliser les vrais champs de l'API FACEIT
     const actualParticipants = current_subscriptions || participants || 0;
-    const actualMaxParticipants = slots || maxParticipants || 'Illimité';
+    const actualMaxParticipants = slots || maxParticipants || window.translations.tournaments.championship.info.unlimited || 'Illimité';
     const actualPrizeMoney = total_prizes || prizeMoney || 0;
     const actualFeatured = featured || isFeatured || false;
     
@@ -494,11 +499,11 @@ function createChampionshipCard(championship) {
                 <!-- Badges overlay -->
                 <div class="absolute top-4 left-4 flex flex-wrap gap-2">
                     ${actualFeatured ? `<span class="status-badge px-3 py-1 rounded-full text-xs font-bold text-yellow-900" style="--bg-from: #fbbf24; --bg-to: #f59e0b; --border-color: rgba(251, 191, 36, 0.5); --shadow-color: rgba(251, 191, 36, 0.3);">
-                        <i class="fas fa-crown mr-1"></i>PREMIUM
+                        <i class="fas fa-crown mr-1"></i>${window.translations.tournaments.championship.badges.premium}
                     </span>` : ''}
                     
                     <span class="status-badge px-3 py-1 rounded-full text-xs font-bold ${statusInfo.textColor}" style="--bg-from: ${statusInfo.bgFrom}; --bg-to: ${statusInfo.bgTo}; --border-color: ${statusInfo.borderColor}; --shadow-color: ${statusInfo.shadowColor};">
-                        <i class="${statusInfo.icon} mr-1"></i>${statusInfo.text}
+                        <i class="${statusInfo.icon} mr-1"></i>${getLocalizedStatusText(statusInfo.originalStatus)}
                     </span>
                 </div>
                 
@@ -539,19 +544,19 @@ function createChampionshipCard(championship) {
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div class="bg-gray-800/50 rounded-lg p-3 text-center">
                         <div class="text-lg font-bold text-orange-500">${formatNumber(actualParticipants)}</div>
-                        <div class="text-xs text-gray-400">Participants</div>
+                        <div class="text-xs text-gray-400">${window.translations.tournaments.championship.info.participants}</div>
                     </div>
                     <div class="bg-gray-800/50 rounded-lg p-3 text-center">
                         <div class="text-lg font-bold text-green-400">${formatPrizeMoney(actualPrizeMoney)}</div>
-                        <div class="text-xs text-gray-400">Prize pool</div>
+                        <div class="text-xs text-gray-400">${window.translations.tournaments.championship.info.prize_pool}</div>
                     </div>
                 </div>
                 
                 <!-- Progress bar -->
-                ${actualMaxParticipants !== 'Illimité' && actualMaxParticipants > 0 ? `
+                ${actualMaxParticipants !== window.translations.tournaments.championship.info.unlimited && actualMaxParticipants !== 'Illimité' && actualMaxParticipants > 0 ? `
                 <div class="mb-4">
                     <div class="flex justify-between text-xs text-gray-400 mb-1">
-                        <span>Inscriptions</span>
+                        <span>${window.translations.tournaments.championship.info.registrations}</span>
                         <span>${actualParticipants}/${actualMaxParticipants}</span>
                     </div>
                     <div class="w-full bg-gray-700 rounded-full h-2">
@@ -565,7 +570,7 @@ function createChampionshipCard(championship) {
                 <div class="flex space-x-2">
                     <button class="flex-1 bg-orange-500 hover:bg-orange-600 py-2 px-4 rounded-lg text-sm font-medium transition-all transform hover:scale-105 btn-glow" 
                             onclick="event.stopPropagation(); showChampionshipDetails('${championship_id}')">
-                        <i class="fas fa-eye mr-2"></i>Détails
+                        <i class="fas fa-eye mr-2"></i>${window.translations.tournaments.championship.actions.details}
                     </button>
                     ${actualFaceitUrl && actualFaceitUrl !== '#' ? `
                     <a href="${actualFaceitUrl}" target="_blank" 
@@ -578,6 +583,28 @@ function createChampionshipCard(championship) {
             </div>
         </div>
     `;
+}
+
+// ==========================================
+// FONCTIONS DE TRADUCTION
+// ==========================================
+function getLocalizedStatusText(status) {
+    const statusMap = {
+        'ongoing': window.translations.tournaments.championship.badges.ongoing,
+        'upcoming': window.translations.tournaments.championship.badges.upcoming,
+        'finished': window.translations.tournaments.championship.badges.finished,
+        'cancelled': window.translations.tournaments.championship.badges.cancelled,
+    };
+    return statusMap[status] || status;
+}
+
+function getLocalizedMatchStatus(status) {
+    const statusMap = {
+        'FINISHED': window.translations.tournaments.modal.matches.status.finished,
+        'ONGOING': window.translations.tournaments.modal.matches.status.ongoing,
+        'UPCOMING': window.translations.tournaments.modal.matches.status.upcoming,
+    };
+    return statusMap[status] || status;
 }
 
 // ==========================================
@@ -618,13 +645,13 @@ async function handleSearch() {
 
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error(`Erreur API: ${response.status}`);
+            throw new Error(`${window.translations.tournaments.errors.api}: ${response.status}`);
         }
         
         const data = await response.json();
         
         if (!data.success) {
-            throw new Error(data.error || 'Erreur de recherche');
+            throw new Error(data.error || window.translations.tournaments.errors.search);
         }
         
         const filtered = data.championships || [];
@@ -642,7 +669,7 @@ async function handleSearch() {
         hidePagination();
     } catch (error) {
         console.error('Erreur lors de la recherche:', error);
-        showError('Erreur lors de la recherche');
+        showError(window.translations.tournaments.errors.search);
     } finally {
         hideLoading();
     }
@@ -682,13 +709,13 @@ function updatePagination() {
             <button id="prevPageButton" 
                     class="bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105 flex items-center" 
                     ${currentPage === 0 ? 'disabled' : ''}>
-                <i class="fas fa-chevron-left mr-2"></i>Précédent
+                <i class="fas fa-chevron-left mr-2"></i>${window.translations.tournaments.pagination.previous}
             </button>
-            <span class="text-gray-300 font-medium">Page ${currentPage + 1}</span>
+            <span class="text-gray-300 font-medium">${window.translations.tournaments.pagination.page} ${currentPage + 1}</span>
             <button id="nextPageButton" 
                     class="bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105 flex items-center" 
                     ${!hasMoreData ? 'disabled' : ''}>
-                Suivant<i class="fas fa-chevron-right ml-2"></i>
+                ${window.translations.tournaments.pagination.next}<i class="fas fa-chevron-right ml-2"></i>
             </button>
         </div>
     `;
@@ -747,12 +774,12 @@ async function showChampionshipDetails(championshipId) {
             const url = API_ENDPOINTS.details.replace(':id', championshipId);
             const response = await fetch(url + '?expanded=organizer,game');
             if (!response.ok) {
-                throw new Error(`Erreur API: ${response.status}`);
+                throw new Error(`${window.translations.tournaments.errors.api}: ${response.status}`);
             }
             
             const data = await response.json();
             if (!data.success) {
-                throw new Error(data.error || 'Championnat non trouvé');
+                throw new Error(data.error || window.translations.tournaments.modal.error.subtitle);
             }
             
             championship = data.championship;
@@ -792,7 +819,7 @@ function createChampionshipModalContent(championship) {
                     <h1 class="text-3xl font-black text-white mb-2">${championship.name}</h1>
                     <div class="flex items-center space-x-4 text-gray-200">
                         <span><i class="fas fa-calendar mr-2"></i>${safeTimeInfo.display}</span>
-                        <span><i class="fas fa-users mr-2"></i>${participants} participants</span>
+                        <span><i class="fas fa-users mr-2"></i>${participants} ${window.translations.tournaments.championship.info.participants.toLowerCase()}</span>
                         ${prizePool > 0 ? `<span><i class="fas fa-trophy mr-2"></i>${formatPrizeMoney(prizePool)}</span>` : ''}
                     </div>
                 </div>
@@ -805,13 +832,13 @@ function createChampionshipModalContent(championship) {
                     <div class="lg:col-span-2 space-y-6">
                         ${championship.description ? `
                         <div>
-                            <h3 class="text-xl font-bold mb-4">Description</h3>
+                            <h3 class="text-xl font-bold mb-4">${window.translations.tournaments.modal.sections.description}</h3>
                             <p class="text-gray-300 leading-relaxed">${championship.description}</p>
                         </div>
                         ` : `
                         <div>
-                            <h3 class="text-xl font-bold mb-4">Informations</h3>
-                            <p class="text-gray-300">Ce championnat fait partie des compétitions CS2 officielles organisées sur FACEIT.</p>
+                            <h3 class="text-xl font-bold mb-4">${window.translations.tournaments.modal.sections.information}</h3>
+                            <p class="text-gray-300">${window.translations.tournaments.modal.sections.default_description}</p>
                         </div>
                         `}
                         
@@ -819,11 +846,11 @@ function createChampionshipModalContent(championship) {
                         <div class="flex space-x-4">
                             <button onclick="loadChampionshipMatches('${championship.championship_id}')" 
                                     class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">
-                                <i class="fas fa-gamepad mr-2"></i>Voir les matches
+                                <i class="fas fa-gamepad mr-2"></i>${window.translations.tournaments.championship.actions.view_matches}
                             </button>
                             <button onclick="loadChampionshipResults('${championship.championship_id}')" 
                                     class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">
-                                <i class="fas fa-trophy mr-2"></i>Résultats
+                                <i class="fas fa-trophy mr-2"></i>${window.translations.tournaments.championship.actions.results}
                             </button>
                         </div>
                     </div>
@@ -831,31 +858,31 @@ function createChampionshipModalContent(championship) {
                     <!-- Sidebar avec infos -->
                     <div class="space-y-6">
                         <div class="bg-gray-800 rounded-xl p-6">
-                            <h4 class="font-bold mb-4">Informations</h4>
+                            <h4 class="font-bold mb-4">${window.translations.tournaments.modal.sections.information}</h4>
                             <div class="space-y-3 text-sm">
                                 <div class="flex justify-between">
-                                    <span class="text-gray-400">Statut</span>
-                                    <span class="${safeStatusInfo.textColor || 'text-gray-300'}">${safeStatusInfo.text}</span>
+                                    <span class="text-gray-400">${window.translations.tournaments.championship.info.status}</span>
+                                    <span class="${safeStatusInfo.textColor || 'text-gray-300'}">${getLocalizedStatusText(safeStatusInfo.originalStatus) || safeStatusInfo.text}</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-gray-400">Région</span>
+                                    <span class="text-gray-400">${window.translations.tournaments.championship.info.region}</span>
                                     <span>${safeRegionFlag.name}</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-gray-400">Niveau</span>
+                                    <span class="text-gray-400">${window.translations.tournaments.championship.info.level}</span>
                                     <div class="flex space-x-1">
                                         ${Array(championship.competitionLevel || 1).fill(0).map(() => '<i class="fas fa-star text-yellow-400 text-xs"></i>').join('')}
                                     </div>
                                 </div>
                                 ${championship.organizer_name || (championship.organizer_data && championship.organizer_data.name) ? `
                                 <div class="flex justify-between">
-                                    <span class="text-gray-400">Organisateur</span>
+                                    <span class="text-gray-400">${window.translations.tournaments.championship.info.organizer}</span>
                                     <span>${championship.organizer_name || championship.organizer_data.name}</span>
                                 </div>
                                 ` : ''}
                                 ${championship.slots ? `
                                 <div class="flex justify-between">
-                                    <span class="text-gray-400">Places</span>
+                                    <span class="text-gray-400">${window.translations.tournaments.championship.info.slots}</span>
                                     <span>${championship.slots}</span>
                                 </div>
                                 ` : ''}
@@ -866,12 +893,12 @@ function createChampionshipModalContent(championship) {
                             ${championship.cleanFaceitUrl || championship.faceit_url ? `
                             <a href="${championship.cleanFaceitUrl || championship.faceit_url}" target="_blank" 
                                class="block w-full bg-orange-500 hover:bg-orange-600 text-center py-3 rounded-xl font-medium transition-all btn-glow">
-                                <i class="fas fa-external-link-alt mr-2"></i>Voir sur FACEIT
+                                <i class="fas fa-external-link-alt mr-2"></i>${window.translations.tournaments.championship.actions.view_faceit}
                             </a>
                             ` : ''}
                             <button onclick="closeModal()" 
                                     class="w-full bg-gray-700 hover:bg-gray-600 py-3 rounded-xl font-medium transition-all">
-                                Fermer
+                                ${window.translations.tournaments.championship.actions.close}
                             </button>
                         </div>
                     </div>
@@ -890,8 +917,8 @@ function createModalLoadingContent() {
     return `
         <div class="p-12 text-center">
             <div class="shimmer-effect w-32 h-32 rounded-full mx-auto mb-6"></div>
-            <h3 class="text-xl font-bold mb-2">Chargement des détails...</h3>
-            <p class="text-gray-400">Récupération des informations du championnat</p>
+            <h3 class="text-xl font-bold mb-2">${window.translations.tournaments.modal.loading.title}</h3>
+            <p class="text-gray-400">${window.translations.tournaments.modal.loading.subtitle}</p>
         </div>
     `;
 }
@@ -900,10 +927,10 @@ function createModalErrorContent() {
     return `
         <div class="p-12 text-center">
             <i class="fas fa-exclamation-triangle text-red-400 text-4xl mb-4"></i>
-            <h3 class="text-xl font-bold mb-2">Erreur de chargement</h3>
-            <p class="text-gray-400 mb-6">Impossible de charger les détails du championnat</p>
+            <h3 class="text-xl font-bold mb-2">${window.translations.tournaments.modal.error.title}</h3>
+            <p class="text-gray-400 mb-6">${window.translations.tournaments.modal.error.subtitle}</p>
             <button onclick="closeModal()" class="bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-xl font-medium transition-all">
-                Fermer
+                ${window.translations.tournaments.championship.actions.close}
             </button>
         </div>
     `;
@@ -918,7 +945,7 @@ function closeModal() {
 // ==========================================
 async function loadChampionshipMatches(championshipId) {
     const detailsContainer = document.getElementById('championshipDetails');
-    detailsContainer.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-orange-500"></i> Chargement des matches...</div>';
+    detailsContainer.innerHTML = `<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-orange-500"></i> ${window.translations.tournaments.modal.matches.loading}</div>`;
     detailsContainer.classList.remove('hidden');
     
     try {
@@ -926,26 +953,26 @@ async function loadChampionshipMatches(championshipId) {
         const response = await fetch(url);
         
         if (!response.ok) {
-            throw new Error(`Erreur API: ${response.status}`);
+            throw new Error(`${window.translations.tournaments.errors.api}: ${response.status}`);
         }
         
         const data = await response.json();
         
         if (!data.success) {
-            throw new Error(data.error || 'Erreur lors du chargement des matches');
+            throw new Error(data.error || window.translations.tournaments.modal.matches.error);
         }
         
         const matches = data.matches || [];
         
         detailsContainer.innerHTML = `
             <div class="border-t border-gray-700 pt-6">
-                <h3 class="text-xl font-bold mb-4">Matches du championnat</h3>
+                <h3 class="text-xl font-bold mb-4">${window.translations.tournaments.modal.sections.matches}</h3>
                 ${matches.length > 0 ? `
                     <div class="grid gap-4">
                         ${matches.map(match => createMatchCard(match)).join('')}
                     </div>
                 ` : `
-                    <p class="text-gray-400 text-center py-8">Aucun match disponible pour ce championnat</p>
+                    <p class="text-gray-400 text-center py-8">${window.translations.tournaments.modal.matches.no_matches}</p>
                 `}
             </div>
         `;
@@ -953,7 +980,7 @@ async function loadChampionshipMatches(championshipId) {
         console.error('Erreur lors du chargement des matches:', error);
         detailsContainer.innerHTML = `
             <div class="border-t border-gray-700 pt-6">
-                <p class="text-red-400 text-center py-4">Erreur lors du chargement des matches</p>
+                <p class="text-red-400 text-center py-4">${window.translations.tournaments.modal.matches.error}</p>
             </div>
         `;
     }
@@ -961,7 +988,7 @@ async function loadChampionshipMatches(championshipId) {
 
 async function loadChampionshipResults(championshipId) {
     const detailsContainer = document.getElementById('championshipDetails');
-    detailsContainer.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-orange-500"></i> Chargement des résultats...</div>';
+    detailsContainer.innerHTML = `<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-orange-500"></i> ${window.translations.tournaments.modal.results.loading}</div>`;
     detailsContainer.classList.remove('hidden');
     
     try {
@@ -969,26 +996,26 @@ async function loadChampionshipResults(championshipId) {
         const response = await fetch(url);
         
         if (!response.ok) {
-            throw new Error(`Erreur API: ${response.status}`);
+            throw new Error(`${window.translations.tournaments.errors.api}: ${response.status}`);
         }
         
         const data = await response.json();
         
         if (!data.success) {
-            throw new Error(data.error || 'Erreur lors du chargement des résultats');
+            throw new Error(data.error || window.translations.tournaments.modal.results.error);
         }
         
         const results = data.results || [];
         
         detailsContainer.innerHTML = `
             <div class="border-t border-gray-700 pt-6">
-                <h3 class="text-xl font-bold mb-4">Résultats du championnat</h3>
+                <h3 class="text-xl font-bold mb-4">${window.translations.tournaments.modal.sections.results}</h3>
                 ${results.length > 0 ? `
                     <div class="space-y-4">
                         ${results.map(result => createResultCard(result)).join('')}
                     </div>
                 ` : `
-                    <p class="text-gray-400 text-center py-8">Aucun résultat disponible pour ce championnat</p>
+                    <p class="text-gray-400 text-center py-8">${window.translations.tournaments.modal.results.no_results}</p>
                 `}
             </div>
         `;
@@ -996,7 +1023,7 @@ async function loadChampionshipResults(championshipId) {
         console.error('Erreur lors du chargement des résultats:', error);
         detailsContainer.innerHTML = `
             <div class="border-t border-gray-700 pt-6">
-                <p class="text-red-400 text-center py-4">Erreur lors du chargement des résultats</p>
+                <p class="text-red-400 text-center py-4">${window.translations.tournaments.modal.results.error}</p>
             </div>
         `;
     }
@@ -1026,12 +1053,11 @@ function createMatchCard(match) {
                 </div>
                 <div class="text-right">
                     <div class="text-sm text-gray-400">
-                        ${match.status === 'FINISHED' ? 'Terminé' : 
-                          match.status === 'ONGOING' ? 'En cours' : 'À venir'}
+                        ${getLocalizedMatchStatus(match.status)}
                     </div>
                     ${match.scheduled_at ? `
                         <div class="text-xs text-gray-500">
-                            ${new Date(match.scheduled_at * 1000).toLocaleDateString('fr-FR')}
+                            ${new Date(match.scheduled_at * 1000).toLocaleDateString(window.currentLocale === 'fr' ? 'fr-FR' : 'en-US')}
                         </div>
                     ` : ''}
                 </div>
@@ -1044,7 +1070,7 @@ function createResultCard(result) {
     return `
         <div class="bg-gray-800 rounded-lg p-4">
             <div class="font-bold mb-2">
-                Position ${result.bounds?.left || 1}${result.bounds?.right && result.bounds.right !== result.bounds.left ? ` - ${result.bounds.right}` : ''}
+                ${window.translations.tournaments.modal.results.position} ${result.bounds?.left || 1}${result.bounds?.right && result.bounds.right !== result.bounds.left ? ` - ${result.bounds.right}` : ''}
             </div>
             <div class="space-y-2">
                 ${(result.placements || []).map(placement => `
@@ -1067,7 +1093,7 @@ async function updateGlobalStats() {
         
         const response = await fetch(API_ENDPOINTS.stats);
         if (!response.ok) {
-            throw new Error(`Erreur API: ${response.status}`);
+            throw new Error(`${window.translations.tournaments.errors.api}: ${response.status}`);
         }
         
         const stats = await response.json();
