@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Statistiques Avancées - Faceit Scope')
+@section('title', __('advanced.title'))
 
 @section('content')
 <!-- Loading State -->
@@ -12,8 +12,8 @@
                 <i class="fas fa-chart-line text-faceit-orange text-lg"></i>
             </div>
         </div>
-        <h2 class="text-xl font-bold text-white mb-2">Analyse en cours</h2>
-        <p class="text-gray-400 animate-pulse" id="loadingText">Récupération des données</p>
+        <h2 class="text-xl font-bold text-white mb-2">{{ __('advanced.loading.title') }}</h2>
+        <p class="text-gray-400 animate-pulse" id="loadingText">{{ __('advanced.loading.default_text') }}</p>
     </div>
 </div>
 
@@ -35,7 +35,7 @@
         <!-- Vue d'ensemble -->
         <section>
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-black text-white mb-4">Vue d'ensemble</h2>
+                <h2 class="text-3xl font-black text-white mb-4">{{ __('advanced.sections.overview') }}</h2>
                 <div class="w-16 h-1 bg-faceit-orange mx-auto"></div>
             </div>
             
@@ -47,7 +47,7 @@
         <!-- Performance de combat -->
         <section>
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-black text-white mb-4">Performance de combat</h2>
+                <h2 class="text-3xl font-black text-white mb-4">{{ __('advanced.sections.combat_performance') }}</h2>
                 <div class="w-16 h-1 bg-faceit-orange mx-auto"></div>
             </div>
             
@@ -72,7 +72,7 @@
         <!-- Graphiques de performance -->
         <section>
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-black text-white mb-4">Analyse graphique</h2>
+                <h2 class="text-3xl font-black text-white mb-4">{{ __('advanced.sections.graphical_analysis') }}</h2>
                 <div class="w-16 h-1 bg-faceit-orange mx-auto"></div>
             </div>
             
@@ -80,7 +80,7 @@
                 <div class="rounded-2xl p-6 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
                     <h3 class="text-lg font-bold text-white mb-4 flex items-center justify-center">
                         <i class="fas fa-chart-radar text-faceit-orange mr-2"></i>
-                        Radar de performance
+                        {{ __('advanced.stats.performance_radar') }}
                     </h3>
                     <div class="h-80">
                         <canvas id="performanceRadarChart"></canvas>
@@ -90,7 +90,7 @@
                 <div class="rounded-2xl p-6 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
                     <h3 class="text-lg font-bold text-white mb-4 flex items-center justify-center">
                         <i class="fas fa-chart-pie text-faceit-orange mr-2"></i>
-                        Répartition par carte
+                        {{ __('advanced.stats.map_distribution') }}
                     </h3>
                     <div class="h-80">
                         <canvas id="mapWinRateChart"></canvas>
@@ -102,7 +102,7 @@
         <!-- Performance par carte -->
         <section>
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-black text-white mb-4">Analyse par carte</h2>
+                <h2 class="text-3xl font-black text-white mb-4">{{ __('advanced.sections.map_analysis') }}</h2>
                 <div class="w-16 h-1 bg-faceit-orange mx-auto"></div>
             </div>
             
@@ -114,7 +114,7 @@
         <!-- Multi-kills et achievements -->
         <section>
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-black text-white mb-4">Achievements</h2>
+                <h2 class="text-3xl font-black text-white mb-4">{{ __('advanced.sections.achievements') }}</h2>
                 <div class="w-16 h-1 bg-faceit-orange mx-auto"></div>
             </div>
             
@@ -126,32 +126,32 @@
         <!-- Forme récente -->
         <section>
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-black text-white mb-4">Forme récente</h2>
+                <h2 class="text-3xl font-black text-white mb-4">{{ __('advanced.sections.recent_form') }}</h2>
                 <div class="w-16 h-1 bg-faceit-orange mx-auto"></div>
             </div>
             
             <div class="rounded-2xl p-8 border border-gray-700 text-center" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
-                <h3 class="text-lg font-bold text-white mb-6">Derniers résultats</h3>
+                <h3 class="text-lg font-bold text-white mb-6">{{ __('advanced.recent_results.title') }}</h3>
                 <div id="recentResults" class="flex justify-center space-x-3 mb-6">
                     <!-- Résultats récents injectés ici -->
                 </div>
-                <p class="text-sm text-gray-400">5 derniers matches</p>
+                <p class="text-sm text-gray-400">{{ __('advanced.recent_results.last_matches', ['count' => 5]) }}</p>
             </div>
         </section>
 
         <!-- Actions -->
         <section>
             <div class="rounded-2xl p-8 text-center border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
-                <h3 class="text-xl font-bold text-white mb-8">Actions rapides</h3>
+                <h3 class="text-xl font-bold text-white mb-8">{{ __('advanced.sections.quick_actions') }}</h3>
                 <div class="flex flex-wrap justify-center gap-4">
                     <button id="comparePlayerBtn" class="bg-faceit-orange hover:bg-faceit-orange-dark px-6 py-3 rounded-xl font-medium transition-all">
-                        <i class="fas fa-balance-scale mr-2"></i>Comparer ce joueur
+                        <i class="fas fa-balance-scale mr-2"></i>{{ __('advanced.actions.compare_player') }}
                     </button>
                     <button id="downloadReportBtn" class="bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-xl font-medium transition-all">
-                        <i class="fas fa-download mr-2"></i>Télécharger le rapport
+                        <i class="fas fa-download mr-2"></i>{{ __('advanced.actions.download_report') }}
                     </button>
                     <button id="viewProgressionBtn" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-medium transition-all">
-                        <i class="fas fa-chart-line mr-2"></i>Voir la progression
+                        <i class="fas fa-chart-line mr-2"></i>{{ __('advanced.actions.view_progression') }}
                     </button>
                 </div>
             </div>
@@ -438,11 +438,17 @@
 
 @push('scripts')
 <script>
-    // Variables globales pour les données
+    // Variables globales pour les données avec traductions
     window.playerData = {
         playerId: @json($playerId),
         playerNickname: @json($playerNickname)
     };
+    
+    // Injecter les traductions dans le JavaScript 
+    window.translations = {!! json_encode([
+        'advanced' => __('advanced'),
+    ]) !!};
+    window.currentLocale = '{{ app()->getLocale() }}';
 </script>
 <script src="{{ asset('js/advanced.js') }}"></script>
 @endpush

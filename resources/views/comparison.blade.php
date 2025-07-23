@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Comparaison de joueurs - Faceit Scope')
+@section('title', __('comparison.title'))
 
 @section('content')
 <!-- Loading State -->
@@ -12,8 +12,8 @@
                 <i class="fas fa-balance-scale text-faceit-orange text-lg"></i>
             </div>
         </div>
-        <h2 class="text-xl font-bold text-white mb-2">Analyse en cours</h2>
-        <p class="text-gray-400 animate-pulse" id="loadingText">Comparaison des joueurs</p>
+        <h2 class="text-xl font-bold text-white mb-2">{{ __('comparison.loading.title') }}</h2>
+        <p class="text-gray-400 animate-pulse" id="loadingText">{{ __('comparison.search.loading_text') }}</p>
     </div>
 </div>
 
@@ -21,8 +21,8 @@
 <div id="searchSection" class="min-h-screen flex items-center justify-center" style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
     <div class="max-w-4xl mx-auto px-6 text-center">
         <div class="mb-12">
-            <h1 class="text-4xl font-bold text-white mb-4">Comparaison de joueurs</h1>
-            <p class="text-xl text-gray-400">Comparez les performances de deux joueurs CS2</p>
+            <h1 class="text-4xl font-bold text-white mb-4">{{ __('comparison.hero.title') }}</h1>
+            <p class="text-xl text-gray-400">{{ __('comparison.hero.subtitle') }}</p>
             <div class="w-16 h-1 bg-gradient-to-r from-cs-ct to-cs-t mx-auto mt-6"></div>
         </div>
 
@@ -31,14 +31,14 @@
             <div class="cs-card ct-card">
                 <div class="flex items-center mb-6">
                     <div class="ml-3">
-                        <h3 class="text-lg font-semibold text-white">Joueur 1</h3>
+                        <h3 class="text-lg font-semibold text-white">{{ __('comparison.search.player1') }}</h3>
                     </div>
                 </div>
                 <div class="cs-input-wrapper">
                     <input 
                         type="text" 
                         id="player1Input" 
-                        placeholder="Pseudo Faceit..." 
+                        placeholder="{{ __('comparison.search.placeholder') }}" 
                         class="cs-input ct-input"
                     >
                     <div class="cs-glow ct-glow"></div>
@@ -50,14 +50,14 @@
             <div class="cs-card t-card">
                 <div class="flex items-center mb-6">
                     <div class="ml-3">
-                        <h3 class="text-lg font-semibold text-white">Joueur 2</h3>
+                        <h3 class="text-lg font-semibold text-white">{{ __('comparison.search.player2') }}</h3>
                     </div>
                 </div>
                 <div class="cs-input-wrapper">
                     <input 
                         type="text" 
                         id="player2Input" 
-                        placeholder="Pseudo Faceit..." 
+                        placeholder="{{ __('comparison.search.placeholder') }}" 
                         class="cs-input t-input"
                     >
                     <div class="cs-glow t-glow"></div>
@@ -67,7 +67,7 @@
         </div>
         
         <button id="compareBtn" class="cs-button">
-            <span class="button-text">Lancer la comparaison</span>
+            <span class="button-text">{{ __('comparison.search.button') }}</span>
             <div class="button-effects"></div>
         </button>
     </div>
@@ -93,13 +93,13 @@
         <div class="flex justify-center mb-8 progressive-reveal delay-4">
             <div class="bg-faceit-card rounded-xl p-1 border border-gray-700">
                 <button id="overviewTab" class="tab-button active px-6 py-3 rounded-lg font-medium transition-all">
-                    <i class="fas fa-eye mr-2"></i>Vue d'ensemble
+                    <i class="fas fa-eye mr-2"></i>{{ __('comparison.tabs.overview') }}
                 </button>
                 <button id="detailedTab" class="tab-button px-6 py-3 rounded-lg font-medium transition-all">
-                    <i class="fas fa-chart-bar mr-2"></i>Stats détaillées
+                    <i class="fas fa-chart-bar mr-2"></i>{{ __('comparison.tabs.detailed') }}
                 </button>
                 <button id="mapsTab" class="tab-button px-6 py-3 rounded-lg font-medium transition-all">
-                    <i class="fas fa-map mr-2"></i>Cartes
+                    <i class="fas fa-map mr-2"></i>{{ __('comparison.tabs.maps') }}
                 </button>
             </div>
         </div>
@@ -126,16 +126,15 @@
         <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
             <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
         </div>
-        <h2 class="text-2xl font-bold text-white mb-4">Erreur</h2>
-        <p class="text-gray-400 mb-6" id="errorMessage">Une erreur s'est produite lors de la comparaison</p>
+        <h2 class="text-2xl font-bold text-white mb-4">{{ __('comparison.error.title') }}</h2>
+        <p class="text-gray-400 mb-6" id="errorMessage">{{ __('comparison.error.default_message') }}</p>
         <button onclick="location.reload()" class="bg-faceit-orange hover:bg-faceit-orange-dark px-6 py-3 rounded-xl font-medium transition-all">
-            <i class="fas fa-refresh mr-2"></i>Réessayer
+            <i class="fas fa-refresh mr-2"></i>{{ __('comparison.error.retry') }}
         </button>
     </div>
 </div>
 
 @endsection
-
 @push('styles')
 <style>
     .tab-button {
@@ -543,9 +542,14 @@
 }
 </style>
 @endpush
-
 @push('scripts')
 <script>
+// Injecter les traductions dans le JavaScript 
+window.translations = {!! json_encode([
+    'comparison' => __('comparison'),
+]) !!};
+window.currentLocale = '{{ app()->getLocale() }}';
+
 // Configuration API
 const FACEIT_API = {
     TOKEN: "9bcea3f9-2144-495e-be16-02d4eb1a811c",
@@ -599,12 +603,12 @@ async function comparePlayers() {
     const player2Nickname = document.getElementById('player2Input').value.trim();
     
     if (!player1Nickname || !player2Nickname) {
-        showError('Veuillez saisir les deux pseudos');
+        showError(window.translations.comparison.search.errors.both_players);
         return;
     }
     
     if (player1Nickname === player2Nickname) {
-        showError('Veuillez saisir deux pseudos différents');
+        showError(window.translations.comparison.search.errors.different_players);
         return;
     }
     
@@ -657,7 +661,7 @@ async function comparePlayers() {
     } catch (error) {
         console.error('Erreur lors de la comparaison:', error);
         document.getElementById('loadingState').classList.add('hidden');
-        showError(error.message || 'Erreur lors de la comparaison des joueurs');
+        showError(error.message || window.translations.comparison.error.default_message);
     }
 }
 
@@ -671,7 +675,7 @@ async function getPlayerByNickname(nickname) {
     
     if (!response.ok) {
         if (response.status === 404) {
-            throw new Error(`Joueur "${nickname}" non trouvé`);
+            throw new Error(window.translations.comparison.error.player_not_found.replace(':player', nickname));
         }
         throw new Error(`Erreur ${response.status}: ${response.statusText}`);
     }
@@ -688,7 +692,7 @@ async function getPlayerStats(playerId) {
     });
     
     if (!response.ok) {
-        throw new Error(`Erreur lors de la récupération des stats: ${response.status}`);
+        throw new Error(window.translations.comparison.error.stats_error.replace(':status', response.status));
     }
     
     return await response.json();
@@ -771,6 +775,7 @@ function calculatePerformanceScore(playerData, playerStats) {
 
 function determinePlayerRole(playerStats) {
     const lifetime = playerStats.lifetime;
+    const t = window.translations.comparison.roles;
     
     const entryRate = parseFloat(lifetime["Entry Rate"] || 0);
     const flashesPerRound = parseFloat(lifetime["Flashes per Round"] || 0);
@@ -779,18 +784,17 @@ function determinePlayerRole(playerStats) {
     const adr = parseFloat(lifetime["ADR"] || 0);
     
     if (entryRate > 0.25 && adr > 75) {
-        return { name: "Entry Fragger", description: "Spécialisé dans les entrées de site", class: "role-entry" };
+        return { name: t.entry_fragger.name, description: t.entry_fragger.description, class: "role-entry" };
     } else if (flashesPerRound > 0.4 || utilitySuccess > 0.45) {
-        return { name: "Support", description: "Maître des utilitaires d'équipe", class: "role-support" };
+        return { name: t.support.name, description: t.support.description, class: "role-support" };
     } else if (clutchRate > 0.4) {
-        return { name: "Clutcher", description: "Expert des situations difficiles", class: "role-fragger" };
+        return { name: t.clutcher.name, description: t.clutcher.description, class: "role-fragger" };
     } else if (adr > 85) {
-        return { name: "Fragger", description: "Spécialiste des éliminations", class: "role-fragger" };
+        return { name: t.fragger.name, description: t.fragger.description, class: "role-fragger" };
     } else {
-        return { name: "Polyvalent", description: "Joueur équilibré", class: "role-lurker" };
+        return { name: t.versatile.name, description: t.versatile.description, class: "role-lurker" };
     }
 }
-
 function displayWinnerSection() {
     const container = document.getElementById('winnerSection');
     const winner = comparisonResult.winner === 1 ? comparisonResult.player1 : comparisonResult.player2;
@@ -824,7 +828,7 @@ function displayWinnerSection() {
                 
                 <div class="bg-faceit-dark/50 rounded-xl p-4 mb-4">
                     <div class="text-2xl font-bold text-white">${winner.score.total}</div>
-                    <div class="text-sm text-gray-400">Performance Score</div>
+                    <div class="text-sm text-gray-400">${window.translations.comparison.winner.performance_score}</div>
                 </div>
                 
                 <div class="space-y-3">
@@ -846,7 +850,7 @@ function displayWinnerSection() {
                     
                     <div class="text-center mt-2">
                         <div class="text-lg font-bold text-purple-400">${formatNumber(winner.stats.lifetime["Matches"])}</div>
-                        <div class="text-xs text-gray-400">Matches</div>
+                        <div class="text-xs text-gray-400">${window.translations.comparison.winner.matches}</div>
                     </div>
                 </div>
             </div>
@@ -866,7 +870,7 @@ function displayWinnerSection() {
                 
                 <div class="bg-faceit-dark/50 rounded-xl p-4 mb-4">
                     <div class="text-2xl font-bold text-gray-300">${loser.score.total}</div>
-                    <div class="text-sm text-gray-400">Performance Score</div>
+                    <div class="text-sm text-gray-400">${window.translations.comparison.winner.performance_score}</div>
                 </div>
                 
                 <div class="space-y-3">
@@ -888,7 +892,7 @@ function displayWinnerSection() {
                     
                     <div class="text-center mt-2">
                         <div class="text-lg font-bold text-gray-400">${formatNumber(loser.stats.lifetime["Matches"])}</div>
-                        <div class="text-xs text-gray-400">Matches</div>
+                        <div class="text-xs text-gray-400">${window.translations.comparison.winner.matches}</div>
                     </div>
                 </div>
             </div>
@@ -896,12 +900,12 @@ function displayWinnerSection() {
         
         <!-- Result -->
         <div class="text-center bg-faceit-card rounded-2xl p-8 border border-gray-700 progressive-reveal delay-3">
-            <h3 class="text-2xl font-bold text-white mb-4">Analyse Complète Terminée</h3>
+            <h3 class="text-2xl font-bold text-white mb-4">${window.translations.comparison.winner.analysis_complete}</h3>
             <p class="text-xl text-gray-300 mb-2">
-                <span class="text-faceit-orange font-bold">${winner.nickname}</span> remporte l'analyse IA
+                ${window.translations.comparison.winner.wins_analysis.replace(':winner', `<span class="text-faceit-orange font-bold">${winner.nickname}</span>`)}
             </p>
             <div class="text-sm ${confidenceClass}">
-                Confiance: ${Math.round(comparisonResult.confidence)}%
+                ${window.translations.comparison.winner.confidence.replace(':percentage', Math.round(comparisonResult.confidence))}
             </div>
         </div>
     `;
@@ -911,6 +915,7 @@ function displayOverviewContent() {
     const container = document.getElementById('overviewContent');
     const p1 = comparisonResult.player1;
     const p2 = comparisonResult.player2;
+    const t = window.translations.comparison.overview;
     
     container.innerHTML = `
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
@@ -918,12 +923,12 @@ function displayOverviewContent() {
             <div class="bg-faceit-card rounded-xl p-6 border border-gray-700">
                 <h3 class="text-xl font-bold text-white mb-6 flex items-center">
                     <i class="fas fa-chart-line text-faceit-orange mr-2"></i>
-                    Scores de performance
+                    ${t.performance_scores.title}
                 </h3>
                 
                 <div class="space-y-4">
                     <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
-                        <span class="text-gray-300">ELO Impact</span>
+                        <span class="text-gray-300">${t.performance_scores.elo_impact}</span>
                         <div class="text-right">
                             <span class="${p1.score.elo > p2.score.elo ? 'stat-better' : 'text-gray-400'}">${p1.score.elo}</span>
                             <span class="text-gray-500 mx-2">vs</span>
@@ -932,7 +937,7 @@ function displayOverviewContent() {
                     </div>
                     
                     <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
-                        <span class="text-gray-300">Performance Combat</span>
+                        <span class="text-gray-300">${t.performance_scores.combat_performance}</span>
                         <div class="text-right">
                             <span class="${p1.score.skill > p2.score.skill ? 'stat-better' : 'text-gray-400'}">${p1.score.skill}</span>
                             <span class="text-gray-500 mx-2">vs</span>
@@ -941,7 +946,7 @@ function displayOverviewContent() {
                     </div>
                     
                     <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
-                        <span class="text-gray-300">Expérience</span>
+                        <span class="text-gray-300">${t.performance_scores.experience}</span>
                         <div class="text-right">
                             <span class="${p1.score.experience > p2.score.experience ? 'stat-better' : 'text-gray-400'}">${p1.score.experience}</span>
                             <span class="text-gray-500 mx-2">vs</span>
@@ -950,7 +955,7 @@ function displayOverviewContent() {
                     </div>
                     
                     <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
-                        <span class="text-gray-300">Stats Avancées</span>
+                        <span class="text-gray-300">${t.performance_scores.advanced_stats}</span>
                         <div class="text-right">
                             <span class="${p1.score.advanced > p2.score.advanced ? 'stat-better' : 'text-gray-400'}">${p1.score.advanced}</span>
                             <span class="text-gray-500 mx-2">vs</span>
@@ -964,17 +969,17 @@ function displayOverviewContent() {
             <div class="bg-faceit-card rounded-xl p-6 border border-gray-700">
                 <h3 class="text-xl font-bold text-white mb-6 flex items-center">
                     <i class="fas fa-star text-faceit-orange mr-2"></i>
-                    Statistiques clés
+                    ${t.key_stats.title}
                 </h3>
                 
                 <div class="space-y-4">
                     ${generateKeyStatsComparison([
-                        { key: "Average K/D Ratio", label: "K/D Ratio", format: "decimal" },
-                        { key: "Win Rate %", label: "Taux de victoire", format: "percentage" },
-                        { key: "Average Headshots %", label: "Headshots", format: "percentage" },
-                        { key: "ADR", label: "ADR", format: "number" },
-                        { key: "Entry Success Rate", label: "Entry Success", format: "percentage_decimal" },
-                        { key: "1v1 Win Rate", label: "Clutch 1v1", format: "percentage_decimal" }
+                        { key: "Average K/D Ratio", label: t.key_stats.kd_ratio, format: "decimal" },
+                        { key: "Win Rate %", label: t.key_stats.win_rate, format: "percentage" },
+                        { key: "Average Headshots %", label: t.key_stats.headshots, format: "percentage" },
+                        { key: "ADR", label: t.key_stats.adr, format: "number" },
+                        { key: "Entry Success Rate", label: t.key_stats.entry_success, format: "percentage_decimal" },
+                        { key: "1v1 Win Rate", label: t.key_stats.clutch_1v1, format: "percentage_decimal" }
                     ])}
                 </div>
             </div>
@@ -984,24 +989,24 @@ function displayOverviewContent() {
         <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-6">
             <h4 class="text-lg font-bold text-blue-400 mb-4 flex items-center">
                 <i class="fas fa-info-circle mr-2"></i>
-                Comment sont calculés les scores ?
+                ${t.calculation_info.title}
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-300">
                 <div>
-                    <h5 class="font-bold text-white mb-2">ELO Impact (35%)</h5>
-                    <p>Le niveau ELO est le facteur le plus important car il reflète directement le niveau de jeu face à des adversaires de même force.</p>
+                    <h5 class="font-bold text-white mb-2">${t.calculation_info.elo_impact.title}</h5>
+                    <p>${t.calculation_info.elo_impact.description}</p>
                 </div>
                 <div>
-                    <h5 class="font-bold text-white mb-2">Performance Combat (25%)</h5>
-                    <p>Combine le K/D, le taux de victoire, l'ADR et le niveau Faceit pour évaluer l'efficacité en combat.</p>
+                    <h5 class="font-bold text-white mb-2">${t.calculation_info.combat_performance.title}</h5>
+                    <p>${t.calculation_info.combat_performance.description}</p>
                 </div>
                 <div>
-                    <h5 class="font-bold text-white mb-2">Expérience (20%)</h5>
-                    <p>Le nombre de matches joués avec un multiplicateur basé sur l'expérience accumulée.</p>
+                    <h5 class="font-bold text-white mb-2">${t.calculation_info.experience.title}</h5>
+                    <p>${t.calculation_info.experience.description}</p>
                 </div>
                 <div>
-                    <h5 class="font-bold text-white mb-2">Stats Avancées (20%)</h5>
-                    <p>Headshots, entry fragging et capacités de clutch pour une analyse approfondie du style de jeu.</p>
+                    <h5 class="font-bold text-white mb-2">${t.calculation_info.advanced_stats.title}</h5>
+                    <p>${t.calculation_info.advanced_stats.description}</p>
                 </div>
             </div>
         </div>
@@ -1012,81 +1017,82 @@ function displayDetailedContent() {
     const container = document.getElementById('detailedContent');
     const p1Stats = comparisonResult.player1.stats.lifetime;
     const p2Stats = comparisonResult.player2.stats.lifetime;
+    const t = window.translations.comparison.detailed;
     
     const statCategories = [
         {
-            title: "Performance générale",
+            title: t.categories.general_performance.title,
             icon: "fas fa-chart-line",
             stats: [
-                { key: "Matches", label: "Total matches", format: "number" },
-                { key: "Win Rate %", label: "Taux de victoire", format: "percentage" },
-                { key: "Wins", label: "Victoires", format: "number" },
-                { key: "Average K/D Ratio", label: "K/D Ratio moyen", format: "decimal" },
-                { key: "ADR", label: "ADR (dégâts/round)", format: "number" }
+                { key: "Matches", label: t.categories.general_performance.stats.total_matches, format: "number" },
+                { key: "Win Rate %", label: t.categories.general_performance.stats.win_rate, format: "percentage" },
+                { key: "Wins", label: t.categories.general_performance.stats.wins, format: "number" },
+                { key: "Average K/D Ratio", label: t.categories.general_performance.stats.avg_kd, format: "decimal" },
+                { key: "ADR", label: t.categories.general_performance.stats.adr, format: "number" }
             ]
         },
         {
-            title: "Combat et précision",
+            title: t.categories.combat_precision.title,
             icon: "fas fa-crosshairs",
             stats: [
-                { key: "Average Headshots %", label: "Headshots moyens", format: "percentage" },
-                { key: "Total Headshots %", label: "Total headshots", format: "number" },
-                { key: "Total Kills with extended stats", label: "Kills (stats étendues)", format: "number" },
-                { key: "Total Damage", label: "Dégâts totaux", format: "number" }
+                { key: "Average Headshots %", label: t.categories.combat_precision.stats.avg_headshots, format: "percentage" },
+                { key: "Total Headshots %", label: t.categories.combat_precision.stats.total_headshots, format: "number" },
+                { key: "Total Kills with extended stats", label: t.categories.combat_precision.stats.total_kills, format: "number" },
+                { key: "Total Damage", label: t.categories.combat_precision.stats.total_damage, format: "number" }
             ]
         },
         {
-            title: "Entry fragging",
+            title: t.categories.entry_fragging.title,
             icon: "fas fa-rocket",
             stats: [
-                { key: "Entry Rate", label: "Taux d'entrée", format: "percentage_decimal" },
-                { key: "Entry Success Rate", label: "Réussite d'entrée", format: "percentage_decimal" },
-                { key: "Total Entry Count", label: "Total tentatives", format: "number" },
-                { key: "Total Entry Wins", label: "Entrées réussies", format: "number" }
+                { key: "Entry Rate", label: t.categories.entry_fragging.stats.entry_rate, format: "percentage_decimal" },
+                { key: "Entry Success Rate", label: t.categories.entry_fragging.stats.entry_success, format: "percentage_decimal" },
+                { key: "Total Entry Count", label: t.categories.entry_fragging.stats.total_entries, format: "number" },
+                { key: "Total Entry Wins", label: t.categories.entry_fragging.stats.successful_entries, format: "number" }
             ]
         },
         {
-            title: "Situations clutch",
+            title: t.categories.clutch_situations.title,
             icon: "fas fa-fire",
             stats: [
-                { key: "1v1 Win Rate", label: "Taux victoire 1v1", format: "percentage_decimal" },
-                { key: "1v2 Win Rate", label: "Taux victoire 1v2", format: "percentage_decimal" },
-                { key: "Total 1v1 Count", label: "Situations 1v1", format: "number" },
-                { key: "Total 1v1 Wins", label: "Victoires 1v1", format: "number" },
-                { key: "Total 1v2 Count", label: "Situations 1v2", format: "number" },
-                { key: "Total 1v2 Wins", label: "Victoires 1v2", format: "number" }
+                { key: "1v1 Win Rate", label: t.categories.clutch_situations.stats["1v1_win_rate"], format: "percentage_decimal" },
+                { key: "1v2 Win Rate", label: t.categories.clutch_situations.stats["1v2_win_rate"], format: "percentage_decimal" },
+                { key: "Total 1v1 Count", label: t.categories.clutch_situations.stats["1v1_situations"], format: "number" },
+                { key: "Total 1v1 Wins", label: t.categories.clutch_situations.stats["1v1_wins"], format: "number" },
+                { key: "Total 1v2 Count", label: t.categories.clutch_situations.stats["1v2_situations"], format: "number" },
+                { key: "Total 1v2 Wins", label: t.categories.clutch_situations.stats["1v2_wins"], format: "number" }
             ]
         },
         {
-            title: "Utilitaires et support",
+            title: t.categories.utility_support.title,
             icon: "fas fa-sun",
             stats: [
-                { key: "Flash Success Rate", label: "Réussite flash", format: "percentage_decimal" },
-                { key: "Flashes per Round", label: "Flashes par round", format: "decimal" },
-                { key: "Total Flash Count", label: "Total flashes", format: "number" },
-                { key: "Total Flash Successes", label: "Flashes réussies", format: "number" },
-                { key: "Enemies Flashed per Round", label: "Ennemis flashés/round", format: "decimal" },
-                { key: "Total Enemies Flashed", label: "Ennemis flashés", format: "number" },
-                { key: "Utility Success Rate", label: "Réussite utilitaires", format: "percentage_decimal" },
-                { key: "Utility Damage per Round", label: "Dégâts util./round", format: "decimal" },
-                { key: "Total Utility Damage", label: "Dégâts utilitaires", format: "number" }
+                { key: "Flash Success Rate", label: t.categories.utility_support.stats.flash_success, format: "percentage_decimal" },
+                { key: "Flashes per Round", label: t.categories.utility_support.stats.flashes_per_round, format: "decimal" },
+                { key: "Total Flash Count", label: t.categories.utility_support.stats.total_flashes, format: "number" },
+                { key: "Total Flash Successes", label: t.categories.utility_support.stats.successful_flashes, format: "number" },
+                { key: "Enemies Flashed per Round", label: t.categories.utility_support.stats.enemies_flashed_per_round, format: "decimal" },
+                { key: "Total Enemies Flashed", label: t.categories.utility_support.stats.total_enemies_flashed, format: "number" },
+                { key: "Utility Success Rate", label: t.categories.utility_support.stats.utility_success, format: "percentage_decimal" },
+                { key: "Utility Damage per Round", label: t.categories.utility_support.stats.utility_damage_per_round, format: "decimal" },
+                { key: "Total Utility Damage", label: t.categories.utility_support.stats.total_utility_damage, format: "number" }
             ]
         },
         {
-            title: "Sniper et armes spéciales",
+            title: t.categories.sniper_special.title,
             icon: "fas fa-crosshairs",
             stats: [
-                { key: "Sniper Kill Rate", label: "Taux de kills sniper", format: "percentage_decimal" },
-                { key: "Sniper Kill Rate per Round", label: "Kills sniper/round", format: "percentage_decimal" },
-                { key: "Total Sniper Kills", label: "Total kills sniper", format: "number" }
+                { key: "Sniper Kill Rate", label: t.categories.sniper_special.stats.sniper_kill_rate, format: "percentage_decimal" },
+                { key: "Sniper Kill Rate per Round", label: t.categories.sniper_special.stats.sniper_kills_per_round, format: "percentage_decimal" },
+                { key: "Total Sniper Kills", label: t.categories.sniper_special.stats.total_sniper_kills, format: "number" }
             ]
         },
         {
-            title: "Séries et constance",
+            title: t.categories.streaks_consistency.title,
             icon: "fas fa-trophy",
             stats: [
-                { key: "Current Win Streak", label: "Série actuelle", format: "number" },
-                { key: "Longest Win Streak", label: "Meilleure série", format: "number" }
+                { key: "Current Win Streak", label: t.categories.streaks_consistency.stats.current_streak, format: "number" },
+                { key: "Longest Win Streak", label: t.categories.streaks_consistency.stats.longest_streak, format: "number" }
             ]
         }
     ];
@@ -1132,7 +1138,7 @@ function displayDetailedContent() {
         <div class="bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-center">
             <p class="text-green-400 font-medium">
                 <i class="fas fa-info-circle mr-2"></i>
-                Les valeurs en <span class="stat-better">vert</span> indiquent le joueur avec la meilleure performance pour chaque statistique
+                ${t.legend}
             </p>
         </div>
     `;
@@ -1142,6 +1148,7 @@ function displayMapsContent() {
     const container = document.getElementById('mapsContent');
     const p1Maps = comparisonResult.player1.stats.segments.filter(s => s.type === "Map");
     const p2Maps = comparisonResult.player2.stats.segments.filter(s => s.type === "Map");
+    const t = window.translations.comparison.maps;
     
     // Créer un index des cartes
     const mapComparisons = {};
@@ -1171,8 +1178,8 @@ function displayMapsContent() {
         container.innerHTML = `
             <div class="text-center py-12">
                 <i class="fas fa-map text-gray-600 text-4xl mb-4"></i>
-                <h3 class="text-xl font-bold text-white mb-2">Aucune carte commune</h3>
-                <p class="text-gray-400">Les deux joueurs n'ont pas de cartes en commun avec des données suffisantes.</p>
+                <h3 class="text-xl font-bold text-white mb-2">${t.no_common_maps.title}</h3>
+                <p class="text-gray-400">${t.no_common_maps.description}</p>
             </div>
         `;
         return;
@@ -1197,6 +1204,8 @@ function displayMapsContent() {
                 const mapImageKey = mapName.toLowerCase().replace(/\s/g, '');
                 const mapImage = getMapImage(mapImageKey);
                 
+                const winnerName = winner === 1 ? comparisonResult.player1.nickname : comparisonResult.player2.nickname;
+                
                 return `
                     <div class="bg-faceit-card rounded-xl overflow-hidden border border-gray-700">
                         ${mapImage ? `
@@ -1206,7 +1215,7 @@ function displayMapsContent() {
                                 </div>
                                 ${winner > 0 ? `
                                     <div class="absolute top-4 right-4 bg-faceit-orange/90 text-white px-3 py-1 rounded-full text-sm font-bold">
-                                        ${winner === 1 ? comparisonResult.player1.nickname : comparisonResult.player2.nickname} domine
+                                        ${t.dominates.replace(':player', winnerName)}
                                     </div>
                                 ` : ''}
                             </div>
@@ -1215,7 +1224,7 @@ function displayMapsContent() {
                                 <h3 class="text-2xl font-bold text-white">${mapName}</h3>
                                 ${winner > 0 ? `
                                     <div class="text-faceit-orange text-sm font-bold mt-2">
-                                        ${winner === 1 ? comparisonResult.player1.nickname : comparisonResult.player2.nickname} domine
+                                        ${t.dominates.replace(':player', winnerName)}
                                     </div>
                                 ` : ''}
                             </div>
@@ -1230,12 +1239,12 @@ function displayMapsContent() {
                                         <div class="${p1WinRate >= p2WinRate ? 'text-green-400' : 'text-gray-400'} font-bold text-lg">
                                             ${p1WinRate.toFixed(1)}%
                                         </div>
-                                        <div class="text-xs text-gray-500">Win Rate (${p1Matches} matches)</div>
+                                        <div class="text-xs text-gray-500">${t.win_rate.replace(':matches', p1Matches)}</div>
                                         
                                         <div class="${p1Kd >= p2Kd ? 'text-green-400' : 'text-gray-400'} font-bold">
                                             ${p1Kd.toFixed(2)}
                                         </div>
-                                        <div class="text-xs text-gray-500">K/D Ratio</div>
+                                        <div class="text-xs text-gray-500">${t.kd_ratio}</div>
                                     </div>
                                 </div>
                                 
@@ -1246,12 +1255,12 @@ function displayMapsContent() {
                                         <div class="${p2WinRate >= p1WinRate ? 'text-green-400' : 'text-gray-400'} font-bold text-lg">
                                             ${p2WinRate.toFixed(1)}%
                                         </div>
-                                        <div class="text-xs text-gray-500">Win Rate (${p2Matches} matches)</div>
+                                        <div class="text-xs text-gray-500">${t.win_rate.replace(':matches', p2Matches)}</div>
                                         
                                         <div class="${p2Kd >= p1Kd ? 'text-green-400' : 'text-gray-400'} font-bold">
                                             ${p2Kd.toFixed(2)}
                                         </div>
-                                        <div class="text-xs text-gray-500">K/D Ratio</div>
+                                        <div class="text-xs text-gray-500">${t.kd_ratio}</div>
                                     </div>
                                 </div>
                             </div>
@@ -1259,7 +1268,7 @@ function displayMapsContent() {
                             <!-- Stats détaillées -->
                             <div class="space-y-2 text-sm">
                                 <div class="flex justify-between items-center p-2 bg-faceit-dark/30 rounded">
-                                    <span class="text-gray-300">Headshots</span>
+                                    <span class="text-gray-300">${t.headshots}</span>
                                     <div>
                                         <span class="${parseFloat(p1Stats["Average Headshots %"] || 0) >= parseFloat(p2Stats["Average Headshots %"] || 0) ? 'text-green-400' : 'text-gray-400'}">${p1Stats["Average Headshots %"] || 0}%</span>
                                         <span class="text-gray-500 mx-2">vs</span>
@@ -1268,7 +1277,7 @@ function displayMapsContent() {
                                 </div>
                                 
                                 <div class="flex justify-between items-center p-2 bg-faceit-dark/30 rounded">
-                                    <span class="text-gray-300">ADR</span>
+                                    <span class="text-gray-300">${t.adr}</span>
                                     <div>
                                         <span class="${parseFloat(p1Stats["ADR"] || 0) >= parseFloat(p2Stats["ADR"] || 0) ? 'text-green-400' : 'text-gray-400'}">${p1Stats["ADR"] || 0}</span>
                                         <span class="text-gray-500 mx-2">vs</span>
@@ -1277,7 +1286,7 @@ function displayMapsContent() {
                                 </div>
                                 
                                 <div class="flex justify-between items-center p-2 bg-faceit-dark/30 rounded">
-                                    <span class="text-gray-300">MVPs</span>
+                                    <span class="text-gray-300">${t.mvps}</span>
                                     <div>
                                         <span class="${parseInt(p1Stats["MVPs"] || 0) >= parseInt(p2Stats["MVPs"] || 0) ? 'text-green-400' : 'text-gray-400'}">${p1Stats["MVPs"] || 0}</span>
                                         <span class="text-gray-500 mx-2">vs</span>
@@ -1295,23 +1304,23 @@ function displayMapsContent() {
         <div class="mt-8 bg-faceit-card rounded-xl p-6 border border-gray-700">
             <h3 class="text-xl font-bold text-white mb-4 flex items-center">
                 <i class="fas fa-trophy text-faceit-orange mr-2"></i>
-                Résumé par cartes
+                ${t.summary.title}
             </h3>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <h4 class="font-bold text-green-400 mb-3">${comparisonResult.player1.nickname}</h4>
                     <div class="text-sm text-gray-300">
-                        Cartes dominées: <span class="text-green-400 font-bold">${countMapDominations(commonMaps, 1)}</span><br>
-                        Meilleure carte: <span class="text-white font-bold">${getBestMap(commonMaps, 1) || 'Aucune'}</span>
+                        ${t.summary.maps_dominated}: <span class="text-green-400 font-bold">${countMapDominations(commonMaps, 1)}</span><br>
+                        ${t.summary.best_map}: <span class="text-white font-bold">${getBestMap(commonMaps, 1) || t.summary.none}</span>
                     </div>
                 </div>
                 
                 <div>
                     <h4 class="font-bold text-blue-400 mb-3">${comparisonResult.player2.nickname}</h4>
                     <div class="text-sm text-gray-300">
-                        Cartes dominées: <span class="text-green-400 font-bold">${countMapDominations(commonMaps, 2)}</span><br>
-                        Meilleure carte: <span class="text-white font-bold">${getBestMap(commonMaps, 2) || 'Aucune'}</span>
+                        ${t.summary.maps_dominated}: <span class="text-green-400 font-bold">${countMapDominations(commonMaps, 2)}</span><br>
+                        ${t.summary.best_map}: <span class="text-white font-bold">${getBestMap(commonMaps, 2) || t.summary.none}</span>
                     </div>
                 </div>
             </div>
@@ -1330,21 +1339,15 @@ function startProgressiveReveal() {
 
 // Fonctions utilitaires
 function updateLoadingText() {
-    const messages = [
-        "Récupération des données joueur 1",
-        "Récupération des données joueur 2", 
-        "Analyse des statistiques",
-        "Calcul des scores de performance",
-        "Comparaison des rôles de jeu",
-        "Génération du rapport final"
-    ];
+    const messages = window.translations.comparison.loading.messages;
+    const messageValues = Object.values(messages);
     
     let index = 0;
     const loadingText = document.getElementById('loadingText');
     
     const interval = setInterval(() => {
-        if (loadingText && index < messages.length) {
-            loadingText.textContent = messages[index];
+        if (loadingText && index < messageValues.length) {
+            loadingText.textContent = messageValues[index];
             index++;
         } else {
             clearInterval(interval);

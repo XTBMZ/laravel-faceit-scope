@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Classements Globaux CS2 - Faceit Scope')
+@section('title', __('leaderboards.title'))
 
 @section('content')
 <!-- Hero Section -->
@@ -9,10 +9,10 @@
         <div class="text-center">
             <h1 class="text-3xl md:text-4xl font-black text-white mb-3">
                 <i class="fas fa-trophy text-faceit-orange mr-2"></i>
-                Classements CS2
+                {{ __('leaderboards.hero.title') }}
             </h1>
             <p class="text-gray-400 text-sm">
-                Meilleurs joueurs en temps réel via API FACEIT
+                {{ __('leaderboards.hero.subtitle') }}
             </p>
         </div>
     </div>
@@ -26,22 +26,22 @@
         <div id="regionStatsSection" class="mb-8">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="rounded-xl p-4 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
-                    <div class="text-xs text-gray-400 mb-1">Joueurs</div>
+                    <div class="text-xs text-gray-400 mb-1">{{ __('leaderboards.stats.players') }}</div>
                     <div id="totalPlayers" class="text-lg font-bold text-faceit-orange">-</div>
                 </div>
                 
                 <div class="rounded-xl p-4 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
-                    <div class="text-xs text-gray-400 mb-1">ELO moyen</div>
+                    <div class="text-xs text-gray-400 mb-1">{{ __('leaderboards.stats.average_elo') }}</div>
                     <div id="averageElo" class="text-lg font-bold text-blue-400">-</div>
                 </div>
                 
                 <div class="rounded-xl p-4 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
-                    <div class="text-xs text-gray-400 mb-1">Pays</div>
+                    <div class="text-xs text-gray-400 mb-1">{{ __('leaderboards.stats.country') }}</div>
                     <div id="topCountry" class="text-lg font-bold text-green-400">-</div>
                 </div>
 
                 <div class="rounded-xl p-4 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
-                    <div class="text-xs text-gray-400 mb-1">Niveau</div>
+                    <div class="text-xs text-gray-400 mb-1">{{ __('leaderboards.stats.level') }}</div>
                     <div id="topLevel" class="text-lg font-bold text-purple-400">-</div>
                 </div>
             </div>
@@ -52,63 +52,63 @@
             <div class="rounded-xl p-6 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
                 <div class="grid md:grid-cols-5 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-white mb-2">Région</label>
+                        <label class="block text-sm font-medium text-white mb-2">{{ __('leaderboards.filters.region') }}</label>
                         <select id="regionSelect" class="w-full px-3 py-2 bg-faceit-elevated border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-faceit-orange">
-                            <option value="EU">🌍 Europe</option>
-                            <option value="NA">🌎 Amérique du Nord</option>
-                            <option value="SA">🌎 Amérique du Sud</option>
-                            <option value="AS">🌏 Asie</option>
-                            <option value="AF">🌍 Afrique</option>
-                            <option value="OC">🌏 Océanie</option>
+                            <option value="EU">{{ __('leaderboards.filters.regions.EU') }}</option>
+                            <option value="NA">{{ __('leaderboards.filters.regions.NA') }}</option>
+                            <option value="SA">{{ __('leaderboards.filters.regions.SA') }}</option>
+                            <option value="AS">{{ __('leaderboards.filters.regions.AS') }}</option>
+                            <option value="AF">{{ __('leaderboards.filters.regions.AF') }}</option>
+                            <option value="OC">{{ __('leaderboards.filters.regions.OC') }}</option>
                         </select>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-white mb-2">Pays</label>
+                        <label class="block text-sm font-medium text-white mb-2">{{ __('leaderboards.filters.country') }}</label>
                         <select id="countrySelect" class="w-full px-3 py-2 bg-faceit-elevated border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
-                            <option value="">Tous</option>
-                            <option value="FR">🇫🇷 France</option>
-                            <option value="DE">🇩🇪 Allemagne</option>
-                            <option value="GB">🇬🇧 Royaume-Uni</option>
-                            <option value="ES">🇪🇸 Espagne</option>
-                            <option value="IT">🇮🇹 Italie</option>
-                            <option value="US">🇺🇸 États-Unis</option>
-                            <option value="CA">🇨🇦 Canada</option>
-                            <option value="BR">🇧🇷 Brésil</option>
-                            <option value="RU">🇷🇺 Russie</option>
-                            <option value="PL">🇵🇱 Pologne</option>
-                            <option value="SE">🇸🇪 Suède</option>
-                            <option value="DK">🇩🇰 Danemark</option>
-                            <option value="NO">🇳🇴 Norvège</option>
-                            <option value="FI">🇫🇮 Finlande</option>
-                            <option value="NL">🇳🇱 Pays-Bas</option>
-                            <option value="BE">🇧🇪 Belgique</option>
-                            <option value="CH">🇨🇭 Suisse</option>
-                            <option value="AT">🇦🇹 Autriche</option>
-                            <option value="CZ">🇨🇿 République tchèque</option>
-                            <option value="UA">🇺🇦 Ukraine</option>
-                            <option value="TR">🇹🇷 Turquie</option>
+                            <option value="">{{ __('leaderboards.filters.countries.all') }}</option>
+                            <option value="FR">🇫🇷 {{ __('leaderboards.leaderboard.country_names.FR') }}</option>
+                            <option value="DE">🇩🇪 {{ __('leaderboards.leaderboard.country_names.DE') }}</option>
+                            <option value="GB">🇬🇧 {{ __('leaderboards.leaderboard.country_names.GB') }}</option>
+                            <option value="ES">🇪🇸 {{ __('leaderboards.leaderboard.country_names.ES') }}</option>
+                            <option value="IT">🇮🇹 {{ __('leaderboards.leaderboard.country_names.IT') }}</option>
+                            <option value="US">🇺🇸 {{ __('leaderboards.leaderboard.country_names.US') }}</option>
+                            <option value="CA">🇨🇦 {{ __('leaderboards.leaderboard.country_names.CA') }}</option>
+                            <option value="BR">🇧🇷 {{ __('leaderboards.leaderboard.country_names.BR') }}</option>
+                            <option value="RU">🇷🇺 {{ __('leaderboards.leaderboard.country_names.RU') }}</option>
+                            <option value="PL">🇵🇱 {{ __('leaderboards.leaderboard.country_names.PL') }}</option>
+                            <option value="SE">🇸🇪 {{ __('leaderboards.leaderboard.country_names.SE') }}</option>
+                            <option value="DK">🇩🇰 {{ __('leaderboards.leaderboard.country_names.DK') }}</option>
+                            <option value="NO">🇳🇴 {{ __('leaderboards.leaderboard.country_names.NO') }}</option>
+                            <option value="FI">🇫🇮 {{ __('leaderboards.leaderboard.country_names.FI') }}</option>
+                            <option value="NL">🇳🇱 {{ __('leaderboards.leaderboard.country_names.NL') }}</option>
+                            <option value="BE">🇧🇪 {{ __('leaderboards.leaderboard.country_names.BE') }}</option>
+                            <option value="CH">🇨🇭 {{ __('leaderboards.leaderboard.country_names.CH') }}</option>
+                            <option value="AT">🇦🇹 {{ __('leaderboards.leaderboard.country_names.AT') }}</option>
+                            <option value="CZ">🇨🇿 {{ __('leaderboards.leaderboard.country_names.CZ') }}</option>
+                            <option value="UA">🇺🇦 {{ __('leaderboards.leaderboard.country_names.UA') }}</option>
+                            <option value="TR">🇹🇷 {{ __('leaderboards.leaderboard.country_names.TR') }}</option>
                         </select>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-white mb-2">Limite</label>
+                        <label class="block text-sm font-medium text-white mb-2">{{ __('leaderboards.filters.limit') }}</label>
                         <select id="limitSelect" class="w-full px-3 py-2 bg-faceit-elevated border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500">
-                            <option value="20">Top 20</option>
-                            <option value="50">Top 50</option>
-                            <option value="100">Top 100</option>
+                            <option value="20">{{ __('leaderboards.filters.limits.top20') }}</option>
+                            <option value="50">{{ __('leaderboards.filters.limits.top50') }}</option>
+                            <option value="100">{{ __('leaderboards.filters.limits.top100') }}</option>
                         </select>
                     </div>
                     
                     <div class="flex items-end">
                         <button id="refreshButton" class="w-full bg-gray-600 hover:bg-gray-500 px-3 py-2 rounded-lg text-sm font-medium transition-all">
-                            <i class="fas fa-sync-alt mr-2"></i>Actualiser
+                            <i class="fas fa-sync-alt mr-2"></i>{{ __('leaderboards.filters.refresh') }}
                         </button>
                     </div>
                     
                     <div class="flex items-end">
                         <button id="toggleSearchButton" class="w-full bg-faceit-orange hover:bg-faceit-orange-dark px-3 py-2 rounded-lg text-sm font-medium transition-all">
-                            <i class="fas fa-search mr-2"></i>Rechercher
+                            <i class="fas fa-search mr-2"></i>{{ __('leaderboards.filters.search') }}
                         </button>
                     </div>
                 </div>
@@ -120,17 +120,17 @@
             <div class="rounded-xl p-6 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
                 <h3 class="text-lg font-bold mb-4 flex items-center justify-center">
                     <i class="fas fa-search text-faceit-orange mr-2"></i>
-                    Rechercher un joueur
+                    {{ __('leaderboards.search.title') }}
                 </h3>
                 <div class="flex space-x-4">
                     <input 
                         id="playerSearchInput" 
                         type="text" 
-                        placeholder="Nom du joueur FACEIT..."
+                        placeholder="{{ __('leaderboards.search.placeholder') }}"
                         class="flex-1 px-4 py-2 bg-faceit-elevated border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-faceit-orange"
                     >
                     <button id="searchPlayerButton" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg font-medium transition-all">
-                        <i class="fas fa-search mr-2"></i>Rechercher
+                        <i class="fas fa-search mr-2"></i>{{ __('leaderboards.search.button') }}
                     </button>
                 </div>
                 <div id="playerSearchResult" class="mt-4"></div>
@@ -145,14 +145,14 @@
                     <i class="fas fa-trophy text-faceit-orange text-lg"></i>
                 </div>
             </div>
-            <h2 class="text-xl font-bold text-white mb-4">Chargement...</h2>
-            <p id="loadingProgress" class="text-gray-400 animate-pulse mb-6">Connexion à l'API FACEIT</p>
+            <h2 class="text-xl font-bold text-white mb-4">{{ __('leaderboards.loading.title') }}</h2>
+            <p id="loadingProgress" class="text-gray-400 animate-pulse mb-6">{{ __('leaderboards.loading.progress') }}</p>
             
             <div class="max-w-sm mx-auto">
                 <div class="bg-gray-800 rounded-full h-2 overflow-hidden border border-gray-700">
                     <div id="progressBar" class="bg-gradient-to-r from-faceit-orange via-blue-500 to-purple-500 h-full transition-all duration-500" style="width: 25%"></div>
                 </div>
-                <div class="mt-2 text-xs text-gray-500" id="progressDetails">Chargement...</div>
+                <div class="mt-2 text-xs text-gray-500" id="progressDetails">{{ __('leaderboards.loading.details') }}</div>
             </div>
         </div>
 
@@ -161,10 +161,10 @@
             <div class="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-exclamation-triangle text-red-400 text-lg"></i>
             </div>
-            <h2 class="text-lg font-bold text-white mb-2">Erreur de chargement</h2>
-            <p id="errorMessage" class="text-gray-400 mb-4">Une erreur est survenue</p>
+            <h2 class="text-lg font-bold text-white mb-2">{{ __('leaderboards.error.title') }}</h2>
+            <p id="errorMessage" class="text-gray-400 mb-4">{{ __('leaderboards.error.default_message') }}</p>
             <button onclick="loadLeaderboardOptimized()" class="bg-faceit-orange hover:bg-faceit-orange-dark px-4 py-2 rounded-lg font-medium transition-all">
-                <i class="fas fa-redo mr-2"></i>Réessayer
+                <i class="fas fa-redo mr-2"></i>{{ __('leaderboards.error.retry') }}
             </button>
         </div>
 
@@ -172,11 +172,11 @@
         <div id="leaderboardContainer" class="hidden">
             <div class="text-center mb-6">
                 <h2 class="text-xl font-bold text-white mb-2">
-                    <span id="leaderboardTitle">Classement Global</span>
+                    <span id="leaderboardTitle">{{ __('leaderboards.leaderboard.title') }}</span>
                 </h2>
                 <div class="text-sm text-gray-400">
                     <i class="fas fa-clock mr-1"></i>
-                    <span id="lastUpdated">Mis à jour maintenant</span>
+                    <span id="lastUpdated">{{ __('leaderboards.leaderboard.updated_now') }}</span>
                 </div>
             </div>
             
@@ -184,13 +184,13 @@
                 <!-- Table Header -->
                 <div class="px-4 py-3 border-b border-gray-700 bg-faceit-elevated/50">
                     <div class="grid grid-cols-12 gap-4 text-sm font-medium text-gray-300">
-                        <div class="col-span-1 text-center">#</div>
-                        <div class="col-span-3">Joueur</div>
-                        <div class="col-span-2 text-center"></div>
-                        <div class="col-span-2 text-center">ELO</div>
-                        <div class="col-span-2 text-center">Niveau</div>
-                        <div class="col-span-1 text-center">Forme</div>
-                        <div class="col-span-1 text-center">Actions</div>
+                        <div class="col-span-1 text-center">{{ __('leaderboards.leaderboard.table.rank') }}</div>
+                        <div class="col-span-3">{{ __('leaderboards.leaderboard.table.player') }}</div>
+                        <div class="col-span-2 text-center">{{ __('leaderboards.leaderboard.table.stats') }}</div>
+                        <div class="col-span-2 text-center">{{ __('leaderboards.leaderboard.table.elo') }}</div>
+                        <div class="col-span-2 text-center">{{ __('leaderboards.leaderboard.table.level') }}</div>
+                        <div class="col-span-1 text-center">{{ __('leaderboards.leaderboard.table.form') }}</div>
+                        <div class="col-span-1 text-center">{{ __('leaderboards.leaderboard.table.actions') }}</div>
                     </div>
                 </div>
                 
@@ -202,16 +202,16 @@
                 <!-- Pagination -->
                 <div class="px-4 py-3 border-t border-gray-700 flex justify-between items-center bg-faceit-elevated/50">
                     <button id="prevPageButton" class="bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center" disabled>
-                        <i class="fas fa-chevron-left mr-2"></i>Précédent
+                        <i class="fas fa-chevron-left mr-2"></i>{{ __('leaderboards.leaderboard.pagination.previous') }}
                     </button>
                     
                     <div class="flex items-center space-x-4 text-sm text-gray-400">
-                        <span id="pageInfo" class="text-white font-medium">Page 1</span>
-                        <span id="playerCount">Joueurs 1-20</span>
+                        <span id="pageInfo" class="text-white font-medium">{{ __('leaderboards.leaderboard.pagination.page', ['page' => 1]) }}</span>
+                        <span id="playerCount">{{ __('leaderboards.leaderboard.pagination.players', ['start' => 1, 'end' => 20]) }}</span>
                     </div>
                     
                     <button id="nextPageButton" class="bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center">
-                        Suivant<i class="fas fa-chevron-right ml-2"></i>
+                        {{ __('leaderboards.leaderboard.pagination.next') }}<i class="fas fa-chevron-right ml-2"></i>
                     </button>
                 </div>
             </div>
@@ -219,7 +219,6 @@
     </div>
 </div>
 @endsection
-
 @push('styles')
 <style>
     /* Grid Pattern Background */
@@ -377,11 +376,16 @@
     }
 </style>
 @endpush
-
 @push('scripts')
 <script>
+// Injecter les traductions dans le JavaScript 
+window.translations = {!! json_encode([
+    'leaderboards' => __('leaderboards'),
+]) !!};
+window.currentLocale = '{{ app()->getLocale() }}';
+
 /**
- * Leaderboards.js ULTRA OPTIMISÉ - Version embarquée
+ * Leaderboards.js ULTRA OPTIMISÉ - Version embarquée avec traductions
  * Appels directs à l'API FACEIT comme dans le système Friends
  */
 
@@ -655,7 +659,7 @@ async function loadLeaderboardOptimized() {
         const leaderboardData = await getLeaderboardBase(currentRegion, currentCountry, currentOffset, currentLimit);
         
         if (!leaderboardData || !leaderboardData.items || leaderboardData.items.length === 0) {
-            throw new Error('Aucun joueur trouvé dans ce classement');
+            throw new Error(window.translations.leaderboards.error.no_players);
         }
         
         currentLeaderboard = leaderboardData.items;
@@ -700,7 +704,7 @@ async function searchPlayerOptimized(nickname) {
         const player = await faceitApiCall(`players?nickname=${encodeURIComponent(nickname)}`);
         
         if (!player || !player.games || !player.games[FACEIT_API.GAME_ID]) {
-            throw new Error("Ce joueur n'a pas de profil CS2");
+            throw new Error(window.translations.leaderboards.search.errors.no_cs2_profile.replace(':player', nickname));
         }
         
         // 2. Récupérer sa position dans le classement
@@ -779,13 +783,13 @@ function setupEventListeners() {
     const refreshButton = document.getElementById('refreshButton');
     if (refreshButton) {
         refreshButton.addEventListener('click', function() {
-            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i>Actualisation...';
+            this.innerHTML = `<i class="fas fa-spinner fa-spin mr-3"></i>${window.translations.leaderboards.filters.refreshing}`;
             this.disabled = true;
             
             clearAllCaches();
             currentOffset = 0;
             loadLeaderboardOptimized().finally(() => {
-                this.innerHTML = '<i class="fas fa-sync-alt mr-3"></i>Actualiser';
+                this.innerHTML = `<i class="fas fa-sync-alt mr-3"></i>${window.translations.leaderboards.filters.refresh}`;
                 this.disabled = false;
             });
         });
@@ -842,18 +846,18 @@ async function handlePlayerSearch() {
     
     const playerName = searchInput.value.trim();
     if (!playerName) {
-        showSearchError("Veuillez entrer un nom de joueur");
+        showSearchError(window.translations.leaderboards.search.errors.empty_name);
         return;
     }
     
     const originalText = searchButton.innerHTML;
-    searchButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i>Recherche...';
+    searchButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-3"></i>${window.translations.leaderboards.search.searching}`;
     searchButton.disabled = true;
     
     searchResult.innerHTML = `
         <div class="flex items-center justify-center py-8 rounded-2xl border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
             <i class="fas fa-spinner fa-spin text-faceit-orange mr-3 text-xl"></i>
-            <span class="text-gray-300 text-lg">Recherche de ${playerName}...</span>
+            <span class="text-gray-300 text-lg">${window.translations.leaderboards.search.searching_for.replace(':player', playerName)}</span>
         </div>
     `;
     
@@ -928,17 +932,17 @@ function displayPlayerSearchResult(player) {
                     <div class="text-2xl font-black text-faceit-orange">
                         ${position !== 'N/A' ? '#' + formatNumber(position) : 'N/A'}
                     </div>
-                    <div class="text-sm text-gray-400">Position ${currentRegion}</div>
+                    <div class="text-sm text-gray-400">${window.translations.leaderboards.player.position_region.replace(':region', currentRegion)}</div>
                 </div>
                 
                 <div class="flex space-x-2">
                     <button onclick="navigateToPlayer('${player.player_id}')" 
                             class="bg-faceit-orange hover:bg-faceit-orange-dark px-3 py-2 rounded-lg text-sm font-medium transition-all">
-                        <i class="fas fa-chart-line mr-1"></i>Stats
+                        <i class="fas fa-chart-line mr-1"></i>${window.translations.leaderboards.player.stats_button}
                     </button>
                     <button onclick="navigateToComparison('${encodeURIComponent(player.nickname)}')" 
                             class="bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-lg text-sm font-medium transition-all">
-                        <i class="fas fa-balance-scale mr-1"></i>Comparer
+                        <i class="fas fa-balance-scale mr-1"></i>${window.translations.leaderboards.player.compare_button}
                     </button>
                 </div>
             </div>
@@ -949,7 +953,7 @@ function displayPlayerSearchResult(player) {
 function updateProgressiveLeaderboard(players) {
     const progressElement = document.getElementById('loadingProgress');
     if (progressElement) {
-        progressElement.textContent = `${players.length} joueurs enrichis...`;
+        progressElement.textContent = window.translations.leaderboards.loading.players_enriched.replace(':count', players.length);
     }
     
     // Affichage progressif dès qu'on a quelques joueurs
@@ -1076,7 +1080,7 @@ function createOptimizedPlayerRow(player, index) {
                 ` : `
                     <div class="text-xs text-gray-500">
                         <i class="fas fa-lock mr-1"></i>
-                        Privé
+                        ${window.translations.leaderboards.player.private_stats}
                     </div>
                 `}
             </div>
@@ -1092,7 +1096,7 @@ function createOptimizedPlayerRow(player, index) {
                 <div class="flex items-center justify-center space-x-2">
                     <img src="https://cdn-frontend.faceit.com/web/960/src/app/assets/images-compress/skill-icons/skill_level_${level}_svg.svg" alt="Rank" class="w-5 h-5" 
                          onerror="this.style.display='none'" loading="lazy">
-                    <span class="${getRankColor(level)} font-medium text-sm">Lvl ${level}</span>
+                    <span class="${getRankColor(level)} font-medium text-sm">${window.translations.leaderboards.player.level_short.replace(':level', level)}</span>
                 </div>
             </div>
             
@@ -1107,7 +1111,7 @@ function createOptimizedPlayerRow(player, index) {
             <div class="col-span-1 text-center">
                 <button onclick="event.stopPropagation(); navigateToPlayer('${playerId}')" 
                         class="bg-faceit-orange hover:bg-faceit-orange-dark p-1.5 rounded-lg text-xs transition-all"
-                        title="Voir les statistiques">
+                        title="${window.translations.leaderboards.player.view_stats}">
                     <i class="fas fa-chart-line"></i>
                 </button>
             </div>
@@ -1121,31 +1125,32 @@ function createOptimizedPlayerRow(player, index) {
 // ===== FONCTIONS UTILITAIRES =====
 
 function getFormConfig(form) {
+    const t = window.translations.leaderboards.form;
     const configs = {
         'excellent': {
             class: 'bg-green-500/20 text-green-400 border border-green-500/50',
             icon: 'fas fa-fire',
-            text: 'Excellente'  // 5 victoires
+            text: t.excellent
         },
         'good': {
             class: 'bg-blue-500/20 text-blue-400 border border-blue-500/50',
             icon: 'fas fa-thumbs-up',
-            text: 'Bonne'       // 3-4 victoires
+            text: t.good
         },
         'average': {
             class: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/50',
             icon: 'fas fa-minus',
-            text: 'Moyenne'     // 2 victoires
+            text: t.average
         },
         'poor': {
             class: 'bg-red-500/20 text-red-400 border border-red-500/50',
             icon: 'fas fa-thumbs-down',
-            text: 'Difficile'   // 0-1 victoire
+            text: t.poor
         },
         'unknown': {
             class: 'bg-gray-500/20 text-gray-400 border border-gray-500/50',
             icon: 'fas fa-question',
-            text: 'Inconnue'
+            text: t.unknown
         }
     };
     
@@ -1166,12 +1171,14 @@ function updatePaginationOptimized(leaderboardData) {
     
     const currentPage = Math.floor(currentOffset / currentLimit) + 1;
     
-    if (pageInfo) pageInfo.textContent = `Page ${currentPage}`;
+    if (pageInfo) pageInfo.textContent = window.translations.leaderboards.leaderboard.pagination.page.replace(':page', currentPage);
     
     if (playerCount) {
         const startPos = currentOffset + 1;
         const endPos = currentOffset + enrichedLeaderboard.length;
-        playerCount.textContent = `Joueurs ${startPos}-${endPos}`;
+        playerCount.textContent = window.translations.leaderboards.leaderboard.pagination.players
+            .replace(':start', startPos)
+            .replace(':end', endPos);
     }
 }
 
@@ -1188,8 +1195,9 @@ function updateLeaderboardMeta() {
     const now = new Date();
     const lastUpdated = document.getElementById('lastUpdated');
     if (lastUpdated) {
-        lastUpdated.textContent = 
-            `Mis à jour le ${now.toLocaleDateString('fr-FR')} à ${now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
+        lastUpdated.textContent = window.translations.leaderboards.leaderboard.updated_on
+            .replace(':date', now.toLocaleDateString(window.currentLocale === 'en' ? 'en-US' : 'fr-FR'))
+            .replace(':time', now.toLocaleTimeString(window.currentLocale === 'en' ? 'en-US' : 'fr-FR', { hour: '2-digit', minute: '2-digit' }));
     }
 }
 
@@ -1241,7 +1249,7 @@ function calculateRegionStats() {
     
     const topLevelEl = document.getElementById('topLevel');
     if (topLevelEl) {
-        topLevelEl.textContent = `Niveau ${topLevel}`;
+        topLevelEl.textContent = `${window.translations.leaderboards.stats.level} ${topLevel}`;
     }
 }
 
@@ -1274,7 +1282,7 @@ function toggleSearchSection() {
     if (searchSectionVisible) {
         searchSection.classList.remove('hidden');
         searchSection.classList.add('animate-slide-up');
-        toggleButton.innerHTML = '<i class="fas fa-times mr-3"></i>Fermer';
+        toggleButton.innerHTML = `<i class="fas fa-times mr-3"></i>${window.translations.leaderboards.filters.close}`;
         toggleButton.classList.remove('from-faceit-orange', 'to-red-500');
         toggleButton.classList.add('from-gray-600', 'to-gray-700');
         
@@ -1285,7 +1293,7 @@ function toggleSearchSection() {
     } else {
         searchSection.classList.add('hidden');
         searchSection.classList.remove('animate-slide-up');
-        toggleButton.innerHTML = '<i class="fas fa-search mr-3"></i>Rechercher';
+        toggleButton.innerHTML = `<i class="fas fa-search mr-3"></i>${window.translations.leaderboards.filters.search}`;
         toggleButton.classList.add('from-faceit-orange', 'to-red-500');
         toggleButton.classList.remove('from-gray-600', 'to-gray-700');
         
@@ -1297,16 +1305,16 @@ function toggleSearchSection() {
 }
 
 function handleSearchError(error, playerName, searchResult) {
-    let errorMessage = `Joueur "${playerName}" non trouvé`;
+    let errorMessage = window.translations.leaderboards.search.errors.not_found.replace(':player', playerName);
     let errorClass = 'bg-red-500/20 border-red-500/50';
     let errorIcon = 'fas fa-exclamation-triangle text-red-400';
     
-    if (error.message.includes("n'a pas de profil CS2")) {
-        errorMessage = `Le joueur "${playerName}" n'a pas de profil CS2`;
+    if (error.message.includes("n'a pas de profil CS2") || error.message.includes("has no CS2 profile")) {
+        errorMessage = window.translations.leaderboards.search.errors.no_cs2_profile.replace(':player', playerName);
         errorClass = 'bg-yellow-500/20 border-yellow-500/50';
         errorIcon = 'fas fa-info-circle text-yellow-400';
     } else if (error.message.includes('Timeout')) {
-        errorMessage = 'Recherche trop lente, veuillez réessayer...';
+        errorMessage = window.translations.leaderboards.search.errors.timeout;
         errorClass = 'bg-blue-500/20 border-blue-500/50';
         errorIcon = 'fas fa-clock text-blue-400';
     }
@@ -1389,41 +1397,12 @@ function debounce(func, wait) {
 }
 
 function getRegionName(region) {
-    const regions = {
-        'EU': 'Europe',
-        'NA': 'Amérique du Nord', 
-        'SA': 'Amérique du Sud',
-        'AS': 'Asie',
-        'AF': 'Afrique',
-        'OC': 'Océanie'
-    };
+    const regions = window.translations.leaderboards.leaderboard.region_names;
     return regions[region] || region;
 }
 
 function getCountryName(countryCode) {
-    const countries = {
-        'FR': 'France',
-        'DE': 'Allemagne',
-        'GB': 'Royaume-Uni',
-        'ES': 'Espagne',
-        'IT': 'Italie',
-        'US': 'États-Unis',
-        'CA': 'Canada',
-        'BR': 'Brésil',
-        'RU': 'Russie',
-        'PL': 'Pologne',
-        'SE': 'Suède',
-        'DK': 'Danemark',
-        'NO': 'Norvège',
-        'FI': 'Finlande',
-        'NL': 'Pays-Bas',
-        'BE': 'Belgique',
-        'CH': 'Suisse',
-        'AT': 'Autriche',
-        'CZ': 'République tchèque',
-        'UA': 'Ukraine',
-        'TR': 'Turquie'
-    };
+    const countries = window.translations.leaderboards.leaderboard.country_names;
     return countries[countryCode] || countryCode;
 }
 

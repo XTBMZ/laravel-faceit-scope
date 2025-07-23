@@ -1,5 +1,5 @@
 /**
- * Script pour la page de statistiques avancées - Faceit Scope
+ * Script pour la page de statistiques avancées - Faceit Scope (TRADUIT)
  */
 
 // Variables globales
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } else if (currentPlayerId) {
         loadPlayerData();
     } else {
-        showError("Aucun joueur spécifié");
+        showError(window.translations.advanced.errors.no_player);
     }
 });
 
@@ -89,13 +89,7 @@ function setupEventListeners() {
 }
 
 function updateLoadingText() {
-    const messages = [
-        "Récupération des données du joueur",
-        "Analyse des statistiques",
-        "Calcul des performances",
-        "Génération des graphiques",
-        "Finalisation..."
-    ];
+    const messages = Object.values(window.translations.advanced.loading.messages);
     
     let index = 0;
     const loadingText = document.getElementById('loadingText');
@@ -117,7 +111,7 @@ async function loadPlayerByNickname() {
         currentPlayerNickname = player.nickname;
         loadPlayerData();
     } catch (error) {
-        showError("Joueur non trouvé");
+        showError(window.translations.advanced.errors.player_not_found);
     }
 }
 
@@ -153,7 +147,7 @@ async function loadPlayerData() {
         
     } catch (error) {
         console.error('Erreur lors du chargement:', error);
-        showError("Erreur lors du chargement des statistiques");
+        showError(window.translations.advanced.errors.loading_error);
     }
 }
 
@@ -187,7 +181,7 @@ async function displayPlayerHeader(player) {
                             <i class="fas fa-globe mr-2"></i>${region}
                         </span>
                         <span class="px-3 py-1 bg-purple-500/20 border border-purple-500/50 rounded-full text-sm font-medium">
-                            <i class="fas fa-star mr-2"></i>Niveau ${level}
+                            <i class="fas fa-star mr-2"></i>${window.translations.advanced.player.level.replace(':level', level)}
                         </span>
                     </div>
                 </div>
@@ -195,11 +189,11 @@ async function displayPlayerHeader(player) {
                 <div class="grid grid-cols-2 gap-6 max-w-md mx-auto lg:mx-0">
                     <div class="text-center">
                         <div class="text-3xl font-black text-gradient mb-1">${elo}</div>
-                        <div class="text-sm text-gray-400">ELO Actuel</div>
+                        <div class="text-sm text-gray-400">${window.translations.advanced.player.current_elo}</div>
                     </div>
                     <div class="text-center">
                         <div class="text-3xl font-black ${getRankColor(level)} mb-1">${getRankName(level)}</div>
-                        <div class="text-sm text-gray-400">Rang</div>
+                        <div class="text-sm text-gray-400">${window.translations.advanced.player.rank}</div>
                     </div>
                 </div>
             </div>
@@ -207,17 +201,176 @@ async function displayPlayerHeader(player) {
             <div class="flex lg:flex-col gap-3">
                 <a href="${buildFaceitProfileUrl(player)}" target="_blank" 
                    class="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl font-medium transition-all transform hover:scale-105 text-center">
-                    <i class="fas fa-external-link-alt mr-2"></i>FACEIT
+                    <i class="fas fa-external-link-alt mr-2"></i>${window.translations.advanced.player.faceit_button}
                 </a>
                 <button onclick="window.location.href='/compare?player1=' + encodeURIComponent('${player.nickname}')" 
                         class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-medium transition-all transform hover:scale-105 text-center">
-                    <i class="fas fa-balance-scale mr-2"></i>Comparer
+                    <i class="fas fa-balance-scale mr-2"></i>${window.translations.advanced.player.compare_button}
                 </button>
             </div>
         </div>
     `;
 }
 
+async function displayMainStats(stats) {
+    const container = document.getElementById('mainStatsGrid');
+    const lifetime = stats.lifetime;
+    
+    const mainStats = [
+        {
+            icon: 'fas fa-gamepad',
+            label: window.translations.advanced.stats.matches,
+            value: formatNumber(lifetime["Matches"] || 0),
+            color: 'text-blue-400',
+            bgColor: 'bg-blue-500/10 border-blue-500/30'
+        },
+        {
+            icon: 'fas fa-trophy',
+            label: window.translations.advanced.stats.win_rate,
+            value: (lifetime["Win Rate %"] || 0) + '%',
+            color: 'text-green-400',
+            bgColor: 'bg-green-500/10 border-green-500/30'
+        },
+        {
+            icon: 'fas fa-crosshairs',
+            label: window.translations.advanced.stats.kd_ratio,
+            value: lifetime["Average K/D Ratio"] || '0.00',
+            color: 'text-faceit-orange',
+            bgColor: 'bg-orange-500/10 border-orange-500/30'
+        },
+        {
+            icon: 'fas fa-bullseye',
+            label: window.translations.advanced.stats.headshots,
+            value: (lifetime["Average Headshots %"] || 0) + '%',
+            color: 'text-purple-400',
+            bgColor: 'bg-purple-500/10 border-purple-500/30'
+        },
+        {
+            icon: 'fas fa-fire',
+            label: window.translations.advanced.stats.kr_ratio,
+            value: lifetime["Average K/R Ratio"] || '0.00',
+            color: 'text-red-400',
+            bgColor: 'bg-red-500/10 border-red-500/30'
+        },
+        {
+            icon: 'fas fa-bolt',
+            label: window.translations.advanced.stats.entry_rate,
+            value: ((parseFloat(lifetime["Entry Rate"] || 0) * 100).toFixed(1)) + '%',
+            color: 'text-yellow-400',
+            bgColor: 'bg-yellow-500/10 border-yellow-500/30'
+        }
+    ];
+    
+    container.innerHTML = mainStats.map(stat => `
+        <div class="glass-effect rounded-xl p-4 text-center stat-card border ${stat.bgColor}">
+            <div class="w-12 h-12 ${stat.bgColor} rounded-lg flex items-center justify-center mx-auto mb-3">
+                <i class="${stat.icon} ${stat.color} text-xl"></i>
+            </div>
+            <div class="text-2xl font-bold text-white mb-1">${stat.value}</div>
+            <div class="text-xs text-gray-400 font-medium">${stat.label}</div>
+        </div>
+    `).join('');
+}
+
+async function displayCombatStats(stats) {
+    const lifetime = stats.lifetime;
+    
+    // Stats Clutch
+    const clutchContainer = document.getElementById('clutchStats');
+    const clutch1v1Rate = ((parseFloat(lifetime["1v1 Win Rate"] || 0) * 100).toFixed(0)) + '%';
+    const clutch1v2Rate = ((parseFloat(lifetime["1v2 Win Rate"] || 0) * 100).toFixed(0)) + '%';
+    const totalClutches = parseInt(lifetime["Total 1v1 Wins"] || 0) + parseInt(lifetime["Total 1v2 Wins"] || 0);
+    
+    clutchContainer.innerHTML = `
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-fire text-red-400 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-red-400 mb-2">${window.translations.advanced.stats.clutch_master}</h3>
+            <div class="text-3xl font-black text-white">${totalClutches}</div>
+            <div class="text-sm text-gray-400">${window.translations.advanced.stats.total_clutches}</div>
+        </div>
+        
+        <div class="space-y-4">
+            <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
+                <span class="text-gray-300">${window.translations.advanced.detailed_stats['1v1_win_rate']}</span>
+                <div class="text-right">
+                    <div class="font-bold text-red-400">${clutch1v1Rate}</div>
+                    <div class="text-xs text-gray-500">${lifetime["Total 1v1 Wins"] || 0}/${lifetime["Total 1v1 Count"] || 0}</div>
+                </div>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
+                <span class="text-gray-300">${window.translations.advanced.detailed_stats['1v2_win_rate']}</span>
+                <div class="text-right">
+                    <div class="font-bold text-red-400">${clutch1v2Rate}</div>
+                    <div class="text-xs text-gray-500">${lifetime["Total 1v2 Wins"] || 0}/${lifetime["Total 1v2 Count"] || 0}</div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Stats Entry
+    const entryContainer = document.getElementById('entryStats');
+    const entrySuccessRate = ((parseFloat(lifetime["Entry Success Rate"] || 0) * 100).toFixed(0)) + '%';
+    const entryRate = ((parseFloat(lifetime["Entry Rate"] || 0) * 100).toFixed(1)) + '%';
+    
+    entryContainer.innerHTML = `
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-rocket text-green-400 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-green-400 mb-2">${window.translations.advanced.stats.entry_fragger}</h3>
+            <div class="text-3xl font-black text-white">${entrySuccessRate}</div>
+            <div class="text-sm text-gray-400">${window.translations.advanced.stats.success_rate}</div>
+        </div>
+        
+        <div class="space-y-4">
+            <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
+                <span class="text-gray-300">${window.translations.advanced.detailed_stats.entry_rate}</span>
+                <span class="font-bold text-green-400">${entryRate}</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
+                <span class="text-gray-300">${window.translations.advanced.detailed_stats.total_entries}</span>
+                <span class="font-bold text-green-400">${lifetime["Total Entry Count"] || 0}</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
+                <span class="text-gray-300">${window.translations.advanced.detailed_stats.successful_entries}</span>
+                <span class="font-bold text-green-400">${lifetime["Total Entry Wins"] || 0}</span>
+            </div>
+        </div>
+    `;
+    
+    // Stats Utility/Support
+    const utilityContainer = document.getElementById('utilityStats');
+    const flashSuccessRate = ((parseFloat(lifetime["Flash Success Rate"] || 0) * 100).toFixed(0)) + '%';
+    const utilitySuccessRate = ((parseFloat(lifetime["Utility Success Rate"] || 0) * 100).toFixed(0)) + '%';
+    
+    utilityContainer.innerHTML = `
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-sun text-yellow-400 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-yellow-400 mb-2">${window.translations.advanced.stats.support_master}</h3>
+            <div class="text-3xl font-black text-white">${flashSuccessRate}</div>
+            <div class="text-sm text-gray-400">${window.translations.advanced.stats.flash_success}</div>
+        </div>
+        
+        <div class="space-y-4">
+            <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
+                <span class="text-gray-300">${window.translations.advanced.detailed_stats.flashes_per_round}</span>
+                <span class="font-bold text-yellow-400">${parseFloat(lifetime["Flashes per Round"] || 0).toFixed(2)}</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
+                <span class="text-gray-300">${window.translations.advanced.detailed_stats.utility_success}</span>
+                <span class="font-bold text-yellow-400">${utilitySuccessRate}</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
+                <span class="text-gray-300">${window.translations.advanced.detailed_stats.total_flash_assists}</span>
+                <span class="font-bold text-yellow-400">${formatNumber(lifetime["Total Flash Successes"] || 0)}</span>
+            </div>
+        </div>
+    `;
+}
 async function displayCharts(stats) {
     // Radar Chart
     const radarCtx = document.getElementById('performanceRadarChart');
@@ -348,7 +501,7 @@ async function displayMapStats(stats) {
         container.innerHTML = `
             <div class="col-span-full text-center py-12 glass-effect rounded-xl">
                 <i class="fas fa-map text-gray-600 text-4xl mb-4"></i>
-                <p class="text-gray-400">Aucune donnée de carte disponible</p>
+                <p class="text-gray-400">${window.translations.advanced.map_stats.no_map_data}</p>
             </div>
         `;
         return;
@@ -440,7 +593,7 @@ async function displayMapStats(stats) {
                     <!-- Call to action -->
                     <div class="text-center pt-2 border-t border-gray-700/50">
                         <span class="text-xs text-gray-500 group-hover:text-faceit-orange transition-colors">
-                            <i class="fas fa-expand-arrows-alt mr-1"></i>Voir les détails
+                            <i class="fas fa-expand-arrows-alt mr-1"></i>${window.translations.advanced.map_modal.view_details}
                         </span>
                     </div>
                 </div>
@@ -449,6 +602,160 @@ async function displayMapStats(stats) {
     }).join('');
 }
 
+async function displayAchievements(stats) {
+    const container = document.getElementById('achievementsGrid');
+    const lifetime = stats.lifetime;
+    const mapStats = calculateMapTotals(stats.segments);
+    
+    const achievements = [
+        {
+            icon: 'fas fa-crown',
+            label: window.translations.advanced.achievements.ace,
+            value: mapStats.totalPenta,
+            color: 'text-red-400',
+            bgGradient: 'from-red-500/20 to-red-600/10',
+            borderColor: 'border-red-500/30'
+        },
+        {
+            icon: 'fas fa-fire',
+            label: window.translations.advanced.achievements.quadro, 
+            value: mapStats.totalQuadro,
+            color: 'text-orange-400',
+            bgGradient: 'from-orange-500/20 to-orange-600/10',
+            borderColor: 'border-orange-500/30'
+        },
+        {
+            icon: 'fas fa-star',
+            label: window.translations.advanced.achievements.triple,
+            value: mapStats.totalTriple,
+            color: 'text-yellow-400',
+            bgGradient: 'from-yellow-500/20 to-yellow-600/10',
+            borderColor: 'border-yellow-500/30'
+        },
+        {
+            icon: 'fas fa-arrow-up',
+            label: window.translations.advanced.achievements.current_streak,
+            value: lifetime["Current Win Streak"] || 0,
+            color: 'text-green-400',
+            bgGradient: 'from-green-500/20 to-green-600/10',
+            borderColor: 'border-green-500/30'
+        },
+        {
+            icon: 'fas fa-trophy',
+            label: window.translations.advanced.achievements.longest_streak,
+            value: lifetime["Longest Win Streak"] || 0,
+            color: 'text-blue-400',
+            bgGradient: 'from-blue-500/20 to-blue-600/10',
+            borderColor: 'border-blue-500/30'
+        }
+    ];
+    
+    container.innerHTML = achievements.map(achievement => `
+        <div class="text-center p-6 bg-gradient-to-br ${achievement.bgGradient} rounded-xl border ${achievement.borderColor} stat-card">
+            <div class="w-16 h-16 bg-black/40 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="${achievement.icon} ${achievement.color} text-2xl"></i>
+            </div>
+            <div class="text-3xl font-black ${achievement.color} mb-2">${achievement.value}</div>
+            <div class="text-sm text-gray-300 font-medium">${achievement.label}</div>
+        </div>
+    `).join('');
+}
+
+async function displayRecentResults(stats) {
+    const container = document.getElementById('recentResults');
+    const recentResults = stats.lifetime["Recent Results"] || [];
+    
+    if (recentResults.length === 0) {
+        container.innerHTML = `<span class="text-gray-400">${window.translations.advanced.recent_results.no_results}</span>`;
+        return;
+    }
+    
+    const resultIcons = recentResults.map((result, index) => {
+        const isWin = result === "1";
+        const bgColor = isWin ? 'bg-green-500' : 'bg-red-500';
+        const icon = isWin ? 'fas fa-check' : 'fas fa-times';
+        const resultText = isWin ? window.translations.advanced.recent_results.victory : window.translations.advanced.recent_results.defeat;
+        const matchText = window.translations.advanced.recent_results.match_number.replace(':number', index + 1);
+        
+        return `
+            <div class="w-12 h-12 ${bgColor} rounded-full flex items-center justify-center font-bold transition-all duration-300 hover:scale-110 animate-scale-in" 
+                 style="animation-delay: ${index * 0.1}s" 
+                 title="${matchText} - ${resultText}">
+                <i class="${icon} text-white"></i>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = resultIcons;
+}
+
+function calculateMapTotals(segments) {
+    let totalPenta = 0;
+    let totalQuadro = 0; 
+    let totalTriple = 0;
+    
+    const mapSegments = segments.filter(segment => segment.type === "Map" && segment.stats);
+    
+    mapSegments.forEach(segment => {
+        totalPenta += parseInt(segment.stats["Penta Kills"] || 0);
+        totalQuadro += parseInt(segment.stats["Quadro Kills"] || 0);
+        totalTriple += parseInt(segment.stats["Triple Kills"] || 0);
+    });
+    
+    return { totalPenta, totalQuadro, totalTriple };
+}
+
+function downloadPlayerReport() {
+    if (!currentPlayerData || !currentPlayerStats) {
+        showNotification(window.translations.advanced.errors.no_export_data, 'error');
+        return;
+    }
+    
+    const reportData = {
+        player: {
+            nickname: currentPlayerData.nickname,
+            country: currentPlayerData.country,
+            level: currentPlayerData.games?.cs2?.skill_level || currentPlayerData.games?.csgo?.skill_level,
+            elo: currentPlayerData.games?.cs2?.faceit_elo || currentPlayerData.games?.csgo?.faceit_elo,
+            region: currentPlayerData.games?.cs2?.region || currentPlayerData.games?.csgo?.region,
+            avatar: currentPlayerData.avatar,
+            faceit_url: currentPlayerData.faceit_url
+        },
+        stats: currentPlayerStats.lifetime,
+        map_performance: currentPlayerStats.segments.filter(s => s.type === "Map"),
+        generated_at: new Date().toISOString(),
+        generated_by: "Faceit Scope"
+    };
+    
+    const dataStr = JSON.stringify(reportData, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileName = `faceit_stats_${currentPlayerData.nickname}_${new Date().toISOString().split('T')[0]}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileName);
+    linkElement.click();
+    
+    showNotification(window.translations.advanced.notifications.report_downloaded, 'success');
+}
+
+function showError(message) {
+    document.getElementById('loadingState').innerHTML = `
+        <div class="min-h-screen flex items-center justify-center">
+            <div class="text-center max-w-md mx-auto">
+                <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-4">${window.translations.advanced.errors.title || 'Erreur'}</h2>
+                <p class="text-gray-400 mb-6">${message}</p>
+                <a href="/" class="inline-block gradient-orange px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105">
+                    <i class="fas fa-home mr-2"></i>${window.translations.advanced.errors.back_home}
+                </a>
+            </div>
+        </div>
+    `;
+}
 function showMapStatsModal(mapIndex) {
     const mapSegments = currentPlayerStats.segments.filter(segment => segment.type === "Map");
     const sortedMapSegments = mapSegments.sort((a, b) => {
@@ -464,6 +771,7 @@ function showMapStatsModal(mapIndex) {
     const stats = mapSegment.stats;
     const mapImageKey = mapName.toLowerCase().replace(/\s/g, '');
     const mapImage = MAP_IMAGES[mapImageKey] || null;
+    const t = window.translations.advanced.map_modal;
     
     console.log('Stats de la carte:', stats); // Debug pour voir les données disponibles
     
@@ -525,12 +833,6 @@ function showMapStatsModal(mapIndex) {
     const totalEnemiesFlashed = parseInt(stats["Total Enemies Flashed"] || 0);
     const enemiesFlashedPerRound = parseFloat(stats["Enemies Flashed per Round"] || 0).toFixed(2);
     
-    // Calcul des first kills/deaths depuis les données disponibles
-    const entrySuccessRateFloat = parseFloat(stats["Entry Success Rate"] || 0);
-    const entryRateFloat = parseFloat(stats["Entry Rate"] || 0);
-    const estimatedFirstKills = Math.round(totalEntryWins * entrySuccessRateFloat);
-    const estimatedFirstDeaths = Math.round(totalEntryCount - totalEntryWins);
-    
     // Afficher le modal
     const modal = document.getElementById('mapStatsModal');
     const modalContent = document.getElementById('mapStatsModalContent');
@@ -549,8 +851,8 @@ function showMapStatsModal(mapIndex) {
                     <div>
                         <h2 class="text-4xl font-black text-white mb-2">${mapName}</h2>
                         <div class="flex items-center space-x-4 text-gray-200">
-                            <span class="text-lg font-semibold">${matches} matches jouées</span>
-                            <span class="text-lg font-semibold ${parseFloat(winRate) >= 50 ? 'text-green-400' : 'text-red-400'}">${winRate}% victoires</span>
+                            <span class="text-lg font-semibold">${t.matches_played.replace(':matches', matches)}</span>
+                            <span class="text-lg font-semibold ${parseFloat(winRate) >= 50 ? 'text-green-400' : 'text-red-400'}">${t.victories.replace(':winrate', winRate)}</span>
                         </div>
                     </div>
                     <button onclick="closeMapStatsModal()" class="w-12 h-12 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center transition-colors">
@@ -574,7 +876,7 @@ function showMapStatsModal(mapIndex) {
                 </div>
                 <div class="text-center p-4 bg-faceit-elevated rounded-xl">
                     <div class="text-3xl font-black text-purple-400 mb-1">${headshotPct}%</div>
-                    <div class="text-sm text-gray-400">Headshots</div>
+                    <div class="text-sm text-gray-400">${window.translations.advanced.stats.headshots}</div>
                 </div>
                 <div class="text-center p-4 bg-faceit-elevated rounded-xl">
                     <div class="text-3xl font-black text-yellow-400 mb-1">${mvps}</div>
@@ -587,54 +889,54 @@ function showMapStatsModal(mapIndex) {
                 <!-- Combat Stats -->
                 <div class="bg-faceit-elevated rounded-xl p-6">
                     <h3 class="text-xl font-bold text-red-400 mb-4 flex items-center">
-                        <i class="fas fa-crosshairs mr-2"></i>Combat
+                        <i class="fas fa-crosshairs mr-2"></i>${t.combat}
                     </h3>
                     <div class="space-y-3">
-                        <div class="flex justify-between"><span class="text-gray-300">Kills totaux</span><span class="font-bold text-white">${formatNumber(totalKills)}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Morts totales</span><span class="font-bold text-white">${formatNumber(totalDeaths)}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Assists totales</span><span class="font-bold text-white">${formatNumber(totalAssists)}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.total_kills}</span><span class="font-bold text-white">${formatNumber(totalKills)}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.total_deaths}</span><span class="font-bold text-white">${formatNumber(totalDeaths)}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.total_assists}</span><span class="font-bold text-white">${formatNumber(totalAssists)}</span></div>
                         <div class="flex justify-between"><span class="text-gray-300">K/R Ratio</span><span class="font-bold text-orange-400">${kr}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Kills/Round</span><span class="font-bold text-green-400">${killsPerRound}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Morts/Round</span><span class="font-bold text-red-400">${deathsPerRound}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Opening Kill Ratio</span><span class="font-bold text-blue-400">${entrySuccessRate}%</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.kills_per_round}</span><span class="font-bold text-green-400">${killsPerRound}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.deaths_per_round}</span><span class="font-bold text-red-400">${deathsPerRound}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.opening_kill_ratio}</span><span class="font-bold text-blue-400">${entrySuccessRate}%</span></div>
                     </div>
                 </div>
                 
                 <!-- Multi-kills -->
                 <div class="bg-faceit-elevated rounded-xl p-6">
                     <h3 class="text-xl font-bold text-yellow-400 mb-4 flex items-center">
-                        <i class="fas fa-crown mr-2"></i>Multi-kills
+                        <i class="fas fa-crown mr-2"></i>${t.multi_kills}
                     </h3>
                     <div class="space-y-3">
-                        ${aces > 0 ? `<div class="flex justify-between items-center p-2 bg-red-500/20 rounded"><span class="text-gray-200 flex items-center"><i class="fas fa-crown text-red-400 mr-2"></i>Aces (5K)</span><span class="font-bold text-red-400">${aces}</span></div>` : ''}
-                        ${quadros > 0 ? `<div class="flex justify-between items-center p-2 bg-orange-500/20 rounded"><span class="text-gray-200 flex items-center"><i class="fas fa-fire text-orange-400 mr-2"></i>Quadros (4K)</span><span class="font-bold text-orange-400">${quadros}</span></div>` : ''}
-                        ${triples > 0 ? `<div class="flex justify-between items-center p-2 bg-yellow-500/20 rounded"><span class="text-gray-200 flex items-center"><i class="fas fa-star text-yellow-400 mr-2"></i>Triples (3K)</span><span class="font-bold text-yellow-400">${triples}</span></div>` : ''}
-                        <div class="flex justify-between"><span class="text-gray-300">Avg. Aces/Match</span><span class="font-bold text-red-400">${(aces / Math.max(matches, 1)).toFixed(2)}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Avg. 4K/Match</span><span class="font-bold text-orange-400">${(quadros / Math.max(matches, 1)).toFixed(2)}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Avg. 3K/Match</span><span class="font-bold text-yellow-400">${(triples / Math.max(matches, 1)).toFixed(2)}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Total Entries</span><span class="font-bold text-green-400">${totalEntryCount}</span></div>
+                        ${aces > 0 ? `<div class="flex justify-between items-center p-2 bg-red-500/20 rounded"><span class="text-gray-200 flex items-center"><i class="fas fa-crown text-red-400 mr-2"></i>${t.aces}</span><span class="font-bold text-red-400">${aces}</span></div>` : ''}
+                        ${quadros > 0 ? `<div class="flex justify-between items-center p-2 bg-orange-500/20 rounded"><span class="text-gray-200 flex items-center"><i class="fas fa-fire text-orange-400 mr-2"></i>${t.quadros}</span><span class="font-bold text-orange-400">${quadros}</span></div>` : ''}
+                        ${triples > 0 ? `<div class="flex justify-between items-center p-2 bg-yellow-500/20 rounded"><span class="text-gray-200 flex items-center"><i class="fas fa-star text-yellow-400 mr-2"></i>${t.triples}</span><span class="font-bold text-yellow-400">${triples}</span></div>` : ''}
+                        <div class="flex justify-between"><span class="text-gray-300">${t.avg_aces_per_match}</span><span class="font-bold text-red-400">${(aces / Math.max(matches, 1)).toFixed(2)}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.avg_4k_per_match}</span><span class="font-bold text-orange-400">${(quadros / Math.max(matches, 1)).toFixed(2)}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.avg_3k_per_match}</span><span class="font-bold text-yellow-400">${(triples / Math.max(matches, 1)).toFixed(2)}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.total_entries}</span><span class="font-bold text-green-400">${totalEntryCount}</span></div>
                     </div>
                 </div>
                 
                 <!-- Entry Performance -->
                 <div class="bg-faceit-elevated rounded-xl p-6">
                     <h3 class="text-xl font-bold text-green-400 mb-4 flex items-center">
-                        <i class="fas fa-rocket mr-2"></i>Entry Performance
+                        <i class="fas fa-rocket mr-2"></i>${t.entry_performance}
                     </h3>
                     <div class="space-y-3">
                         <div class="p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
                             <div class="flex justify-between items-center mb-1">
-                                <span class="text-green-300 font-semibold">Success Rate</span>
+                                <span class="text-green-300 font-semibold">${t.success_rate}</span>
                                 <span class="font-bold text-green-400">${entrySuccessRate}%</span>
                             </div>
-                            <div class="text-sm text-gray-400">${totalEntryWins} réussies / ${totalEntryCount} tentatives</div>
+                            <div class="text-sm text-gray-400">${t.successes_attempts.replace(':wins', totalEntryWins).replace(':total', totalEntryCount)}</div>
                             ${totalEntryCount > 0 ? `<div class="w-full bg-gray-700 rounded-full h-2 mt-2"><div class="bg-green-400 h-2 rounded-full" style="width: ${entrySuccessRate}%"></div></div>` : ''}
                         </div>
                         <div class="flex justify-between"><span class="text-gray-300">Entry Rate</span><span class="font-bold text-green-400">${entryRate.toFixed(1)}%</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Entry Wins/Match</span><span class="font-bold text-green-400">${(totalEntryWins / Math.max(matches, 1)).toFixed(1)}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Entry Attempts</span><span class="font-bold text-orange-400">${totalEntryCount}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Enemies Flashed</span><span class="font-bold text-blue-400">${totalEnemiesFlashed}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Flash/Round</span><span class="font-bold text-purple-400">${enemiesFlashedPerRound}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.entry_wins_per_match}</span><span class="font-bold text-green-400">${(totalEntryWins / Math.max(matches, 1)).toFixed(1)}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.entry_attempts}</span><span class="font-bold text-orange-400">${totalEntryCount}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.enemies_flashed}</span><span class="font-bold text-blue-400">${totalEnemiesFlashed}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.flash_per_round}</span><span class="font-bold text-purple-400">${enemiesFlashedPerRound}</span></div>
                     </div>
                 </div>
             </div>
@@ -644,58 +946,58 @@ function showMapStatsModal(mapIndex) {
                 <!-- Clutch Performance -->
                 <div class="bg-faceit-elevated rounded-xl p-6">
                     <h3 class="text-xl font-bold text-red-400 mb-4 flex items-center">
-                        <i class="fas fa-fire mr-2"></i>Clutch Performance
+                        <i class="fas fa-fire mr-2"></i>${t.clutch_performance}
                     </h3>
                     <div class="space-y-3">
                         <div class="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-                            <div class="flex justify-between items-center mb-1"><span class="text-red-300 font-semibold">1v1 Rate</span><span class="font-bold text-red-400">${clutch1v1Rate}%</span></div>
-                            <div class="text-sm text-gray-400">${clutch1v1Wins}/${clutch1v1Total} victoires</div>
+                            <div class="flex justify-between items-center mb-1"><span class="text-red-300 font-semibold">${t['1v1_rate']}</span><span class="font-bold text-red-400">${clutch1v1Rate}%</span></div>
+                            <div class="text-sm text-gray-400">${t.victories.replace(':wins', clutch1v1Wins).replace(':total', clutch1v1Total)}</div>
                             ${clutch1v1Total > 0 ? `<div class="w-full bg-gray-700 rounded-full h-2 mt-2"><div class="bg-red-400 h-2 rounded-full" style="width: ${clutch1v1Rate}%"></div></div>` : ''}
                         </div>
                         <div class="p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg">
-                            <div class="flex justify-between items-center mb-1"><span class="text-orange-300 font-semibold">1v2 Rate</span><span class="font-bold text-orange-400">${clutch1v2Rate}%</span></div>
-                            <div class="text-sm text-gray-400">${clutch1v2Wins}/${clutch1v2Total} victoires</div>
+                            <div class="flex justify-between items-center mb-1"><span class="text-orange-300 font-semibold">${t['1v2_rate']}</span><span class="font-bold text-orange-400">${clutch1v2Rate}%</span></div>
+                            <div class="text-sm text-gray-400">${t.victories.replace(':wins', clutch1v2Wins).replace(':total', clutch1v2Total)}</div>
                             ${clutch1v2Total > 0 ? `<div class="w-full bg-gray-700 rounded-full h-2 mt-2"><div class="bg-orange-400 h-2 rounded-full" style="width: ${clutch1v2Rate}%"></div></div>` : ''}
                         </div>
-                        <div class="flex justify-between"><span class="text-gray-300">1v3 Wins</span><span class="font-bold text-yellow-400">${clutch1v3Wins}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">1v4 Wins</span><span class="font-bold text-purple-400">${clutch1v4Wins}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">1v5 Wins</span><span class="font-bold text-pink-400">${clutch1v5Wins}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Total Clutches</span><span class="font-bold text-red-400">${clutch1v1Wins + clutch1v2Wins + clutch1v3Wins + clutch1v4Wins + clutch1v5Wins}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t['1v3_wins']}</span><span class="font-bold text-yellow-400">${clutch1v3Wins}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t['1v4_wins']}</span><span class="font-bold text-purple-400">${clutch1v4Wins}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t['1v5_wins']}</span><span class="font-bold text-pink-400">${clutch1v5Wins}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.total_clutches}</span><span class="font-bold text-red-400">${clutch1v1Wins + clutch1v2Wins + clutch1v3Wins + clutch1v4Wins + clutch1v5Wins}</span></div>
                     </div>
                 </div>
                 
                 <!-- Utility Performance -->
                 <div class="bg-faceit-elevated rounded-xl p-6">
                     <h3 class="text-xl font-bold text-blue-400 mb-4 flex items-center">
-                        <i class="fas fa-sun mr-2"></i>Utility Performance
+                        <i class="fas fa-sun mr-2"></i>${t.utility_performance}
                     </h3>
                     <div class="space-y-3">
                         <div class="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-                            <div class="flex justify-between items-center mb-1"><span class="text-blue-300 font-semibold">Flash Success</span><span class="font-bold text-blue-400">${flashSuccessRate}%</span></div>
-                            <div class="text-sm text-gray-400">${flashSuccesses}/${flashCount} réussies</div>
+                            <div class="flex justify-between items-center mb-1"><span class="text-blue-300 font-semibold">${t.flash_success}</span><span class="font-bold text-blue-400">${flashSuccessRate}%</span></div>
+                            <div class="text-sm text-gray-400">${t.successful_flashes.replace(':successes', flashSuccesses).replace(':total', flashCount)}</div>
                             ${flashCount > 0 ? `<div class="w-full bg-gray-700 rounded-full h-2 mt-2"><div class="bg-blue-400 h-2 rounded-full" style="width: ${flashSuccessRate}%"></div></div>` : ''}
                         </div>
-                        <div class="flex justify-between"><span class="text-gray-300">Flashes/Round</span><span class="font-bold text-blue-400">${flashesPerRound}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Utility Damage</span><span class="font-bold text-yellow-400">${utilityDamage}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Utility Success</span><span class="font-bold text-green-400">${utilitySuccessRatePercent}%</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Total Flashes</span><span class="font-bold text-blue-400">${flashCount}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Enemies Flashed</span><span class="font-bold text-purple-400">${totalEnemiesFlashed}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.flashes_per_round}</span><span class="font-bold text-blue-400">${flashesPerRound}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.utility_damage}</span><span class="font-bold text-yellow-400">${utilityDamage}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.utility_success}</span><span class="font-bold text-green-400">${utilitySuccessRatePercent}%</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.total_flashes}</span><span class="font-bold text-blue-400">${flashCount}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.enemies_flashed}</span><span class="font-bold text-purple-400">${totalEnemiesFlashed}</span></div>
                     </div>
                 </div>
                 
                 <!-- Sniper Performance -->
                 <div class="bg-faceit-elevated rounded-xl p-6">
                     <h3 class="text-xl font-bold text-purple-400 mb-4 flex items-center">
-                        <i class="fas fa-crosshairs mr-2"></i>Sniper Performance
+                        <i class="fas fa-crosshairs mr-2"></i>${t.sniper_performance}
                     </h3>
                     <div class="space-y-3">
-                        <div class="flex justify-between"><span class="text-gray-300">Sniper Kills</span><span class="font-bold text-purple-400">${sniperKills}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Sniper K/Round</span><span class="font-bold text-purple-400">${sniperKillsPerRound}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Avg. Sniper K/Match</span><span class="font-bold text-purple-400">${sniperKillsPerMatch}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Sniper Kill Rate</span><span class="font-bold text-orange-400">${(parseFloat(stats["Sniper Kill Rate"] || 0) * 100).toFixed(1)}%</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Total Damage</span><span class="font-bold text-red-400">${parseInt(stats["Total Damage"] || 0)}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-300">Utility Usage/Round</span><span class="font-bold text-blue-400">${parseFloat(stats["Utility Usage per Round"] || 0).toFixed(2)}</span></div>
-                        ${sniperKills > 0 ? `<div class="p-2 bg-purple-500/20 rounded text-center"><span class="text-purple-300 text-sm">AWP Expert!</span></div>` : ''}
+                        <div class="flex justify-between"><span class="text-gray-300">${t.sniper_kills}</span><span class="font-bold text-purple-400">${sniperKills}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.sniper_k_per_round}</span><span class="font-bold text-purple-400">${sniperKillsPerRound}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.avg_sniper_k_per_match}</span><span class="font-bold text-purple-400">${sniperKillsPerMatch}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.sniper_kill_rate}</span><span class="font-bold text-orange-400">${(parseFloat(stats["Sniper Kill Rate"] || 0) * 100).toFixed(1)}%</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.total_damage}</span><span class="font-bold text-red-400">${parseInt(stats["Total Damage"] || 0)}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-300">${t.utility_usage_per_round}</span><span class="font-bold text-blue-400">${parseFloat(stats["Utility Usage per Round"] || 0).toFixed(2)}</span></div>
+                        ${sniperKills > 0 ? `<div class="p-2 bg-purple-500/20 rounded text-center"><span class="text-purple-300 text-sm">${t.awp_expert}</span></div>` : ''}
                     </div>
                 </div>
             </div>
@@ -703,10 +1005,10 @@ function showMapStatsModal(mapIndex) {
             <!-- Footer avec boutons d'action -->
             <div class="flex justify-center space-x-4 pt-4 border-t border-gray-700">
                 <button onclick="closeMapStatsModal()" class="px-6 py-3 bg-gray-600 hover:bg-gray-700 rounded-xl font-medium transition-colors">
-                    <i class="fas fa-times mr-2"></i>Fermer
+                    <i class="fas fa-times mr-2"></i>${t.close}
                 </button>
                 <button onclick="shareMapStats('${mapName}')" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-medium transition-colors">
-                    <i class="fas fa-share mr-2"></i>Partager
+                    <i class="fas fa-share mr-2"></i>${t.share}
                 </button>
             </div>
         </div>
@@ -727,9 +1029,10 @@ function closeMapStatsModal() {
 }
 
 function shareMapStats(mapName) {
+    const t = window.translations.advanced.map_stats;
     const shareData = {
-        title: `Mes stats sur ${mapName} - Faceit Scope`,
-        text: `Découvre mes performances sur ${mapName} dans CS2 !`,
+        title: t.share_title.replace(':map', mapName),
+        text: t.share_text.replace(':map', mapName),
         url: window.location.href
     };
     
@@ -737,162 +1040,9 @@ function shareMapStats(mapName) {
         navigator.share(shareData);
     } else {
         navigator.clipboard.writeText(window.location.href).then(() => {
-            showNotification('Lien copié dans le presse-papiers !', 'success');
+            showNotification(window.translations.advanced.notifications.link_copied, 'success');
         });
     }
-}
-
-async function displayAchievements(stats) {
-    const container = document.getElementById('achievementsGrid');
-    const lifetime = stats.lifetime;
-    const mapStats = calculateMapTotals(stats.segments);
-    
-    const achievements = [
-        {
-            icon: 'fas fa-crown',
-            label: 'Ace (5K)',
-            value: mapStats.totalPenta,
-            color: 'text-red-400',
-            bgGradient: 'from-red-500/20 to-red-600/10',
-            borderColor: 'border-red-500/30'
-        },
-        {
-            icon: 'fas fa-fire',
-            label: 'Quadro (4K)', 
-            value: mapStats.totalQuadro,
-            color: 'text-orange-400',
-            bgGradient: 'from-orange-500/20 to-orange-600/10',
-            borderColor: 'border-orange-500/30'
-        },
-        {
-            icon: 'fas fa-star',
-            label: 'Triple (3K)',
-            value: mapStats.totalTriple,
-            color: 'text-yellow-400',
-            bgGradient: 'from-yellow-500/20 to-yellow-600/10',
-            borderColor: 'border-yellow-500/30'
-        },
-        {
-            icon: 'fas fa-arrow-up',
-            label: 'Série actuelle',
-            value: lifetime["Current Win Streak"] || 0,
-            color: 'text-green-400',
-            bgGradient: 'from-green-500/20 to-green-600/10',
-            borderColor: 'border-green-500/30'
-        },
-        {
-            icon: 'fas fa-trophy',
-            label: 'Meilleure série',
-            value: lifetime["Longest Win Streak"] || 0,
-            color: 'text-blue-400',
-            bgGradient: 'from-blue-500/20 to-blue-600/10',
-            borderColor: 'border-blue-500/30'
-        }
-    ];
-    
-    container.innerHTML = achievements.map(achievement => `
-        <div class="text-center p-6 bg-gradient-to-br ${achievement.bgGradient} rounded-xl border ${achievement.borderColor} stat-card">
-            <div class="w-16 h-16 bg-black/40 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="${achievement.icon} ${achievement.color} text-2xl"></i>
-            </div>
-            <div class="text-3xl font-black ${achievement.color} mb-2">${achievement.value}</div>
-            <div class="text-sm text-gray-300 font-medium">${achievement.label}</div>
-        </div>
-    `).join('');
-}
-
-async function displayRecentResults(stats) {
-    const container = document.getElementById('recentResults');
-    const recentResults = stats.lifetime["Recent Results"] || [];
-    
-    if (recentResults.length === 0) {
-        container.innerHTML = '<span class="text-gray-400">Aucun résultat récent disponible</span>';
-        return;
-    }
-    
-    const resultIcons = recentResults.map((result, index) => {
-        const isWin = result === "1";
-        const bgColor = isWin ? 'bg-green-500' : 'bg-red-500';
-        const icon = isWin ? 'fas fa-check' : 'fas fa-times';
-        
-        return `
-            <div class="w-12 h-12 ${bgColor} rounded-full flex items-center justify-center font-bold transition-all duration-300 hover:scale-110 animate-scale-in" 
-                 style="animation-delay: ${index * 0.1}s" 
-                 title="Match ${index + 1} - ${isWin ? 'Victoire' : 'Défaite'}">
-                <i class="${icon} text-white"></i>
-            </div>
-        `;
-    }).join('');
-    
-    container.innerHTML = resultIcons;
-}
-
-function calculateMapTotals(segments) {
-    let totalPenta = 0;
-    let totalQuadro = 0; 
-    let totalTriple = 0;
-    
-    const mapSegments = segments.filter(segment => segment.type === "Map" && segment.stats);
-    
-    mapSegments.forEach(segment => {
-        totalPenta += parseInt(segment.stats["Penta Kills"] || 0);
-        totalQuadro += parseInt(segment.stats["Quadro Kills"] || 0);
-        totalTriple += parseInt(segment.stats["Triple Kills"] || 0);
-    });
-    
-    return { totalPenta, totalQuadro, totalTriple };
-}
-
-function downloadPlayerReport() {
-    if (!currentPlayerData || !currentPlayerStats) {
-        showNotification('Aucune donnée à exporter', 'error');
-        return;
-    }
-    
-    const reportData = {
-        player: {
-            nickname: currentPlayerData.nickname,
-            country: currentPlayerData.country,
-            level: currentPlayerData.games?.cs2?.skill_level || currentPlayerData.games?.csgo?.skill_level,
-            elo: currentPlayerData.games?.cs2?.faceit_elo || currentPlayerData.games?.csgo?.faceit_elo,
-            region: currentPlayerData.games?.cs2?.region || currentPlayerData.games?.csgo?.region,
-            avatar: currentPlayerData.avatar,
-            faceit_url: currentPlayerData.faceit_url
-        },
-        stats: currentPlayerStats.lifetime,
-        map_performance: currentPlayerStats.segments.filter(s => s.type === "Map"),
-        generated_at: new Date().toISOString(),
-        generated_by: "Faceit Scope"
-    };
-    
-    const dataStr = JSON.stringify(reportData, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
-    const exportFileName = `faceit_stats_${currentPlayerData.nickname}_${new Date().toISOString().split('T')[0]}.json`;
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileName);
-    linkElement.click();
-    
-    showNotification('Rapport téléchargé avec succès !', 'success');
-}
-
-function showError(message) {
-    document.getElementById('loadingState').innerHTML = `
-        <div class="min-h-screen flex items-center justify-center">
-            <div class="text-center max-w-md mx-auto">
-                <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
-                </div>
-                <h2 class="text-2xl font-bold mb-4">Erreur</h2>
-                <p class="text-gray-400 mb-6">${message}</p>
-                <a href="/" class="inline-block gradient-orange px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105">
-                    <i class="fas fa-home mr-2"></i>Retour à l'accueil
-                </a>
-            </div>
-        </div>
-    `;
 }
 
 // Nettoyage des ressources
@@ -928,162 +1078,93 @@ window.downloadPlayerReport = downloadPlayerReport;
 
 console.log('🎮 Script de la page avancée chargé avec succès!');
 
-async function displayMainStats(stats) {
-    const container = document.getElementById('mainStatsGrid');
-    const lifetime = stats.lifetime;
-    
-    const mainStats = [
-        {
-            icon: 'fas fa-gamepad',
-            label: 'Matches',
-            value: formatNumber(lifetime["Matches"] || 0),
-            color: 'text-blue-400',
-            bgColor: 'bg-blue-500/10 border-blue-500/30'
-        },
-        {
-            icon: 'fas fa-trophy',
-            label: 'Taux victoire',
-            value: (lifetime["Win Rate %"] || 0) + '%',
-            color: 'text-green-400',
-            bgColor: 'bg-green-500/10 border-green-500/30'
-        },
-        {
-            icon: 'fas fa-crosshairs',
-            label: 'K/D Ratio',
-            value: lifetime["Average K/D Ratio"] || '0.00',
-            color: 'text-faceit-orange',
-            bgColor: 'bg-orange-500/10 border-orange-500/30'
-        },
-        {
-            icon: 'fas fa-bullseye',
-            label: 'Headshots',
-            value: (lifetime["Average Headshots %"] || 0) + '%',
-            color: 'text-purple-400',
-            bgColor: 'bg-purple-500/10 border-purple-500/30'
-        },
-        {
-            icon: 'fas fa-fire',
-            label: 'K/R Ratio',
-            value: lifetime["Average K/R Ratio"] || '0.00',
-            color: 'text-red-400',
-            bgColor: 'bg-red-500/10 border-red-500/30'
-        },
-        {
-            icon: 'fas fa-bolt',
-            label: 'Entry Rate',
-            value: ((parseFloat(lifetime["Entry Rate"] || 0) * 100).toFixed(1)) + '%',
-            color: 'text-yellow-400',
-            bgColor: 'bg-yellow-500/10 border-yellow-500/30'
-        }
-    ];
-    
-    container.innerHTML = mainStats.map(stat => `
-        <div class="glass-effect rounded-xl p-4 text-center stat-card border ${stat.bgColor}">
-            <div class="w-12 h-12 ${stat.bgColor} rounded-lg flex items-center justify-center mx-auto mb-3">
-                <i class="${stat.icon} ${stat.color} text-xl"></i>
-            </div>
-            <div class="text-2xl font-bold text-white mb-1">${stat.value}</div>
-            <div class="text-xs text-gray-400 font-medium">${stat.label}</div>
-        </div>
-    `).join('');
+// Fonctions utilitaires (conservées telles quelles)
+function formatNumber(num) {
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
 }
 
-async function displayCombatStats(stats) {
-    const lifetime = stats.lifetime;
+function getCleanMapName(label) {
+    return label.replace(/^de_/, '').charAt(0).toUpperCase() + label.replace(/^de_/, '').slice(1);
+}
+
+function getRankIconUrl(level) {
+    return `https://cdn-frontend.faceit.com/web/960/src/app/assets/images-compress/skill-icons/skill_level_${level}_svg.svg`;
+}
+
+function getCountryFlagUrl(country) {
+    return `https://flagcdn.com/24x18/${country.toLowerCase()}.png`;
+}
+
+function getRankColor(level) {
+    const colors = {
+        1: 'text-gray-400',
+        2: 'text-gray-300',
+        3: 'text-yellow-600',
+        4: 'text-yellow-500',
+        5: 'text-yellow-400',
+        6: 'text-orange-500',
+        7: 'text-orange-400',
+        8: 'text-red-500',
+        9: 'text-red-400',
+        10: 'text-red-300'
+    };
+    return colors[level] || 'text-gray-400';
+}
+
+function getRankName(level) {
+    const ranks = {
+        1: 'Bronze',
+        2: 'Bronze',
+        3: 'Silver',
+        4: 'Silver',
+        5: 'Gold',
+        6: 'Gold',
+        7: 'Diamond',
+        8: 'Diamond',
+        9: 'Master',
+        10: 'Master'
+    };
+    return ranks[level] || 'Unranked';
+}
+
+function buildFaceitProfileUrl(player) {
+    return `https://www.faceit.com/en/players/${player.nickname}`;
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function showNotification(message, type = 'info') {
+    // Implémentation basique - peut être améliorée avec une bibliothèque de notifications
+    console.log(`${type.toUpperCase()}: ${message}`);
     
-    // Stats Clutch
-    const clutchContainer = document.getElementById('clutchStats');
-    const clutch1v1Rate = ((parseFloat(lifetime["1v1 Win Rate"] || 0) * 100).toFixed(0)) + '%';
-    const clutch1v2Rate = ((parseFloat(lifetime["1v2 Win Rate"] || 0) * 100).toFixed(0)) + '%';
-    const totalClutches = parseInt(lifetime["Total 1v1 Wins"] || 0) + parseInt(lifetime["Total 1v2 Wins"] || 0);
+    // Créer une notification simple
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-medium z-50 ${
+        type === 'success' ? 'bg-green-500' : 
+        type === 'error' ? 'bg-red-500' : 
+        'bg-blue-500'
+    }`;
+    notification.textContent = message;
     
-    clutchContainer.innerHTML = `
-        <div class="text-center mb-6">
-            <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                <i class="fas fa-fire text-red-400 text-2xl"></i>
-            </div>
-            <h3 class="text-xl font-bold text-red-400 mb-2">Clutch Master</h3>
-            <div class="text-3xl font-black text-white">${totalClutches}</div>
-            <div class="text-sm text-gray-400">Total Clutches</div>
-        </div>
-        
-        <div class="space-y-4">
-            <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
-                <span class="text-gray-300">1v1 Win Rate</span>
-                <div class="text-right">
-                    <div class="font-bold text-red-400">${clutch1v1Rate}</div>
-                    <div class="text-xs text-gray-500">${lifetime["Total 1v1 Wins"] || 0}/${lifetime["Total 1v1 Count"] || 0}</div>
-                </div>
-            </div>
-            <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
-                <span class="text-gray-300">1v2 Win Rate</span>
-                <div class="text-right">
-                    <div class="font-bold text-red-400">${clutch1v2Rate}</div>
-                    <div class="text-xs text-gray-500">${lifetime["Total 1v2 Wins"] || 0}/${lifetime["Total 1v2 Count"] || 0}</div>
-                </div>
-            </div>
-        </div>
-    `;
+    document.body.appendChild(notification);
     
-    // Stats Entry
-    const entryContainer = document.getElementById('entryStats');
-    const entrySuccessRate = ((parseFloat(lifetime["Entry Success Rate"] || 0) * 100).toFixed(0)) + '%';
-    const entryRate = ((parseFloat(lifetime["Entry Rate"] || 0) * 100).toFixed(1)) + '%';
-    
-    entryContainer.innerHTML = `
-        <div class="text-center mb-6">
-            <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                <i class="fas fa-rocket text-green-400 text-2xl"></i>
-            </div>
-            <h3 class="text-xl font-bold text-green-400 mb-2">Entry Fragger</h3>
-            <div class="text-3xl font-black text-white">${entrySuccessRate}</div>
-            <div class="text-sm text-gray-400">Success Rate</div>
-        </div>
-        
-        <div class="space-y-4">
-            <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
-                <span class="text-gray-300">Entry Rate</span>
-                <span class="font-bold text-green-400">${entryRate}</span>
-            </div>
-            <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
-                <span class="text-gray-300">Total Entrées</span>
-                <span class="font-bold text-green-400">${lifetime["Total Entry Count"] || 0}</span>
-            </div>
-            <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
-                <span class="text-gray-300">Entrées Réussies</span>
-                <span class="font-bold text-green-400">${lifetime["Total Entry Wins"] || 0}</span>
-            </div>
-        </div>
-    `;
-    
-    // Stats Utility/Support
-    const utilityContainer = document.getElementById('utilityStats');
-    const flashSuccessRate = ((parseFloat(lifetime["Flash Success Rate"] || 0) * 100).toFixed(0)) + '%';
-    const utilitySuccessRate = ((parseFloat(lifetime["Utility Success Rate"] || 0) * 100).toFixed(0)) + '%';
-    
-    utilityContainer.innerHTML = `
-        <div class="text-center mb-6">
-            <div class="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                <i class="fas fa-sun text-yellow-400 text-2xl"></i>
-            </div>
-            <h3 class="text-xl font-bold text-yellow-400 mb-2">Support Master</h3>
-            <div class="text-3xl font-black text-white">${flashSuccessRate}</div>
-            <div class="text-sm text-gray-400">Flash Success</div>
-        </div>
-        
-        <div class="space-y-4">
-            <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
-                <span class="text-gray-300">Flashes/Round</span>
-                <span class="font-bold text-yellow-400">${parseFloat(lifetime["Flashes per Round"] || 0).toFixed(2)}</span>
-            </div>
-            <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
-                <span class="text-gray-300">Utility Success</span>
-                <span class="font-bold text-yellow-400">${utilitySuccessRate}</span>
-            </div>
-            <div class="flex justify-between items-center p-3 bg-faceit-dark/50 rounded-lg">
-                <span class="text-gray-300">Total Flash Assists</span>
-                <span class="font-bold text-yellow-400">${formatNumber(lifetime["Total Flash Successes"] || 0)}</span>
-            </div>
-        </div>
-    `;
+    // Supprimer après 3 secondes
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
 }
