@@ -7,7 +7,7 @@
             <div class="flex space-x-6 text-sm text-gray-400">
                 <a href="{{ route('about') }}" class="hover:text-white transition-colors">{{ __('footer.about') }}</a>
                 <a href="{{ route('privacy') }}" class="hover:text-white transition-colors">{{ __('footer.privacy') }}</a>
-                <a href="#" class="hover:text-white transition-colors">{{ __('footer.contact') }}</a>
+                <a href="{{ route('contact') }}" class="hover:text-white transition-colors">{{ __('footer.contact') }}</a>
             </div>
         </div>
         <div class="border-t border-gray-800 mt-6 pt-6 text-center text-sm text-gray-500">
