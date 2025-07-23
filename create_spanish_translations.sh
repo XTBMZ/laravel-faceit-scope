@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Script de création des fichiers de traduction chinoise
-# Traductions complètes pour le marché chinois
+# Script de création des fichiers de traduction suédoise
+# Traductions complètes pour le marché suédois
 
 set -e  # Arrêter le script en cas d'erreur
 
@@ -15,10 +15,10 @@ NC='\033[0m' # No Color
 
 # Configuration
 LANG_DIR="resources/lang"
-TARGET_LANG="zh"
+TARGET_LANG="sv"
 TARGET_DIR="${LANG_DIR}/${TARGET_LANG}"
 
-echo -e "${BLUE}🇨🇳 Script de traduction chinoise - Complet${NC}"
+echo -e "${BLUE}🇸🇪 Script de traduction suédoise - Complet${NC}"
 echo -e "${BLUE}============================================${NC}"
 echo ""
 
@@ -60,125 +60,125 @@ echo -e "${PURPLE}📝 Traduction: about.php${NC}"
 cat > "${TARGET_DIR}/about.php" << 'EOF'
 <?php
 return [
-    'title' => '关于我们 - Faceit Scope',
+    'title' => 'Om oss - Faceit Scope',
     'hero' => [
-        'title' => '关于我们',
-        'subtitle' => 'Faceit Scope 使用先进算法和人工智能分析您在 FACEIT 上的表现。这是一个充满热情开发的项目。',
+        'title' => 'Om oss',
+        'subtitle' => 'Faceit Scope använder avancerade algoritmer och artificiell intelligens för att analysera din prestanda på FACEIT. Detta är ett projekt utvecklat med passion.',
     ],
     'project' => [
-        'title' => '项目介绍',
-        'description_1' => '允许深入分析表现。',
-        'description_2' => '完全由',
-        'description_3' => '开发，该项目仅使用 FACEIT 官方 API 以透明合法的方式获取所有数据。',
-        'description_4' => '一切都直接来自 FACEIT 服务器，并由我们的专有算法进行分析。',
+        'title' => 'Projektet',
+        'description_1' => 'Möjliggör djupgående prestandaanalys.',
+        'description_2' => 'Helt utvecklat av',
+        'description_3' => ', detta projekt använder endast det officiella FACEIT API:et för att få all data på ett transparent och lagligt sätt.',
+        'description_4' => 'Allt kommer direkt från FACEIT-servrarna och analyseras av våra proprietära algoritmer.',
         'stats' => [
-            'developer' => '开发者',
+            'developer' => 'Utvecklare',
             'api' => 'FACEIT API',
         ],
     ],
     'how_it_works' => [
-        'title' => '工作原理',
-        'subtitle' => '先进算法分析您的 FACEIT 数据，为您提供精确的洞察',
+        'title' => 'Hur det fungerar',
+        'subtitle' => 'Avancerade algoritmer analyserar din FACEIT-data för att ge dig precisa insikter',
         'pis' => [
-            'title' => '玩家影响力评分 (PIS)',
+            'title' => 'Player Impact Score (PIS)',
             'combat' => [
-                'title' => '战斗 (35%)',
-                'description' => 'K/D、ADR 和爆头率，采用对数标准化',
+                'title' => 'Strid (35%)',
+                'description' => 'K/D, ADR och headshot-procent, logaritmiskt normaliserat',
             ],
             'game_sense' => [
-                'title' => '游戏意识 (25%)',
-                'description' => '进攻能力、残局和狙击能力，采用高级组合',
+                'title' => 'Spelförståelse (25%)',
+                'description' => 'Entry, clutch och sniper-förmågor, avancerade kombinationer',
             ],
             'utility' => [
-                'title' => '辅助 (15%)',
-                'description' => '支援和辅助工具使用，采用加权效率',
+                'title' => 'Verktyg (15%)',
+                'description' => 'Stöd och verktygsutnyttjande, viktad effektivitet',
             ],
             'consistency' => [
-                'title' => '稳定性 + 经验 (25%)',
-                'description' => '胜率、连胜和数据可靠性',
+                'title' => 'Konsistens + Erfarenhet (25%)',
+                'description' => 'Vinstprocent, streak och datatillförlitlighet',
             ],
             'level_coefficient' => [
-                'title' => '关键等级系数：',
-                'description' => '一个拥有 1.0 K/D 的 10 级玩家比拥有 1.5 K/D 的 2 级玩家评分更高，因为他对阵的对手更强。',
+                'title' => 'Kritisk nivåkoefficient:',
+                'description' => 'En nivå 10-spelare med 1.0 K/D bedöms högre än en nivå 2-spelare med 1.5 K/D, eftersom hen spelar mot starkare motståndare.',
             ],
         ],
         'roles' => [
-            'title' => '智能角色分配',
-            'calculations_title' => '角色评分计算',
-            'priority_title' => '分配优先级',
+            'title' => 'Intelligent rolltilldelning',
+            'calculations_title' => 'Rollpoängberäkningar',
+            'priority_title' => 'Tilldelningsprioritet',
             'entry_fragger' => [
-                'title' => '突破手',
-                'criteria' => '特定标准：进攻率 > 25% 且 进攻成功率 > 55%',
+                'title' => 'Entry Fragger',
+                'criteria' => 'Specifika kriterer: Entry-rate > 25% OCH Entry-framgång > 55%',
             ],
             'support' => [
-                'title' => '支援',
-                'criteria' => '特定标准：闪光弹 > 0.4/回合 且 闪光成功率 > 50%',
+                'title' => 'Stöd',
+                'criteria' => 'Specifika kriterer: Flash > 0.4/runda OCH Flash-framgång > 50%',
             ],
             'awper' => [
-                'title' => 'AWP手',
-                'criteria' => '特定标准：狙击率 > 15%',
+                'title' => 'AWPer',
+                'criteria' => 'Specifika kriterer: Sniper-rate > 15%',
             ],
             'priority_items' => [
-                'awper' => 'AWP手 (如果狙击 > 15%)',
-                'entry' => '突破手 (如果进攻 > 25% + 成功率 > 55%)',
-                'support' => '支援 (如果闪光 > 0.4 + 成功率 > 50%)',
-                'clutcher' => '残局大师 (如果 1v1 > 40%)',
-                'fragger' => '击杀手 (如果 K/D > 1.3 + ADR > 85)',
-                'lurker' => '潜伏者 (默认，如果没有其他标准)',
+                'awper' => 'AWPer (om sniper > 15%)',
+                'entry' => 'Entry Fragger (om entry > 25% + framgång > 55%)',
+                'support' => 'Stöd (om flash > 0.4 + framgång > 50%)',
+                'clutcher' => 'Clutcher (om 1v1 > 40%)',
+                'fragger' => 'Fragger (om K/D > 1.3 + ADR > 85)',
+                'lurker' => 'Lurker (standard, om inga andra kriterier)',
             ],
         ],
         'maps' => [
-            'title' => '地图分析算法',
+            'title' => 'Kartanalysalgoritm',
             'normalization' => [
-                'title' => '对数标准化',
+                'title' => 'Logaritmisk normalisering',
             ],
             'weighting' => [
-                'title' => '高级加权',
-                'win_rate' => '胜率：',
-                'consistency' => '稳定性：',
+                'title' => 'Avancerad viktning',
+                'win_rate' => 'Vinstprocent:',
+                'consistency' => 'Konsistens:',
             ],
             'reliability' => [
-                'title' => '可靠性因子',
+                'title' => 'Tillförlitlighetsfaktor',
             ],
         ],
         'predictions' => [
-            'title' => '比赛预测',
+            'title' => 'Matchförutsägelser',
             'team_strength' => [
-                'title' => '队伍实力',
+                'title' => 'Lagstyrka',
                 'average_score' => [
-                    'title' => '加权平均分',
-                    'description' => '5 个 PIS 分数的平均值 + 角色平衡奖励',
+                    'title' => 'Viktat medelvärde',
+                    'description' => 'Medelvärde av 5 PIS-poäng + rollbalansbonus',
                 ],
                 'role_balance' => [
-                    'title' => '角色平衡',
-                    'description' => '拥有突破手 + 支援 + AWP手 + 残局大师 + 击杀手的队伍将比 5 个击杀手组成的队伍获得显著奖励。',
+                    'title' => 'Rollbalans',
+                    'description' => 'Ett lag med Entry Fragger + Stöd + AWPer + Clutcher + Fragger får en betydande bonus jämfört med ett lag med 5 fraggers.',
                 ],
             ],
             'probability' => [
-                'title' => '概率计算',
+                'title' => 'Sannolikhetsberäkning',
                 'match_winner' => [
-                    'title' => '比赛获胜者',
-                    'description' => '实力差距越大，预测越准确',
+                    'title' => 'Matchvinnare',
+                    'description' => 'Ju större styrkedifferens, desto mer exakt förutsägelse',
                 ],
                 'predicted_mvp' => [
-                    'title' => '预测 MVP',
-                    'description' => '拥有',
-                    'description_end' => '的玩家将成为 10 名参与者中的预测 MVP',
-                    'highest_score' => '最高 PIS 分数',
+                    'title' => 'Förutsedd MVP',
+                    'description' => 'Spelaren med',
+                    'description_end' => 'blir den förutsedda MVP:n bland de 10 deltagarna',
+                    'highest_score' => 'högsta PIS-poängen',
                 ],
                 'confidence' => [
-                    'title' => '置信度',
-                    'description' => '基于实力差距：非常高 (>3)，高 (>2)，中等 (>1)，低 (<1)',
+                    'title' => 'Säkerhetsnivå',
+                    'description' => 'Baserat på styrkedifferens: Mycket hög (>3), Hög (>2), Medel (>1), Låg (<1)',
                 ],
             ],
         ],
     ],
     'contact' => [
-        'title' => '联系方式',
-        'subtitle' => '这是一个充满热情开发的项目。欢迎联系我提供反馈或建议。',
+        'title' => 'Kontakt',
+        'subtitle' => 'Detta är ett projekt utvecklat med passion. Välkommen att kontakta mig för feedback eller förslag.',
     ],
     'disclaimer' => [
-        'text' => 'Faceit Scope 与 FACEIT Ltd. 无关联。该项目使用 FACEIT 公共 API，符合其服务条款。预测算法基于统计分析，不保证比赛结果。',
+        'text' => 'Faceit Scope är inte associerat med FACEIT Ltd. Detta projekt använder FACEIT:s offentliga API i enlighet med dess användarvillkor. Förutsägelsealgoritmer baseras på statistisk analys och garanterar inte matchresultat.',
     ],
 ];
 EOF
@@ -190,147 +190,147 @@ echo -e "${PURPLE}📝 Traduction: advanced.php${NC}"
 cat > "${TARGET_DIR}/advanced.php" << 'EOF'
 <?php
 return [
-    'title' => '高级统计 - Faceit Scope',
+    'title' => 'Avancerad statistik - Faceit Scope',
     'loading' => [
-        'title' => '分析中',
-        'default_text' => '获取数据',
+        'title' => 'Analyserar',
+        'default_text' => 'Hämtar data',
         'messages' => [
-            'player_data' => '获取玩家数据',
-            'analyzing_stats' => '分析统计数据',
-            'calculating_performance' => '计算表现',
-            'generating_charts' => '生成图表',
-            'finalizing' => '完成中...',
+            'player_data' => 'Hämtar spelardata',
+            'analyzing_stats' => 'Analyserar statistik',
+            'calculating_performance' => 'Beräknar prestanda',
+            'generating_charts' => 'Genererar diagram',
+            'finalizing' => 'Slutför...',
         ],
     ],
     'player' => [
-        'current_elo' => '当前 ELO',
-        'rank' => '排名',
-        'level' => '等级 :level',
+        'current_elo' => 'Nuvarande ELO',
+        'rank' => 'Rank',
+        'level' => 'Nivå :level',
         'faceit_button' => 'FACEIT',
-        'compare_button' => '对比',
+        'compare_button' => 'Jämför',
     ],
     'sections' => [
-        'overview' => '概览',
-        'combat_performance' => '战斗表现',
-        'graphical_analysis' => '图表分析',
-        'map_analysis' => '地图分析',
-        'achievements' => '成就',
-        'recent_form' => '近期状态',
-        'quick_actions' => '快速操作',
+        'overview' => 'Översikt',
+        'combat_performance' => 'Stridsprestanda',
+        'graphical_analysis' => 'Grafisk analys',
+        'map_analysis' => 'Kartanalys',
+        'achievements' => 'Prestationer',
+        'recent_form' => 'Senaste form',
+        'quick_actions' => 'Snabbåtgärder',
     ],
     'stats' => [
-        'matches' => '比赛',
-        'win_rate' => '胜率',
-        'kd_ratio' => 'K/D 比率',
-        'headshots' => '爆头',
-        'kr_ratio' => 'K/R 比率',
-        'entry_rate' => '进攻率',
-        'clutch_master' => '残局大师',
-        'total_clutches' => '总残局数',
-        'entry_fragger' => '突破手',
-        'success_rate' => '成功率',
-        'support_master' => '支援大师',
-        'flash_success' => '闪光成功',
-        'performance_radar' => '表现雷达',
-        'map_distribution' => '地图分布',
+        'matches' => 'Matcher',
+        'win_rate' => 'Vinstprocent',
+        'kd_ratio' => 'K/D-förhållande',
+        'headshots' => 'Headshots',
+        'kr_ratio' => 'K/R-förhållande',
+        'entry_rate' => 'Entry-rate',
+        'clutch_master' => 'Clutch-mästare',
+        'total_clutches' => 'Totala clutches',
+        'entry_fragger' => 'Entry fragger',
+        'success_rate' => 'Framgångsgrad',
+        'support_master' => 'Stödmästare',
+        'flash_success' => 'Flash-framgång',
+        'performance_radar' => 'Prestandaradar',
+        'map_distribution' => 'Kartfördelning',
     ],
     'detailed_stats' => [
-        '1v1_win_rate' => '1v1 胜率',
-        '1v2_win_rate' => '1v2 胜率',
-        'entry_rate' => '进攻率',
-        'total_entries' => '总进攻数',
-        'successful_entries' => '成功进攻',
-        'flashes_per_round' => '闪光弹/回合',
-        'utility_success' => '辅助成功率',
-        'total_flash_assists' => '总闪光助攻',
+        '1v1_win_rate' => '1v1 vinstprocent',
+        '1v2_win_rate' => '1v2 vinstprocent',
+        'entry_rate' => 'Entry-rate',
+        'total_entries' => 'Totala entries',
+        'successful_entries' => 'Framgångsrika entries',
+        'flashes_per_round' => 'Flash/runda',
+        'utility_success' => 'Verktygsframgång',
+        'total_flash_assists' => 'Totala flash-assists',
     ],
     'achievements' => [
-        'ace' => 'Ace (5杀)',
-        'quadro' => '四杀 (4K)',
-        'triple' => '三杀 (3K)',
-        'current_streak' => '当前连胜',
-        'longest_streak' => '最长连胜',
+        'ace' => 'Ace (5K)',
+        'quadro' => 'Quadro (4K)',
+        'triple' => 'Triple (3K)',
+        'current_streak' => 'Nuvarande streak',
+        'longest_streak' => 'Längsta streak',
     ],
     'recent_results' => [
-        'title' => '近期结果',
-        'last_matches' => '最近 :count 场比赛',
-        'no_results' => '无近期结果',
-        'victory' => '胜利',
-        'defeat' => '失败',
-        'match_number' => '比赛 :number',
+        'title' => 'Senaste resultat',
+        'last_matches' => 'Senaste :count matcherna',
+        'no_results' => 'Inga senaste resultat',
+        'victory' => 'Vinst',
+        'defeat' => 'Förlust',
+        'match_number' => 'Match :number',
     ],
     'actions' => [
-        'compare_player' => '对比此玩家',
-        'download_report' => '下载报告',
-        'view_progression' => '查看进度',
+        'compare_player' => 'Jämför denna spelare',
+        'download_report' => 'Ladda ner rapport',
+        'view_progression' => 'Visa progression',
     ],
     'map_modal' => [
-        'matches_played' => '已进行 :matches 场比赛',
-        'victories' => ':winrate% 胜利',
-        'combat' => '战斗',
-        'multi_kills' => '多杀',
-        'entry_performance' => '进攻表现',
-        'clutch_performance' => '残局表现',
-        'utility_performance' => '辅助表现',
-        'sniper_performance' => '狙击表现',
-        'close' => '关闭',
-        'share' => '分享',
-        'view_details' => '查看详情',
-        'total_kills' => '总击杀',
-        'total_deaths' => '总死亡',
-        'total_assists' => '总助攻',
-        'kills_per_round' => '击杀/回合',
-        'deaths_per_round' => '死亡/回合',
-        'opening_kill_ratio' => '首杀比率',
-        'aces' => 'Ace (5杀)',
-        'quadros' => '四杀 (4K)',
-        'triples' => '三杀 (3K)',
-        'avg_aces_per_match' => '平均 Ace/比赛',
-        'avg_4k_per_match' => '平均 4K/比赛',
-        'avg_3k_per_match' => '平均 3K/比赛',
-        'total_entries' => '总进攻数',
-        'success_rate' => '成功率',
-        'successes_attempts' => ':wins 成功 / :total 尝试',
-        'entry_wins_per_match' => '进攻胜利/比赛',
-        'entry_attempts' => '进攻尝试',
-        'enemies_flashed' => '敌人被闪',
-        'flash_per_round' => '闪光弹/回合',
-        '1v1_rate' => '1v1 比率',
-        '1v2_rate' => '1v2 比率',
-        'victories' => ':wins/:total 胜利',
-        '1v3_wins' => '1v3 胜利',
-        '1v4_wins' => '1v4 胜利',
-        '1v5_wins' => '1v5 胜利',
-        'total_clutches' => '总残局数',
-        'flash_success' => '闪光成功',
-        'successful_flashes' => ':successes/:total 成功',
-        'flashes_per_round' => '闪光弹/回合',
-        'utility_damage' => '辅助伤害',
-        'utility_success' => '辅助成功率',
-        'total_flashes' => '总闪光弹',
-        'sniper_kills' => '狙击击杀',
-        'sniper_k_per_round' => '狙击击杀/回合',
-        'avg_sniper_k_per_match' => '平均狙击击杀/比赛',
-        'sniper_kill_rate' => '狙击击杀率',
-        'total_damage' => '总伤害',
-        'utility_usage_per_round' => '辅助使用/回合',
-        'awp_expert' => 'AWP 专家！',
+        'matches_played' => 'Spelade :matches matcher',
+        'victories' => ':winrate% vinster',
+        'combat' => 'Strid',
+        'multi_kills' => 'Multi-kills',
+        'entry_performance' => 'Entry-prestanda',
+        'clutch_performance' => 'Clutch-prestanda',
+        'utility_performance' => 'Verktygs-prestanda',
+        'sniper_performance' => 'Sniper-prestanda',
+        'close' => 'Stäng',
+        'share' => 'Dela',
+        'view_details' => 'Visa detaljer',
+        'total_kills' => 'Totala kills',
+        'total_deaths' => 'Totala dödsfall',
+        'total_assists' => 'Totala assists',
+        'kills_per_round' => 'Kills/runda',
+        'deaths_per_round' => 'Dödsfall/runda',
+        'opening_kill_ratio' => 'Öppnings-kill-förhållande',
+        'aces' => 'Ace (5K)',
+        'quadros' => 'Quadro (4K)',
+        'triples' => 'Triple (3K)',
+        'avg_aces_per_match' => 'Genomsnittliga Ace/match',
+        'avg_4k_per_match' => 'Genomsnittliga 4K/match',
+        'avg_3k_per_match' => 'Genomsnittliga 3K/match',
+        'total_entries' => 'Totala entries',
+        'success_rate' => 'Framgångsgrad',
+        'successes_attempts' => ':wins framgångar / :total försök',
+        'entry_wins_per_match' => 'Entry-vinster/match',
+        'entry_attempts' => 'Entry-försök',
+        'enemies_flashed' => 'Fiender flashade',
+        'flash_per_round' => 'Flash/runda',
+        '1v1_rate' => '1v1-rate',
+        '1v2_rate' => '1v2-rate',
+        'victories' => ':wins/:total vinster',
+        '1v3_wins' => '1v3-vinster',
+        '1v4_wins' => '1v4-vinster',
+        '1v5_wins' => '1v5-vinster',
+        'total_clutches' => 'Totala clutches',
+        'flash_success' => 'Flash-framgång',
+        'successful_flashes' => ':successes/:total framgångar',
+        'flashes_per_round' => 'Flash/runda',
+        'utility_damage' => 'Verktygsskada',
+        'utility_success' => 'Verktygsframgång',
+        'total_flashes' => 'Totala flash',
+        'sniper_kills' => 'Sniper-kills',
+        'sniper_k_per_round' => 'Sniper-kills/runda',
+        'avg_sniper_k_per_match' => 'Genomsnittliga sniper-kills/match',
+        'sniper_kill_rate' => 'Sniper-kill-rate',
+        'total_damage' => 'Total skada',
+        'utility_usage_per_round' => 'Verktygsutnyttjande/runda',
+        'awp_expert' => 'AWP-expert!',
     ],
     'errors' => [
-        'no_player' => '未指定玩家',
-        'player_not_found' => '未找到玩家',
-        'loading_error' => '加载统计数据错误',
-        'no_export_data' => '无数据可导出',
-        'back_home' => '返回首页',
+        'no_player' => 'Ingen spelare angiven',
+        'player_not_found' => 'Spelare hittades inte',
+        'loading_error' => 'Fel vid laddning av statistik',
+        'no_export_data' => 'Ingen data att exportera',
+        'back_home' => 'Tillbaka till startsidan',
     ],
     'notifications' => [
-        'report_downloaded' => '报告下载成功！',
-        'link_copied' => '链接已复制到剪贴板！',
+        'report_downloaded' => 'Rapport nedladdad framgångsrikt!',
+        'link_copied' => 'Länk kopierad till urklipp!',
     ],
     'map_stats' => [
-        'no_map_data' => '无地图数据',
-        'share_title' => '我在 :map 的统计 - Faceit Scope',
-        'share_text' => '查看我在 CS2 :map 地图上的表现！',
+        'no_map_data' => 'Ingen kartdata',
+        'share_title' => 'Min statistik på :map - Faceit Scope',
+        'share_text' => 'Kolla in min prestanda på :map i CS2!',
     ],
 ];
 EOF
@@ -343,33 +343,33 @@ cat > "${TARGET_DIR}/auth.php" << 'EOF'
 <?php
 return [
     'buttons' => [
-        'login' => '登录',
-        'logout' => '退出',
-        'profile' => '我的资料',
-        'stats' => '我的统计',
-        'user_menu' => '用户菜单',
+        'login' => 'Logga in',
+        'logout' => 'Logga ut',
+        'profile' => 'Min profil',
+        'stats' => 'Min statistik',
+        'user_menu' => 'Användarmeny',
     ],
     'status' => [
-        'connected' => '已连接',
-        'welcome' => '欢迎 :nickname！',
-        'logout_success' => '成功退出',
-        'profile_unavailable' => '资料数据不可用',
+        'connected' => 'Ansluten',
+        'welcome' => 'Välkommen :nickname!',
+        'logout_success' => 'Framgångsrikt utloggad',
+        'profile_unavailable' => 'Profildata otillgänglig',
     ],
     'errors' => [
-        'popup_blocked' => '无法打开弹窗。请检查弹窗是否被阻止。',
-        'login_popup' => 'FACEIT 登录弹窗错误：:error',
-        'login_failed' => '登录错误：:error',
-        'logout_failed' => '退出时出错',
-        'unknown_error' => '未知错误',
-        'auth_init' => '认证初始化错误：',
-        'auth_check' => '认证检查错误：',
+        'popup_blocked' => 'Kan inte öppna popup. Kontrollera om popups är blockerade.',
+        'login_popup' => 'FACEIT inloggnings-popup fel: :error',
+        'login_failed' => 'Inloggningsfel: :error',
+        'logout_failed' => 'Fel vid utloggning',
+        'unknown_error' => 'Okänt fel',
+        'auth_init' => 'Autentiseringsinitiering fel: ',
+        'auth_check' => 'Autentiseringskontroll fel: ',
     ],
     'console' => [
-        'auth_status' => '认证状态：',
-        'popup_opened' => 'FACEIT 弹窗已打开',
-        'auth_result' => '收到认证结果：',
-        'ui_updated' => 'UI 已更新：',
-        'service_loaded' => '🔐 FACEIT 认证服务已加载',
+        'auth_status' => 'Autentiseringsstatus: ',
+        'popup_opened' => 'FACEIT popup öppnad',
+        'auth_result' => 'Autentiseringsresultat mottaget: ',
+        'ui_updated' => 'UI uppdaterad: ',
+        'service_loaded' => '🔐 FACEIT autentiseringstjänst laddad',
     ],
 ];
 EOF
@@ -381,29 +381,29 @@ echo -e "${PURPLE}📝 Traduction: common.php${NC}"
 cat > "${TARGET_DIR}/common.php" << 'EOF'
 <?php
 return [
-    'loading' => '加载中...',
-    'error' => '错误',
-    'success' => '成功',
-    'retry' => '重试',
-    'cancel' => '取消',
-    'confirm' => '确认',
-    'close' => '关闭',
-    'search' => '搜索',
-    'filter' => '筛选',
-    'sort' => '排序',
-    'refresh' => '刷新',
-    'save' => '保存',
-    'delete' => '删除',
-    'edit' => '编辑',
-    'view' => '查看',
-    'today' => '今天',
-    'yesterday' => '昨天',
-    'days_ago' => ':count 天前',
-    'weeks_ago' => ':count 周前',
-    'months_ago' => ':count 月前',
-    'no_data' => '无数据',
-    'server_error' => '服务器错误。请稍后重试。',
-    'network_error' => '连接错误。请检查您的网络连接。',
+    'loading' => 'Laddar...',
+    'error' => 'Fel',
+    'success' => 'Framgång',
+    'retry' => 'Försök igen',
+    'cancel' => 'Avbryt',
+    'confirm' => 'Bekräfta',
+    'close' => 'Stäng',
+    'search' => 'Sök',
+    'filter' => 'Filtrera',
+    'sort' => 'Sortera',
+    'refresh' => 'Uppdatera',
+    'save' => 'Spara',
+    'delete' => 'Ta bort',
+    'edit' => 'Redigera',
+    'view' => 'Visa',
+    'today' => 'Idag',
+    'yesterday' => 'Igår',
+    'days_ago' => ':count dagar sedan',
+    'weeks_ago' => ':count veckor sedan',
+    'months_ago' => ':count månader sedan',
+    'no_data' => 'Ingen data',
+    'server_error' => 'Serverfel. Försök igen senare.',
+    'network_error' => 'Anslutningsfel. Kontrollera din internetanslutning.',
 ];
 EOF
 
@@ -414,202 +414,202 @@ echo -e "${PURPLE}📝 Traduction: comparison.php${NC}"
 cat > "${TARGET_DIR}/comparison.php" << 'EOF'
 <?php
 return [
-    'title' => '玩家对比 - Faceit Scope',
+    'title' => 'Spelarjämförelse - Faceit Scope',
     'hero' => [
-        'title' => '玩家对比',
-        'subtitle' => '对比两名 CS2 玩家的表现',
+        'title' => 'Spelarjämförelse',
+        'subtitle' => 'Jämför prestandan hos två CS2-spelare',
     ],
     'search' => [
-        'player1' => '玩家 1',
-        'player2' => '玩家 2',
-        'placeholder' => 'Faceit 昵称...',
-        'button' => '开始对比',
-        'loading' => '分析中',
-        'loading_text' => '对比玩家',
+        'player1' => 'Spelare 1',
+        'player2' => 'Spelare 2',
+        'placeholder' => 'Faceit smeknamn...',
+        'button' => 'Starta jämförelse',
+        'loading' => 'Analyserar',
+        'loading_text' => 'Jämför spelare',
         'errors' => [
-            'both_players' => '请输入两个昵称',
-            'different_players' => '请输入两个不同的昵称',
+            'both_players' => 'Ange två smeknamn',
+            'different_players' => 'Ange två olika smeknamn',
         ]
     ],
     'loading' => [
-        'title' => '分析中',
+        'title' => 'Analyserar',
         'messages' => [
-            'player1_data' => '获取玩家 1 数据',
-            'player2_data' => '获取玩家 2 数据',
-            'analyzing_stats' => '分析统计数据',
-            'calculating_scores' => '计算表现分数',
-            'comparing_roles' => '对比游戏角色',
-            'generating_report' => '生成最终报告'
+            'player1_data' => 'Hämtar data för spelare 1',
+            'player2_data' => 'Hämtar data för spelare 2',
+            'analyzing_stats' => 'Analyserar statistik',
+            'calculating_scores' => 'Beräknar prestandapoäng',
+            'comparing_roles' => 'Jämför spelroller',
+            'generating_report' => 'Genererar slutrapport'
         ]
     ],
     'tabs' => [
-        'overview' => '概览',
-        'detailed' => '详细统计',
-        'maps' => '地图'
+        'overview' => 'Översikt',
+        'detailed' => 'Detaljerad statistik',
+        'maps' => 'Kartor'
     ],
     'winner' => [
-        'analysis_complete' => '分析完成',
-        'wins_analysis' => ':winner 赢得 AI 分析',
-        'confidence' => '置信度：:percentage%',
-        'performance_score' => '表现分数',
-        'matches' => '比赛'
+        'analysis_complete' => 'Analys klar',
+        'wins_analysis' => ':winner vinner AI-analysen',
+        'confidence' => 'Säkerhet: :percentage%',
+        'performance_score' => 'Prestandapoäng',
+        'matches' => 'Matcher'
     ],
     'overview' => [
         'performance_scores' => [
-            'title' => '表现分数',
-            'elo_impact' => 'ELO 影响',
-            'combat_performance' => '战斗表现',
-            'experience' => '经验',
-            'advanced_stats' => '高级统计'
+            'title' => 'Prestandapoäng',
+            'elo_impact' => 'ELO-påverkan',
+            'combat_performance' => 'Stridsprestanda',
+            'experience' => 'Erfarenhet',
+            'advanced_stats' => 'Avancerad statistik'
         ],
         'key_stats' => [
-            'title' => '关键统计',
-            'kd_ratio' => 'K/D 比率',
-            'win_rate' => '胜率',
-            'headshots' => '爆头',
+            'title' => 'Nyckelstatistik',
+            'kd_ratio' => 'K/D-förhållande',
+            'win_rate' => 'Vinstprocent',
+            'headshots' => 'Headshots',
             'adr' => 'ADR',
-            'entry_success' => '进攻成功',
-            'clutch_1v1' => '1v1 残局'
+            'entry_success' => 'Entry-framgång',
+            'clutch_1v1' => 'Clutch 1v1'
         ],
         'calculation_info' => [
-            'title' => '分数如何计算？',
+            'title' => 'Hur beräknas poängen?',
             'elo_impact' => [
-                'title' => 'ELO 影响 (35%)',
-                'description' => 'ELO 等级是最重要的因素，因为它直接反映了对阵同等实力对手的游戏水平。'
+                'title' => 'ELO-påverkan (35%)',
+                'description' => 'ELO-nivån är den viktigaste faktorn eftersom den direkt återspeglar spelnivån mot motståndare av jämn styrka.'
             ],
             'combat_performance' => [
-                'title' => '战斗表现 (25%)',
-                'description' => '结合 K/D、胜率、ADR 和 Faceit 等级来评估战斗效能。'
+                'title' => 'Stridsprestanda (25%)',
+                'description' => 'Kombinerar K/D, vinstprocent, ADR och Faceit-nivå för att bedöma stridseffektivitet.'
             ],
             'experience' => [
-                'title' => '经验 (20%)',
-                'description' => '已进行的比赛数量，基于累积经验的乘数。'
+                'title' => 'Erfarenhet (20%)',
+                'description' => 'Antal spelade matcher, multiplikator baserad på ackumulerad erfarenhet.'
             ],
             'advanced_stats' => [
-                'title' => '高级统计 (20%)',
-                'description' => '爆头、进攻和残局能力，用于深度游戏风格分析。'
+                'title' => 'Avancerad statistik (20%)',
+                'description' => 'Headshots, entry- och clutch-förmågor för djupgående spelstilsanalys.'
             ]
         ]
     ],
     'detailed' => [
         'categories' => [
             'general_performance' => [
-                'title' => '总体表现',
+                'title' => 'Allmän prestanda',
                 'stats' => [
-                    'total_matches' => '总比赛数',
-                    'win_rate' => '胜率',
-                    'wins' => '胜利',
-                    'avg_kd' => '平均 K/D 比率',
-                    'adr' => 'ADR (伤害/回合)'
+                    'total_matches' => 'Totala matcher',
+                    'win_rate' => 'Vinstprocent',
+                    'wins' => 'Vinster',
+                    'avg_kd' => 'Genomsnittligt K/D-förhållande',
+                    'adr' => 'ADR (Skada per runda)'
                 ]
             ],
             'combat_precision' => [
-                'title' => '战斗和精准度',
+                'title' => 'Strid och precision',
                 'stats' => [
-                    'avg_headshots' => '平均爆头',
-                    'total_headshots' => '总爆头数',
-                    'total_kills' => '击杀（扩展统计）',
-                    'total_damage' => '总伤害'
+                    'avg_headshots' => 'Genomsnittliga headshots',
+                    'total_headshots' => 'Totala headshots',
+                    'total_kills' => 'Kills (utökad statistik)',
+                    'total_damage' => 'Total skada'
                 ]
             ],
             'entry_fragging' => [
-                'title' => '进攻突破',
+                'title' => 'Entry fragging',
                 'stats' => [
-                    'entry_rate' => '进攻率',
-                    'entry_success' => '进攻成功率',
-                    'total_entries' => '总尝试数',
-                    'successful_entries' => '成功进攻'
+                    'entry_rate' => 'Entry-rate',
+                    'entry_success' => 'Entry-framgång',
+                    'total_entries' => 'Totala försök',
+                    'successful_entries' => 'Framgångsrika entries'
                 ]
             ],
             'clutch_situations' => [
-                'title' => '残局情况',
+                'title' => 'Clutch-situationer',
                 'stats' => [
-                    '1v1_win_rate' => '1v1 胜率',
-                    '1v2_win_rate' => '1v2 胜率',
-                    '1v1_situations' => '1v1 情况',
-                    '1v1_wins' => '1v1 胜利',
-                    '1v2_situations' => '1v2 情况',
-                    '1v2_wins' => '1v2 胜利'
+                    '1v1_win_rate' => '1v1 vinstprocent',
+                    '1v2_win_rate' => '1v2 vinstprocent',
+                    '1v1_situations' => '1v1-situationer',
+                    '1v1_wins' => '1v1-vinster',
+                    '1v2_situations' => '1v2-situationer',
+                    '1v2_wins' => '1v2-vinster'
                 ]
             ],
             'utility_support' => [
-                'title' => '辅助和支援',
+                'title' => 'Verktyg och stöd',
                 'stats' => [
-                    'flash_success' => '闪光成功率',
-                    'flashes_per_round' => '闪光弹/回合',
-                    'total_flashes' => '总闪光弹',
-                    'successful_flashes' => '成功闪光',
-                    'enemies_flashed_per_round' => '被闪敌人/回合',
-                    'total_enemies_flashed' => '总被闪敌人',
-                    'utility_success' => '辅助成功率',
-                    'utility_damage_per_round' => '辅助伤害/回合',
-                    'total_utility_damage' => '总辅助伤害'
+                    'flash_success' => 'Flash-framgång',
+                    'flashes_per_round' => 'Flash per runda',
+                    'total_flashes' => 'Totala flash',
+                    'successful_flashes' => 'Framgångsrika flash',
+                    'enemies_flashed_per_round' => 'Fiender flashade per runda',
+                    'total_enemies_flashed' => 'Totala fiender flashade',
+                    'utility_success' => 'Verktygsframgång',
+                    'utility_damage_per_round' => 'Verktygsskada per runda',
+                    'total_utility_damage' => 'Total verktygsskada'
                 ]
             ],
             'sniper_special' => [
-                'title' => '狙击和特殊武器',
+                'title' => 'Sniper och specialvapen',
                 'stats' => [
-                    'sniper_kill_rate' => '狙击击杀率',
-                    'sniper_kills_per_round' => '狙击击杀/回合',
-                    'total_sniper_kills' => '总狙击击杀'
+                    'sniper_kill_rate' => 'Sniper-kill-rate',
+                    'sniper_kills_per_round' => 'Sniper-kills per runda',
+                    'total_sniper_kills' => 'Totala sniper-kills'
                 ]
             ],
             'streaks_consistency' => [
-                'title' => '连胜和稳定性',
+                'title' => 'Streaks och konsistens',
                 'stats' => [
-                    'current_streak' => '当前连胜',
-                    'longest_streak' => '最长连胜'
+                    'current_streak' => 'Nuvarande streak',
+                    'longest_streak' => 'Längsta streak'
                 ]
             ]
         ],
-        'legend' => '绿色值表示该统计项目表现更好的玩家'
+        'legend' => 'Gröna värden indikerar spelaren som presterar bättre i den statistiken'
     ],
     'maps' => [
         'no_common_maps' => [
-            'title' => '无共同地图',
-            'description' => '两名玩家没有拥有足够数据的共同地图。'
+            'title' => 'Inga gemensamma kartor',
+            'description' => 'De två spelarna har inga gemensamma kartor med tillräcklig data.'
         ],
-        'dominates' => ':player 占优',
-        'win_rate' => '胜率（:matches 场比赛）',
-        'kd_ratio' => 'K/D 比率',
-        'headshots' => '爆头',
+        'dominates' => ':player dominerar',
+        'win_rate' => 'Vinstprocent (:matches matcher)',
+        'kd_ratio' => 'K/D-förhållande',
+        'headshots' => 'Headshots',
         'adr' => 'ADR',
         'mvps' => 'MVP',
         'summary' => [
-            'title' => '地图总结',
-            'maps_dominated' => '占优地图',
-            'best_map' => '最佳地图',
-            'none' => '无'
+            'title' => 'Kartsammanfattning',
+            'maps_dominated' => 'Dominerade kartor',
+            'best_map' => 'Bästa karta',
+            'none' => 'Ingen'
         ]
     ],
     'roles' => [
         'entry_fragger' => [
-            'name' => '突破手',
-            'description' => '专门负责进攻点位'
+            'name' => 'Entry Fragger',
+            'description' => 'Specialiserad på att attackera positioner'
         ],
         'support' => [
-            'name' => '支援',
-            'description' => '团队辅助大师'
+            'name' => 'Stöd',
+            'description' => 'Lagstödsmästare'
         ],
         'clutcher' => [
-            'name' => '残局大师',
-            'description' => '困难情况专家'
+            'name' => 'Clutcher',
+            'description' => 'Expert på svåra situationer'
         ],
         'fragger' => [
-            'name' => '击杀手',
-            'description' => '消灭专家'
+            'name' => 'Fragger',
+            'description' => 'Elimineringsspecialist'
         ],
         'versatile' => [
-            'name' => '全能',
-            'description' => '平衡型玩家'
+            'name' => 'Mångsidig',
+            'description' => 'Balanserad spelare'
         ]
     ],
     'error' => [
-        'title' => '错误',
-        'default_message' => '对比过程中发生错误',
-        'retry' => '重试',
-        'player_not_found' => '未找到玩家 ":player"',
-        'stats_error' => '获取统计错误：:status'
+        'title' => 'Fel',
+        'default_message' => 'Ett fel uppstod under jämförelsen',
+        'retry' => 'Försök igen',
+        'player_not_found' => 'Spelare ":player" hittades inte',
+        'stats_error' => 'Fel vid hämtning av statistik: :status'
     ]
 ];
 EOF
@@ -621,67 +621,67 @@ echo -e "${PURPLE}📝 Traduction: contact.php${NC}"
 cat > "${TARGET_DIR}/contact.php" << 'EOF'
 <?php
 return [
-    'title' => '联系我们 - Faceit Scope',
+    'title' => 'Kontakt - Faceit Scope',
     'hero' => [
-        'title' => '联系我们',
+        'title' => 'Kontakta oss',
     ],
     'sidebar' => [
         'developer' => [
-            'title' => '开发者',
-            'name_label' => '姓名',
+            'title' => 'Utvecklare',
+            'name_label' => 'Namn',
             'name_value' => 'XTBMZ',
         ],
         'response' => [
-            'title' => '回复',
-            'average_delay' => '平均延迟',
-            'delay_value' => '24小时',
+            'title' => 'Svar',
+            'average_delay' => 'Genomsnittlig fördröjning',
+            'delay_value' => '24 timmar',
         ],
     ],
     'form' => [
         'type' => [
-            'label' => '消息类型',
+            'label' => 'Meddelandetyp',
             'required' => '*',
-            'placeholder' => '选择类型',
+            'placeholder' => 'Välj typ',
             'options' => [
-                'bug' => '报告错误',
-                'suggestion' => '建议',
-                'question' => '问题',
-                'feedback' => '反馈',
-                'other' => '其他',
+                'bug' => 'Rapportera bugg',
+                'suggestion' => 'Förslag',
+                'question' => 'Fråga',
+                'feedback' => 'Feedback',
+                'other' => 'Annat',
             ],
         ],
         'subject' => [
-            'label' => '主题',
+            'label' => 'Ämne',
             'required' => '*',
         ],
         'email' => [
-            'label' => '邮箱',
+            'label' => 'E-post',
             'required' => '*',
         ],
         'pseudo' => [
-            'label' => 'Faceit 用户名',
-            'optional' => '（可选）',
+            'label' => 'Faceit användarnamn',
+            'optional' => '(valfritt)',
         ],
         'message' => [
-            'label' => '消息',
+            'label' => 'Meddelande',
             'required' => '*',
-            'character_count' => '字符',
+            'character_count' => 'tecken',
         ],
         'submit' => [
-            'send' => '发送',
-            'sending' => '发送中...',
+            'send' => 'Skicka',
+            'sending' => 'Skickar...',
         ],
-        'privacy_note' => '您的数据仅用于处理您的请求',
+        'privacy_note' => 'Din data används endast för att behandla din förfrågan',
     ],
     'messages' => [
         'success' => [
-            'title' => '消息发送成功',
-            'ticket_id' => '工单 ID：',
+            'title' => 'Meddelande skickat framgångsrikt',
+            'ticket_id' => 'Ärende-ID: ',
         ],
         'error' => [
-            'title' => '发送错误',
-            'connection' => '连接错误。请重试。',
-            'generic' => '发生错误。',
+            'title' => 'Skickningsfel',
+            'connection' => 'Anslutningsfel. Försök igen.',
+            'generic' => 'Ett fel uppstod. ',
         ],
     ],
 ];
@@ -694,11 +694,11 @@ echo -e "${PURPLE}📝 Traduction: errors.php${NC}"
 cat > "${TARGET_DIR}/errors.php" << 'EOF'
 <?php
 return [
-    'page_not_found' => '页面未找到',
-    'server_error' => '服务器错误',
-    'unauthorized' => '未授权',
-    'forbidden' => '禁止访问',
-    'too_many_requests' => '请求过多',
+    'page_not_found' => 'Sidan hittades inte',
+    'server_error' => 'Serverfel',
+    'unauthorized' => 'Ej behörig',
+    'forbidden' => 'Åtkomst nekad',
+    'too_many_requests' => 'För många förfrågningar',
 ];
 EOF
 
@@ -709,10 +709,10 @@ echo -e "${PURPLE}📝 Traduction: footer.php${NC}"
 cat > "${TARGET_DIR}/footer.php" << 'EOF'
 <?php
 return [
-    'about' => '关于我们',
-    'privacy' => '隐私',
-    'contact' => '联系',
-    'data_provided' => '数据由 FACEIT API 提供。',
+    'about' => 'Om oss',
+    'privacy' => 'Integritet',
+    'contact' => 'Kontakt',
+    'data_provided' => 'Data tillhandahållen av FACEIT API.',
 ];
 EOF
 
@@ -723,68 +723,68 @@ echo -e "${PURPLE}📝 Traduction: friends.php${NC}"
 cat > "${TARGET_DIR}/friends.php" << 'EOF'
 <?php
 return [
-    'title' => '我的 FACEIT 好友',
-    'subtitle' => '发现您的游戏圈子的表现',
-    'load_more' => '显示更多 :count',
+    'title' => 'Mina FACEIT-vänner',
+    'subtitle' => 'Upptäck prestandan hos din spelkrets',
+    'load_more' => 'Visa fler :count',
     'stats' => [
-        'total' => '总计',
-        'active_7d' => '活跃（7天）',
-        'average_elo' => '平均 ELO',
-        'best' => '最佳',
+        'total' => 'Totalt',
+        'active_7d' => 'Aktiva (7 dagar)',
+        'average_elo' => 'Genomsnittlig ELO',
+        'best' => 'Bästa',
     ],
-    'search_placeholder' => '搜索好友...',
+    'search_placeholder' => 'Sök vänner...',
     'activity_filter' => [
-        'all' => '所有活动',
-        'recent' => '最近（7天）',
-        'month' => '本月',
-        'inactive' => '不活跃（30天+）',
+        'all' => 'All aktivitet',
+        'recent' => 'Senaste (7 dagar)',
+        'month' => 'Denna månad',
+        'inactive' => 'Inaktiva (30 dagar+)',
     ],
     'sort_by' => [
         'elo' => 'ELO',
-        'activity' => '活动',
-        'name' => '姓名',
-        'level' => '等级',
+        'activity' => 'Aktivitet',
+        'name' => 'Namn',
+        'level' => 'Nivå',
     ],
     'loading' => [
-        'title' => '加载好友中...',
-        'connecting' => '连接中...',
-        'fetching_friends' => '获取好友列表...',
-        'loading_all' => '加载所有好友...',
-        'finalizing' => '完成中...',
+        'title' => 'Laddar vänner...',
+        'connecting' => 'Ansluter...',
+        'fetching_friends' => 'Hämtar vänlista...',
+        'loading_all' => 'Laddar alla vänner...',
+        'finalizing' => 'Slutför...',
     ],
     'empty' => [
-        'title' => '未找到好友',
-        'description' => '您在 FACEIT 上还没有好友',
-        'action' => '前往 FACEIT',
+        'title' => 'Inga vänner hittades',
+        'description' => 'Du har inga vänner på FACEIT än',
+        'action' => 'Gå till FACEIT',
     ],
     'error' => [
-        'title' => '加载错误',
-        'not_authenticated' => '未认证',
-        'missing_data' => '用户数据缺失',
-        'load_failed' => '无法加载您的好友。请检查连接。',
-        'server_error' => '服务器错误。请稍后重试。',
+        'title' => 'Laddningsfel',
+        'not_authenticated' => 'Inte autentiserad',
+        'missing_data' => 'Användardata saknas',
+        'load_failed' => 'Kunde inte ladda dina vänner. Kontrollera anslutningen.',
+        'server_error' => 'Serverfel. Försök igen senare.',
     ],
     'modal' => [
-        'title' => '好友详情',
-        'last_activity' => '最后活动',
+        'title' => 'Vändetaljer',
+        'last_activity' => 'Senaste aktivitet',
         'elo_faceit' => 'FACEIT ELO',
-        'view_faceit' => '在 FACEIT 查看',
-        'view_stats' => '查看统计',
+        'view_faceit' => 'Visa på FACEIT',
+        'view_stats' => 'Visa statistik',
     ],
     'activity' => [
-        'today' => '今天',
-        'yesterday' => '昨天',
-        'days_ago' => ':count 天前',
-        'weeks_ago' => ':count 周前',
-        'weeks_ago_plural' => ':count 周前',
-        'months_ago' => ':count 月前',
-        'no_recent' => '无近期活动',
+        'today' => 'Idag',
+        'yesterday' => 'Igår',
+        'days_ago' => ':count dagar sedan',
+        'weeks_ago' => ':count veckor sedan',
+        'weeks_ago_plural' => ':count veckor sedan',
+        'months_ago' => ':count månader sedan',
+        'no_recent' => 'Ingen senaste aktivitet',
     ],
-    'count' => ':count 好友',
-    'filtered_count' => '（显示 :count）',
-    'load_more' => '显示更多 :count',
-    'success_rate' => ':percentage% 成功',
-    'friends_loaded' => '已加载 :loaded 好友，共 :total',
+    'count' => ':count vänner',
+    'filtered_count' => '(visar :count)',
+    'load_more' => 'Visa fler :count',
+    'success_rate' => ':percentage% framgång',
+    'friends_loaded' => 'Laddade :loaded vänner av :total',
 ];
 EOF
 
@@ -795,77 +795,77 @@ echo -e "${PURPLE}📝 Traduction: home.php${NC}"
 cat > "${TARGET_DIR}/home.php" << 'EOF'
 <?php
 return [
-    'title' => 'Faceit Scope - 分析您的 FACEIT 统计数据',
+    'title' => 'Faceit Scope - Analysera din FACEIT-statistik',
     'hero' => [
-        'subtitle' => '使用先进算法和人工智能分析您在 FACEIT 上的表现。发现您的优势并提升技能。',
+        'subtitle' => 'Analysera din prestanda på FACEIT med avancerade algoritmer och artificiell intelligens. Upptäck dina styrkor och förbättra dina färdigheter.',
         'features' => [
-            'detailed_stats' => '详细统计',
-            'artificial_intelligence' => '人工智能',
-            'predictive_analysis' => '预测分析',
+            'detailed_stats' => 'Detaljerad statistik',
+            'artificial_intelligence' => 'Artificiell intelligens',
+            'predictive_analysis' => 'Prediktiv analys',
         ]
     ],
     'search' => [
-        'title' => '开始分析',
-        'subtitle' => '搜索玩家或分析比赛以发现详细洞察',
+        'title' => 'Börja analysera',
+        'subtitle' => 'Sök efter en spelare eller analysera en match för att upptäcka detaljerade insikter',
         'player' => [
-            'title' => '搜索玩家',
-            'description' => '分析玩家表现',
-            'placeholder' => 'FACEIT 玩家姓名...',
-            'button' => '搜索',
-            'loading' => '搜索中...',
+            'title' => 'Sök spelare',
+            'description' => 'Analysera spelarprestanda',
+            'placeholder' => 'FACEIT spelarnamn...',
+            'button' => 'Sök',
+            'loading' => 'Söker...',
         ],
         'match' => [
-            'title' => '分析比赛',
-            'description' => 'AI 预测和深度分析',
-            'placeholder' => '比赛 ID 或 URL...',
-            'button' => '分析',
-            'loading' => '分析中...',
+            'title' => 'Analysera match',
+            'description' => 'AI-förutsägelser och djupanalys',
+            'placeholder' => 'Match-ID eller URL...',
+            'button' => 'Analysera',
+            'loading' => 'Analyserar...',
         ],
         'errors' => [
-            'empty_player' => '请输入玩家姓名',
-            'empty_match' => '请输入比赛 ID 或 URL',
-            'player_not_found' => '在 FACEIT 上未找到玩家 ":player"',
-            'no_cs_stats' => '玩家 ":player" 从未在 FACEIT 上玩过 CS2/CS:GO',
-            'no_stats_available' => '":player" 无统计数据',
-            'match_not_found' => '未找到此 ID 或 URL 的比赛',
-            'invalid_format' => '比赛 ID 或 URL 格式无效。有效示例：\n• 1-73d82823-9d7b-477a-88c4-5ba16045f051\n• https://www.faceit.com/en/cs2/room/1-73d82823-9d7b-477a-88c4-5ba16045f051',
-            'too_many_requests' => '请求过多。请稍等。',
-            'access_forbidden' => '访问被禁止。API 密钥问题。',
-            'generic_player' => '搜索 ":player" 错误。请检查连接。',
-            'generic_match' => '获取比赛错误。请检查 ID 或 URL。',
+            'empty_player' => 'Ange ett spelarnamn',
+            'empty_match' => 'Ange ett match-ID eller URL',
+            'player_not_found' => 'Spelare ":player" hittades inte på FACEIT',
+            'no_cs_stats' => 'Spelare ":player" har aldrig spelat CS2/CS:GO på FACEIT',
+            'no_stats_available' => 'Ingen tillgänglig statistik för ":player"',
+            'match_not_found' => 'Ingen match hittades för detta ID eller URL',
+            'invalid_format' => 'Ogiltigt format för match-ID eller URL. Giltiga exempel:\n• 1-73d82823-9d7b-477a-88c4-5ba16045f051\n• https://www.faceit.com/en/cs2/room/1-73d82823-9d7b-477a-88c4-5ba16045f051',
+            'too_many_requests' => 'För många förfrågningar. Vänta.',
+            'access_forbidden' => 'Åtkomst nekad. API-nyckelproblem.',
+            'generic_player' => 'Fel vid sökning av ":player". Kontrollera anslutningen.',
+            'generic_match' => 'Fel vid hämtning av match. Kontrollera ID eller URL.',
         ]
     ],
     'features' => [
-        'title' => '功能',
-        'subtitle' => '强大工具来分析和提升您的表现',
+        'title' => 'Funktioner',
+        'subtitle' => 'Kraftfulla verktyg för att analysera och förbättra din prestanda',
         'advanced_stats' => [
-            'title' => '高级统计',
-            'description' => '按地图分析您的表现，跟踪您的 K/D、爆头并通过我们的算法发现您的最佳/最差地图。',
+            'title' => 'Avancerad statistik',
+            'description' => 'Analysera din prestanda per karta, spåra ditt K/D, headshots och upptäck dina bästa/sämsta kartor med våra algoritmer.',
         ],
         'ai' => [
-            'title' => '人工智能',
-            'description' => '比赛预测、关键玩家识别、角色分析和基于您数据的个性化建议。',
+            'title' => 'Artificiell intelligens',
+            'description' => 'Matchförutsägelser, nyckelspelareidentifiering, rollanalys och personaliserade rekommendationer baserade på din data.',
         ],
         'lobby_analysis' => [
-            'title' => '大厅分析',
-            'description' => '发现比赛组成、优势并获得详细的比赛结果预测。',
+            'title' => 'Lobbyanalys',
+            'description' => 'Upptäck matchsammansättning, styrkor och få detaljerade matchresultatförutsägelser.',
         ]
     ],
     'how_it_works' => [
-        'title' => '工作原理',
-        'subtitle' => 'FACEIT 表现分析的科学方法',
+        'title' => 'Hur det fungerar',
+        'subtitle' => 'Vetenskapligt tillvägagångssätt för FACEIT-prestandaanalys',
         'steps' => [
             'data_collection' => [
-                'title' => '数据收集',
-                'description' => '我们仅使用官方 FACEIT API 以透明合法的方式获取您的所有统计数据。',
+                'title' => 'Datainsamling',
+                'description' => 'Vi använder endast det officiella FACEIT API:et för att få all din statistik på ett transparent och lagligt sätt.',
             ],
             'algorithmic_analysis' => [
-                'title' => '算法分析',
-                'description' => '我们的算法通过标准化、加权和置信度计算分析您的数据以获得精确洞察。',
+                'title' => 'Algoritmisk analys',
+                'description' => 'Våra algoritmer analyserar din data genom normalisering, viktning och säkerhetsberäkningar för precisa insikter.',
             ],
             'personalized_insights' => [
-                'title' => '个性化洞察',
-                'description' => '获得详细分析、预测和建议以提升您的游戏表现。',
+                'title' => 'Personaliserade insikter',
+                'description' => 'Få detaljerade analyser, förutsägelser och rekommendationer för att förbättra din spelprestanda.',
             ]
         ]
     ]
@@ -879,7 +879,7 @@ echo -e "${PURPLE}📝 Traduction: language.php${NC}"
 cat > "${TARGET_DIR}/language.php" << 'EOF'
 <?php
 return [
-    'changed_successfully' => '语言更改成功',
+    'changed_successfully' => 'Språk ändrat framgångsrikt',
     'french' => 'Français',
     'english' => 'English',
     'spanish' => 'Español',
@@ -887,6 +887,9 @@ return [
     'russian' => 'Русский',
     'italian' => 'Italiano',
     'chinese' => '中文',
+    'polish' => 'Polski',
+    'ukrainian' => 'Українська',
+    'swedish' => 'Svenska',
 ];
 EOF
 
@@ -897,135 +900,135 @@ echo -e "${PURPLE}📝 Traduction: leaderboards.php${NC}"
 cat > "${TARGET_DIR}/leaderboards.php" << 'EOF'
 <?php
 return [
-    'title' => 'CS2 全球排行榜 - Faceit Scope',
+    'title' => 'CS2 Globala rankning - Faceit Scope',
     'hero' => [
-        'title' => 'CS2 排行榜',
-        'subtitle' => '通过 FACEIT API 实时显示最佳玩家',
+        'title' => 'CS2 Rankning',
+        'subtitle' => 'Toppspelare visas i realtid via FACEIT API',
     ],
     'stats' => [
-        'players' => '玩家',
-        'average_elo' => '平均 ELO',
-        'country' => '国家',
-        'level' => '等级',
+        'players' => 'Spelare',
+        'average_elo' => 'Genomsnittlig ELO',
+        'country' => 'Land',
+        'level' => 'Nivå',
     ],
     'filters' => [
-        'region' => '地区',
-        'country' => '国家',
-        'limit' => '限制',
-        'refresh' => '刷新',
-        'search' => '搜索',
+        'region' => 'Region',
+        'country' => 'Land',
+        'limit' => 'Gräns',
+        'refresh' => 'Uppdatera',
+        'search' => 'Sök',
         'regions' => [
-            'EU' => '🌍 欧洲',
-            'NA' => '🌎 北美',
-            'SA' => '🌎 南美',
-            'AS' => '🌏 亚洲',
-            'AF' => '🌍 非洲',
-            'OC' => '🌏 大洋洲',
+            'EU' => '🌍 Europa',
+            'NA' => '🌎 Nordamerika',
+            'SA' => '🌎 Sydamerika',
+            'AS' => '🌏 Asien',
+            'AF' => '🌍 Afrika',
+            'OC' => '🌏 Oceanien',
         ],
         'countries' => [
-            'all' => '全部',
+            'all' => 'Alla',
         ],
         'limits' => [
-            'top20' => '前 20',
-            'top50' => '前 50',
-            'top100' => '前 100',
+            'top20' => 'Topp 20',
+            'top50' => 'Topp 50',
+            'top100' => 'Topp 100',
         ],
-        'refreshing' => '刷新中...',
-        'close' => '关闭',
+        'refreshing' => 'Uppdaterar...',
+        'close' => 'Stäng',
     ],
     'search' => [
-        'title' => '搜索玩家',
-        'placeholder' => 'FACEIT 玩家姓名...',
-        'button' => '搜索',
-        'searching' => '搜索中...',
-        'searching_for' => '搜索 :player...',
+        'title' => 'Sök spelare',
+        'placeholder' => 'FACEIT spelarnamn...',
+        'button' => 'Sök',
+        'searching' => 'Söker...',
+        'searching_for' => 'Söker efter :player...',
         'errors' => [
-            'empty_name' => '请输入玩家姓名',
-            'not_found' => '未找到玩家 ":player"',
-            'no_cs2_profile' => '玩家 ":player" 没有 CS2 资料',
-            'timeout' => '搜索过慢，请重试...',
+            'empty_name' => 'Ange ett spelarnamn',
+            'not_found' => 'Spelare ":player" hittades inte',
+            'no_cs2_profile' => 'Spelare ":player" har ingen CS2-profil',
+            'timeout' => 'Sökningen är för långsam, försök igen...',
         ],
     ],
     'loading' => [
-        'title' => '加载中...',
-        'progress' => '连接 FACEIT API',
-        'players_enriched' => ':count 玩家已丰富...',
-        'details' => '加载中...',
+        'title' => 'Laddar...',
+        'progress' => 'Ansluter till FACEIT API',
+        'players_enriched' => ':count spelare berikade...',
+        'details' => 'Laddar...',
     ],
     'error' => [
-        'title' => '加载错误',
-        'default_message' => '发生错误',
-        'retry' => '重试',
-        'no_players' => '此排行榜未找到玩家',
+        'title' => 'Laddningsfel',
+        'default_message' => 'Ett fel uppstod',
+        'retry' => 'Försök igen',
+        'no_players' => 'Inga spelare hittades för denna rankning',
     ],
     'leaderboard' => [
-        'title' => '全球排行榜',
-        'updated_now' => '刚刚更新',
-        'updated_on' => '更新于 :date :time',
+        'title' => 'Global rankning',
+        'updated_now' => 'Precis uppdaterad',
+        'updated_on' => 'Uppdaterad :date kl :time',
         'table' => [
             'rank' => '#',
-            'player' => '玩家',
+            'player' => 'Spelare',
             'stats' => '',
             'elo' => 'ELO',
-            'level' => '等级',
-            'form' => '状态',
-            'actions' => '操作',
+            'level' => 'Nivå',
+            'form' => 'Form',
+            'actions' => 'Åtgärder',
         ],
         'pagination' => [
-            'previous' => '上一页',
-            'next' => '下一页',
-            'page' => '第 :page 页',
-            'players' => '玩家 :start-:end',
+            'previous' => 'Föregående',
+            'next' => 'Nästa',
+            'page' => 'Sida :page',
+            'players' => 'Spelare :start-:end',
         ],
         'region_names' => [
-            'EU' => '欧洲',
-            'NA' => '北美',
-            'SA' => '南美',
-            'AS' => '亚洲',
-            'AF' => '非洲',
-            'OC' => '大洋洲',
+            'EU' => 'Europa',
+            'NA' => 'Nordamerika',
+            'SA' => 'Sydamerika',
+            'AS' => 'Asien',
+            'AF' => 'Afrika',
+            'OC' => 'Oceanien',
         ],
         'country_names' => [
-            'FR' => '法国',
-            'DE' => '德国',
-            'GB' => '英国',
-            'ES' => '西班牙',
-            'IT' => '意大利',
-            'US' => '美国',
-            'CA' => '加拿大',
-            'BR' => '巴西',
-            'RU' => '俄罗斯',
-            'PL' => '波兰',
-            'SE' => '瑞典',
-            'DK' => '丹麦',
-            'NO' => '挪威',
-            'FI' => '芬兰',
-            'NL' => '荷兰',
-            'BE' => '比利时',
-            'CH' => '瑞士',
-            'AT' => '奥地利',
-            'CZ' => '捷克',
-            'UA' => '乌克兰',
-            'TR' => '土耳其',
-            'CN' => '中国',
-            'KR' => '韩国',
-            'JP' => '日本',
+            'FR' => 'Frankrike',
+            'DE' => 'Tyskland',
+            'GB' => 'Storbritannien',
+            'ES' => 'Spanien',
+            'IT' => 'Italien',
+            'US' => 'USA',
+            'CA' => 'Kanada',
+            'BR' => 'Brasilien',
+            'RU' => 'Ryssland',
+            'PL' => 'Polen',
+            'SE' => 'Sverige',
+            'DK' => 'Danmark',
+            'NO' => 'Norge',
+            'FI' => 'Finland',
+            'NL' => 'Nederländerna',
+            'BE' => 'Belgien',
+            'CH' => 'Schweiz',
+            'AT' => 'Österrike',
+            'CZ' => 'Tjeckien',
+            'UA' => 'Ukraina',
+            'TR' => 'Turkiet',
+            'CN' => 'Kina',
+            'KR' => 'Sydkorea',
+            'JP' => 'Japan',
         ],
     ],
     'player' => [
-        'position_region' => ':region 位置',
-        'stats_button' => '统计',
-        'compare_button' => '对比',
-        'view_stats' => '查看统计',
-        'private_stats' => '私人',
-        'level_short' => '等级 :level',
+        'position_region' => 'Position i :region',
+        'stats_button' => 'Statistik',
+        'compare_button' => 'Jämför',
+        'view_stats' => 'Visa statistik',
+        'private_stats' => 'Privat',
+        'level_short' => 'Nivå :level',
     ],
     'form' => [
-        'excellent' => '优秀',
-        'good' => '良好',
-        'average' => '一般',
-        'poor' => '较差',
-        'unknown' => '未知',
+        'excellent' => 'Utmärkt',
+        'good' => 'Bra',
+        'average' => 'Genomsnittlig',
+        'poor' => 'Dålig',
+        'unknown' => 'Okänd',
     ],
 ];
 EOF
@@ -1037,12 +1040,12 @@ echo -e "${PURPLE}📝 Traduction: messages.php${NC}"
 cat > "${TARGET_DIR}/messages.php" << 'EOF'
 <?php
 return [
-    'welcome' => '欢迎',
-    'goodbye' => '再见',
-    'thank_you' => '谢谢',
-    'please_wait' => '请稍等',
-    'operation_successful' => '操作成功',
-    'operation_failed' => '操作失败',
+    'welcome' => 'Välkommen',
+    'goodbye' => 'Hej då',
+    'thank_you' => 'Tack',
+    'please_wait' => 'Vänta',
+    'operation_successful' => 'Åtgärd lyckades',
+    'operation_failed' => 'Åtgärd misslyckades',
 ];
 EOF
 
@@ -1053,18 +1056,18 @@ echo -e "${PURPLE}📝 Traduction: navigation.php${NC}"
 cat > "${TARGET_DIR}/navigation.php" << 'EOF'
 <?php
 return [
-    'home' => '首页',
-    'friends' => '好友',
-    'comparison' => '对比',
-    'leaderboards' => '排行榜',
-    'tournaments' => '锦标赛',
-    'profile' => '资料',
-    'login' => '登录',
-    'logout' => '退出',
-    'settings' => '设置',
-    'about' => '关于我们',
-    'contact' => '联系',
-    'privacy' => '隐私',
+    'home' => 'Hem',
+    'friends' => 'Vänner',
+    'comparison' => 'Jämförelse',
+    'leaderboards' => 'Rankning',
+    'tournaments' => 'Turneringar',
+    'profile' => 'Profil',
+    'login' => 'Logga in',
+    'logout' => 'Logga ut',
+    'settings' => 'Inställningar',
+    'about' => 'Om oss',
+    'contact' => 'Kontakt',
+    'privacy' => 'Integritet',
 ];
 EOF
 
@@ -1075,154 +1078,154 @@ echo -e "${PURPLE}📝 Traduction: privacy.php${NC}"
 cat > "${TARGET_DIR}/privacy.php" << 'EOF'
 <?php
 return [
-    'title' => '隐私政策 - Faceit Scope',
+    'title' => 'Integritetspolicy - Faceit Scope',
     'header' => [
-        'title' => '隐私政策',
-        'subtitle' => 'Faceit Scope 扩展',
-        'last_updated' => '最后更新：2025年7月23日',
+        'title' => 'Integritetspolicy',
+        'subtitle' => 'Faceit Scope-tillägg',
+        'last_updated' => 'Senast uppdaterad: 23 juli 2025',
     ],
     'introduction' => [
-        'title' => '1. 介绍',
-        'content' => 'Faceit Scope 是一个浏览器扩展，分析 FACEIT 的 CS2 比赛以显示统计数据和预测。我们尊重您的隐私并致力于保护您的个人数据。',
+        'title' => '1. Introduktion',
+        'content' => 'Faceit Scope är ett webbläsartillägg som analyserar CS2-matcher på FACEIT för att visa statistik och förutsägelser. Vi respekterar din integritet och är engagerade i att skydda din personliga data.',
     ],
     'data_collected' => [
-        'title' => '2. 收集的数据',
+        'title' => '2. Insamlad data',
         'temporary_data' => [
-            'title' => '2.1 临时处理的数据（不存储）',
+            'title' => '2.1 Data som bearbetas tillfälligt (lagras inte)',
             'items' => [
                 'faceit_usernames' => [
-                    'title' => 'FACEIT 公开用户名：',
-                    'description' => '已在 FACEIT 上公开显示的游戏昵称，临时读取用于分析',
+                    'title' => 'Offentliga FACEIT-användarnamn:',
+                    'description' => 'Spelnamn som redan visas offentligt på FACEIT, tillfälligt lästa för analys',
                 ],
                 'public_stats' => [
-                    'title' => '公开游戏统计：',
-                    'description' => 'K/D、胜率、已玩地图（通过 FACEIT 公共 API）',
+                    'title' => 'Offentlig spelstatistik:',
+                    'description' => 'K/D, vinstprocent, spelade kartor (via FACEIT offentligt API)',
                 ],
                 'match_ids' => [
-                    'title' => '比赛 ID：',
-                    'description' => '从 URL 提取以识别要分析的比赛',
+                    'title' => 'Match-ID:n:',
+                    'description' => 'Extraherade från URL:er för att identifiera matchen att analysera',
                 ],
             ],
         ],
         'local_data' => [
-            'title' => '2.2 本地存储的数据（仅临时缓存）',
+            'title' => '2.2 Data som lagras lokalt (endast tillfällig cache)',
             'items' => [
                 'analysis_results' => [
-                    'title' => '分析结果：',
-                    'description' => '在您的设备上最多存储 5 分钟，以避免重复的 API 调用',
+                    'title' => 'Analysresultat:',
+                    'description' => 'Lagras på din enhet i högst 5 minuter för att undvika duplicerade API-anrop',
                 ],
                 'user_preferences' => [
-                    'title' => '用户偏好：',
-                    'description' => '扩展设置（启用/禁用通知）',
+                    'title' => 'Användarpreferenser:',
+                    'description' => 'Tilläggsinställningar (aktivera/inaktivera notifieringar)',
                 ],
             ],
         ],
-        'important_note' => '重要：不收集或保存个人身份识别数据。所有处理的数据在 FACEIT 上已经是公开的。',
+        'important_note' => 'Viktigt: Vi samlar inte in eller sparar personligt identifierbar data. All bearbetad data är redan offentlig på FACEIT.',
     ],
     'data_usage' => [
-        'title' => '3. 数据使用',
-        'description' => '收集的数据仅用于：',
+        'title' => '3. Dataanvändning',
+        'description' => 'Insamlad data används endast för att:',
         'items' => [
-            'display_stats' => '在 FACEIT 界面显示玩家统计',
-            'predictions' => '计算获胜队伍预测',
-            'map_recommendations' => '为队伍推荐最佳/最差地图',
-            'performance' => '通过临时缓存提升性能',
+            'display_stats' => 'Visa spelarstatistik i FACEIT-gränssnittet',
+            'predictions' => 'Beräkna vinnande lagförutsägelser',
+            'map_recommendations' => 'Rekommendera bästa/sämsta kartor för lag',
+            'performance' => 'Förbättra prestanda genom tillfällig caching',
         ],
     ],
     'data_sharing' => [
-        'title' => '4. 数据共享',
+        'title' => '4. Datadelning',
         'no_third_party' => [
-            'title' => '4.1 不与第三方共享',
+            'title' => '4.1 Ingen delning med tredje part',
             'items' => [
-                'no_selling' => '我们不向第三方出售任何数据',
-                'no_transfer' => '我们不传输任何个人数据',
-                'local_analysis' => '所有分析都在您的浏览器中本地执行',
+                'no_selling' => 'Vi säljer ingen data till tredje part',
+                'no_transfer' => 'Vi överför ingen personlig data',
+                'local_analysis' => 'All analys utförs lokalt i din webbläsare',
             ],
         ],
         'faceit_api' => [
             'title' => '4.2 FACEIT API',
             'items' => [
-                'public_api' => '扩展仅使用官方 FACEIT 公共 API',
-                'no_private_data' => '不收集私人或敏感数据',
-                'public_stats' => '使用的所有统计数据都是公开可访问的',
+                'public_api' => 'Tillägget använder endast det officiella offentliga FACEIT API:et',
+                'no_private_data' => 'Samlar inte in privat eller känslig data',
+                'public_stats' => 'All använd statistik är offentligt tillgänglig',
             ],
         ],
     ],
     'security' => [
-        'title' => '5. 安全和保留',
+        'title' => '5. Säkerhet och lagring',
         'local_storage' => [
-            'title' => '5.1 仅本地存储',
+            'title' => '5.1 Endast lokal lagring',
             'items' => [
-                'local_only' => '所有数据都存储在您的设备本地',
-                'no_server_transmission' => '没有数据传输到我们的服务器',
-                'auto_delete' => '缓存在 5 分钟后自动删除',
+                'local_only' => 'All data lagras lokalt på din enhet',
+                'no_server_transmission' => 'Ingen data överförs till våra servrar',
+                'auto_delete' => 'Cache raderas automatiskt efter 5 minuter',
             ],
         ],
         'limited_access' => [
-            'title' => '5.2 有限访问',
+            'title' => '5.2 Begränsad åtkomst',
             'items' => [
-                'faceit_only' => '扩展仅访问您访问的 FACEIT 页面',
-                'no_other_access' => '不访问其他网站或个人数据',
-                'no_tracking' => '不跟踪您的浏览',
+                'faceit_only' => 'Tillägget får endast åtkomst till FACEIT-sidor du besöker',
+                'no_other_access' => 'Får inte åtkomst till andra webbplatser eller personlig data',
+                'no_tracking' => 'Spårar inte din webbläsning',
             ],
         ],
     ],
     'user_rights' => [
-        'title' => '6. 您的权利',
+        'title' => '6. Dina rättigheter',
         'data_control' => [
-            'title' => '6.1 数据控制',
+            'title' => '6.1 Datakontroll',
             'items' => [
-                'clear_cache' => '您可以随时通过扩展弹窗清除缓存',
-                'uninstall' => '您可以卸载扩展以删除所有数据',
-                'disable_notifications' => '您可以在设置中禁用通知',
+                'clear_cache' => 'Du kan rensa cache när som helst via tilläggets popup',
+                'uninstall' => 'Du kan avinstallera tillägget för att ta bort all data',
+                'disable_notifications' => 'Du kan inaktivera notifieringar i inställningarna',
             ],
         ],
         'public_data' => [
-            'title' => '6.2 公开数据',
+            'title' => '6.2 Offentlig data',
             'items' => [
-                'already_public' => '所有分析的数据在 FACEIT 上已经是公开的',
-                'no_private_info' => '扩展不透露任何私人信息',
-                'no_personal_data' => '不收集个人身份识别数据',
+                'already_public' => 'All analyserad data är redan offentlig på FACEIT',
+                'no_private_info' => 'Tillägget avslöjar ingen privat information',
+                'no_personal_data' => 'Samlar inte in personligt identifierbar data',
             ],
         ],
     ],
     'cookies' => [
-        'title' => '7. Cookie 和跟踪技术',
-        'description' => 'Faceit Scope 扩展：',
+        'title' => '7. Cookies och spårningsteknologi',
+        'description' => 'Faceit Scope-tillägget:',
         'does_not_use' => [
-            'title' => '不使用：',
+            'title' => 'Använder inte:',
             'items' => [
-                'no_cookies' => '无 Cookie',
-                'no_ad_tracking' => '无广告跟踪',
-                'no_behavioral_analysis' => '无行为分析',
+                'no_cookies' => 'Cookies',
+                'no_ad_tracking' => 'Annonsspårning',
+                'no_behavioral_analysis' => 'Beteendeanalys',
             ],
         ],
         'uses_only' => [
-            'title' => '仅使用：',
+            'title' => 'Använder endast:',
             'items' => [
-                'local_storage' => '浏览器本地存储',
-                'temp_cache' => '临时缓存（最多 5 分钟）',
-                'public_api' => 'FACEIT 公共 API',
+                'local_storage' => 'Webbläsarens lokala lagring',
+                'temp_cache' => 'Tillfällig cache (max 5 minuter)',
+                'public_api' => 'FACEIT offentligt API',
             ],
         ],
     ],
     'policy_updates' => [
-        'title' => '8. 此政策的更新',
-        'content' => '我们可能会更新此隐私政策。更改将发布在此页面上，如有必要，将通过扩展更新通知您。',
+        'title' => '8. Uppdateringar av denna policy',
+        'content' => 'Vi kan uppdatera denna integritetspolicy. Ändringar kommer att publiceras på denna sida och du kommer att meddelas via tilläggsuppdatering om nödvändigt.',
     ],
     'contact' => [
-        'title' => '9. 联系方式',
-        'description' => '如对此隐私政策有任何疑问：',
-        'website' => '网站：',
-        'email' => '邮箱：',
+        'title' => '9. Kontakt',
+        'description' => 'För frågor om denna integritetspolicy:',
+        'website' => 'Webbplats: ',
+        'email' => 'E-post: ',
     ],
     'compliance' => [
-        'title' => '10. 法规合规',
-        'description' => '此扩展符合：',
+        'title' => '10. Regelefterlevnad',
+        'description' => 'Detta tillägg följer:',
         'items' => [
-            'gdpr' => '通用数据保护条例 (GDPR)',
-            'chrome_store' => 'Chrome 网上应用店政策',
-            'faceit_terms' => 'FACEIT API 使用条款',
+            'gdpr' => 'Allmänna dataskyddsförordningen (GDPR)',
+            'chrome_store' => 'Chrome Web Store-policy',
+            'faceit_terms' => 'FACEIT API användarvillkor',
         ],
     ],
 ];
@@ -1235,120 +1238,120 @@ echo -e "${PURPLE}📝 Traduction: tournaments.php${NC}"
 cat > "${TARGET_DIR}/tournaments.php" << 'EOF'
 <?php
 return [
-    'title' => 'CS2 锦标赛 - FACEIT Stats Pro',
+    'title' => 'CS2-turneringar - FACEIT Stats Pro',
     'hero' => [
-        'title' => 'CS2 锦标赛',
-        'subtitle' => '发现 FACEIT 官方 CS2 锦标赛，实时关注最佳电竞赛事',
+        'title' => 'CS2-turneringar',
+        'subtitle' => 'Upptäck officiella CS2-turneringar på FACEIT, följ de bästa esport-evenemangen i realtid',
         'features' => [
-            'ongoing' => '进行中的锦标赛',
-            'upcoming' => '即将举行的赛事',
-            'premium' => '高级锦标赛',
+            'ongoing' => 'Pågående turneringar',
+            'upcoming' => 'Kommande evenemang',
+            'premium' => 'Premium-turneringar',
         ]
     ],
     'filters' => [
         'tabs' => [
-            'ongoing' => '进行中',
-            'upcoming' => '即将举行',
-            'past' => '已结束',
-            'featured' => '高级',
+            'ongoing' => 'Pågående',
+            'upcoming' => 'Kommande',
+            'past' => 'Avslutade',
+            'featured' => 'Premium',
         ],
         'search' => [
-            'placeholder' => '搜索锦标赛...',
-            'button' => '搜索',
+            'placeholder' => 'Sök turneringar...',
+            'button' => 'Sök',
         ],
         'stats' => [
-            'ongoing' => '进行中',
-            'upcoming' => '即将举行',
-            'prize_pools' => '奖金池',
-            'participants' => '参与者',
+            'ongoing' => 'Pågående',
+            'upcoming' => 'Kommande',
+            'prize_pools' => 'Prispooler',
+            'participants' => 'Deltagare',
         ]
     ],
     'championship' => [
         'badges' => [
-            'premium' => '高级',
-            'ongoing' => '进行中',
-            'upcoming' => '即将举行',
-            'finished' => '已结束',
-            'cancelled' => '已取消',
+            'premium' => 'Premium',
+            'ongoing' => 'Pågående',
+            'upcoming' => 'Kommande',
+            'finished' => 'Avslutad',
+            'cancelled' => 'Inställd',
         ],
         'info' => [
-            'participants' => '参与者',
-            'prize_pool' => '奖金池',
-            'registrations' => '注册',
-            'organizer' => '组织者',
-            'status' => '状态',
-            'region' => '地区',
-            'level' => '等级',
-            'slots' => '名额',
+            'participants' => 'Deltagare',
+            'prize_pool' => 'Prispool',
+            'registrations' => 'Registreringar',
+            'organizer' => 'Arrangör',
+            'status' => 'Status',
+            'region' => 'Region',
+            'level' => 'Nivå',
+            'slots' => 'Platser',
         ],
         'actions' => [
-            'details' => '详情',
-            'view_faceit' => '在 FACEIT 查看',
-            'view_matches' => '查看比赛',
-            'results' => '结果',
-            'close' => '关闭',
+            'details' => 'Detaljer',
+            'view_faceit' => 'Visa på FACEIT',
+            'view_matches' => 'Visa matcher',
+            'results' => 'Resultat',
+            'close' => 'Stäng',
         ]
     ],
     'modal' => [
         'loading' => [
-            'title' => '加载详情中...',
-            'subtitle' => '获取锦标赛信息',
+            'title' => 'Laddar detaljer...',
+            'subtitle' => 'Hämtar turneringsinformation',
         ],
         'error' => [
-            'title' => '加载错误',
-            'subtitle' => '无法加载锦标赛详情',
+            'title' => 'Laddningsfel',
+            'subtitle' => 'Kunde inte ladda turneringsdetaljer',
         ],
         'sections' => [
-            'description' => '描述',
-            'information' => '信息',
-            'matches' => '锦标赛比赛',
-            'results' => '锦标赛结果',
-            'default_description' => '此锦标赛是 FACEIT 组织的官方 CS2 竞赛的一部分。',
+            'description' => 'Beskrivning',
+            'information' => 'Information',
+            'matches' => 'Turneringsmatcher',
+            'results' => 'Turneringsresultat',
+            'default_description' => 'Denna turnering är en del av officiella CS2-tävlingar arrangerade av FACEIT.',
         ],
         'matches' => [
-            'loading' => '加载比赛中...',
-            'no_matches' => '此锦标赛无可用比赛',
-            'error' => '加载比赛错误',
+            'loading' => 'Laddar matcher...',
+            'no_matches' => 'Inga tillgängliga matcher för denna turnering',
+            'error' => 'Fel vid laddning av matcher',
             'status' => [
-                'finished' => '已结束',
-                'ongoing' => '进行中',
-                'upcoming' => '即将举行',
+                'finished' => 'Avslutad',
+                'ongoing' => 'Pågående',
+                'upcoming' => 'Kommande',
             ]
         ],
         'results' => [
-            'loading' => '加载结果中...',
-            'no_results' => '此锦标赛无可用结果',
-            'error' => '加载结果错误',
-            'position' => '位置',
+            'loading' => 'Laddar resultat...',
+            'no_results' => 'Inga tillgängliga resultat för denna turnering',
+            'error' => 'Fel vid laddning av resultat',
+            'position' => 'Position',
         ]
     ],
     'pagination' => [
-        'previous' => '上一页',
-        'next' => '下一页',
-        'page' => '页面',
+        'previous' => 'Föregående',
+        'next' => 'Nästa',
+        'page' => 'Sida',
     ],
     'empty_state' => [
-        'title' => '未找到锦标赛',
-        'subtitle' => '尝试修改您的过滤器或搜索其他内容',
-        'reset_button' => '重置过滤器',
+        'title' => 'Inga turneringar hittades',
+        'subtitle' => 'Försök ändra dina filter eller sök efter något annat',
+        'reset_button' => 'Återställ filter',
     ],
     'errors' => [
-        'search' => '搜索错误',
-        'loading' => '加载锦标赛错误',
-        'api' => 'API 错误',
-        'network' => '连接错误',
+        'search' => 'Sökfel',
+        'loading' => 'Fel vid laddning av turneringar',
+        'api' => 'API-fel',
+        'network' => 'Anslutningsfel',
     ]
 ];
 EOF
 
 echo ""
-echo -e "${GREEN}🎉 Traduction chinoise terminée avec succès !${NC}"
+echo -e "${GREEN}🎉 Traduction suédoise terminée avec succès !${NC}"
 echo -e "${BLUE}📁 Fichiers créés dans : $TARGET_DIR${NC}"
 echo ""
 echo -e "${YELLOW}📋 Résumé des fichiers traduits :${NC}"
 ls -la "$TARGET_DIR" | grep -E "\.php$" | wc -l | xargs echo "Total des fichiers : "
 echo ""
-echo -e "${GREEN}✅ Tous les fichiers ont été traduits en chinois${NC}"
+echo -e "${GREEN}✅ Tous les fichiers ont été traduits en suédois${NC}"
 echo -e "${BLUE}🚀 Prêt à être utilisé dans votre application Laravel${NC}"
 echo ""
 
@@ -1363,4 +1366,9 @@ for file in "${FILES_TO_TRANSLATE[@]}"; do
 done
 
 echo ""
-echo -e
+echo -e "${BLUE}📖 Instructions d'utilisation :${NC}"
+echo -e "${YELLOW}1.${NC} Copiez ce script dans votre projet Laravel"
+echo -e "${YELLOW}2.${NC} Rendez-le exécutable : ${GREEN}chmod +x create_swedish_translations.sh${NC}"
+echo -e "${YELLOW}3.${NC} Exécutez le script : ${GREEN}./create_swedish_translations.sh${NC}"
+echo -e "${YELLOW}4.${NC} Ajoutez 'sv' à votre configuration locale Laravel"
+echo ""

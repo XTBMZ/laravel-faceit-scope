@@ -11,9 +11,11 @@ use Symfony\Component\HttpFoundation\Response;
 class LocaleMiddleware
 {
     /**
-     * Langues supportées par l'application
+     * Langues supportées par l'application - ÉTENDU
      */
-    private $supportedLocales = ['fr', 'en'];
+    private $supportedLocales = [
+        'da', 'de', 'en', 'es', 'fi', 'fr', 'it', 'pl', 'pt', 'ru', 'sv', 'tr', 'uk', 'zh'
+    ];
     
     /**
      * Langue par défaut
@@ -57,7 +59,7 @@ class LocaleMiddleware
     }
     
     /**
-     * Détecter la langue préférée du navigateur
+     * Détecter la langue préférée du navigateur - AMÉLIORÉ
      */
     private function detectBrowserLanguage(Request $request): ?string
     {
@@ -73,8 +75,12 @@ class LocaleMiddleware
             $code = trim($parts[0]);
             $quality = isset($parts[1]) ? (float) str_replace('q=', '', $parts[1]) : 1.0;
             
-            // Extraire le code de langue (fr-FR -> fr)
+            // Extraire le code de langue (fr-FR -> fr, zh-CN -> zh)
             $langCode = strtolower(substr($code, 0, 2));
+            
+            // Gestion spéciale pour certaines langues
+            $langCode = $this->normalizeLanguageCode($langCode, $code);
+            
             $languages[$langCode] = $quality;
         }
         
@@ -89,5 +95,34 @@ class LocaleMiddleware
         }
         
         return null;
+    }
+    
+    /**
+     * Normalise les codes de langue pour certains cas spéciaux
+     */
+    private function normalizeLanguageCode(string $langCode, string $fullCode): string
+    {
+        // Mapping des codes spéciaux
+        $mapping = [
+            'nb' => 'da', // Norwegian Bokmål -> Danish (proche)
+            'nn' => 'da', // Norwegian Nynorsk -> Danish (proche)
+            'no' => 'da', // Norwegian -> Danish (proche)
+            'pt-br' => 'pt', // Portuguese Brazil -> Portuguese
+            'zh-cn' => 'zh', // Chinese Simplified -> Chinese
+            'zh-tw' => 'zh', // Chinese Traditional -> Chinese
+            'zh-hk' => 'zh', // Chinese Hong Kong -> Chinese
+        ];
+        
+        $fullLower = strtolower($fullCode);
+        
+        if (isset($mapping[$fullLower])) {
+            return $mapping[$fullLower];
+        }
+        
+        if (isset($mapping[$langCode])) {
+            return $mapping[$langCode];
+        }
+        
+        return $langCode;
     }
 }

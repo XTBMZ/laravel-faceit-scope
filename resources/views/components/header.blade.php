@@ -34,7 +34,7 @@
                     <!-- Séparateur visuel -->
                     <div class="h-6 w-px bg-gray-600 mx-2"></div>
                     
-                    <!-- Sélecteur de langue moderne -->
+                    <!-- Sélecteur de langue moderne multi-langues -->
                     <div class="relative" id="languageSelector">
                         <button 
                             id="languageButton" 
@@ -42,18 +42,29 @@
                             aria-label="Changer de langue"
                         >
                             <div class="w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
-                                @if(app()->getLocale() === 'fr')
-                                    <img src="https://flagcdn.com/w20/fr.png" alt="Français" class="w-full h-full object-cover">
-                                @else
-                                    <img src="https://flagcdn.com/w20/gb.png" alt="English" class="w-full h-full object-cover">
-                                @endif
+                                @php
+                                    $flagMap = [
+                                        'da' => 'dk', // Danois -> Danemark
+                                        'de' => 'de', // Allemand -> Allemagne
+                                        'en' => 'gb', // Anglais -> Royaume-Uni
+                                        'es' => 'es', // Espagnol -> Espagne
+                                        'fi' => 'fi', // Finnois -> Finlande
+                                        'fr' => 'fr', // Français -> France
+                                        'it' => 'it', // Italien -> Italie
+                                        'pl' => 'pl', // Polonais -> Pologne
+                                        'pt' => 'pt', // Portugais -> Portugal
+                                        'ru' => 'ru', // Russe -> Russie
+                                        'sv' => 'se', // Suédois -> Suède
+                                        'tr' => 'tr', // Turc -> Turquie
+                                        'uk' => 'ua', // Ukrainien -> Ukraine
+                                        'zh' => 'cn', // Chinois -> Chine
+                                    ];
+                                    $currentFlag = $flagMap[app()->getLocale()] ?? 'gb';
+                                @endphp
+                                <img src="https://flagcdn.com/w20/{{ $currentFlag }}.png" alt="{{ __('language.current') }}" class="w-full h-full object-cover">
                             </div>
                             <span class="hidden sm:inline text-sm">
-                                @if(app()->getLocale() === 'fr')
-                                    {{ __('language.french') }}
-                                @else
-                                    {{ __('language.english') }}
-                                @endif
+                                {{ __('language.name') }}
                             </span>
                             <i class="fas fa-chevron-down text-xs transition-transform duration-200 group-hover:rotate-180"></i>
                         </button>
@@ -61,9 +72,70 @@
                         <!-- Dropdown des langues -->
                         <div 
                             id="languageDropdown" 
-                            class="absolute right-0 mt-2 w-48 bg-faceit-elevated border border-gray-700 rounded-xl shadow-2xl backdrop-blur-sm z-50 opacity-0 invisible transform translate-y-2 transition-all duration-200"
+                            class="absolute right-0 mt-2 w-56 bg-faceit-elevated border border-gray-700 rounded-xl shadow-2xl backdrop-blur-sm z-50 opacity-0 invisible transform translate-y-2 transition-all duration-200 max-h-80 overflow-y-auto"
                         >
                             <div class="py-2">
+                                <!-- Danois -->
+                                <button 
+                                    onclick="changeLanguage('da')" 
+                                    class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'da' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
+                                >
+                                    <img src="https://flagcdn.com/w20/dk.png" alt="Dansk" class="w-5 h-5 rounded-full mr-3">
+                                    <span class="flex-1 text-left">{{ __('language.danish') }}</span>
+                                    @if(app()->getLocale() === 'da')
+                                        <i class="fas fa-check text-faceit-orange text-xs"></i>
+                                    @endif
+                                </button>
+                                
+                                <!-- Allemand -->
+                                <button 
+                                    onclick="changeLanguage('de')" 
+                                    class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'de' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
+                                >
+                                    <img src="https://flagcdn.com/w20/de.png" alt="Deutsch" class="w-5 h-5 rounded-full mr-3">
+                                    <span class="flex-1 text-left">{{ __('language.german') }}</span>
+                                    @if(app()->getLocale() === 'de')
+                                        <i class="fas fa-check text-faceit-orange text-xs"></i>
+                                    @endif
+                                </button>
+                                
+                                <!-- Anglais -->
+                                <button 
+                                    onclick="changeLanguage('en')" 
+                                    class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'en' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
+                                >
+                                    <img src="https://flagcdn.com/w20/gb.png" alt="English" class="w-5 h-5 rounded-full mr-3">
+                                    <span class="flex-1 text-left">{{ __('language.english') }}</span>
+                                    @if(app()->getLocale() === 'en')
+                                        <i class="fas fa-check text-faceit-orange text-xs"></i>
+                                    @endif
+                                </button>
+                                
+                                <!-- Espagnol -->
+                                <button 
+                                    onclick="changeLanguage('es')" 
+                                    class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'es' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
+                                >
+                                    <img src="https://flagcdn.com/w20/es.png" alt="Español" class="w-5 h-5 rounded-full mr-3">
+                                    <span class="flex-1 text-left">{{ __('language.spanish') }}</span>
+                                    @if(app()->getLocale() === 'es')
+                                        <i class="fas fa-check text-faceit-orange text-xs"></i>
+                                    @endif
+                                </button>
+                                
+                                <!-- Finnois -->
+                                <button 
+                                    onclick="changeLanguage('fi')" 
+                                    class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'fi' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
+                                >
+                                    <img src="https://flagcdn.com/w20/fi.png" alt="Suomi" class="w-5 h-5 rounded-full mr-3">
+                                    <span class="flex-1 text-left">{{ __('language.finnish') }}</span>
+                                    @if(app()->getLocale() === 'fi')
+                                        <i class="fas fa-check text-faceit-orange text-xs"></i>
+                                    @endif
+                                </button>
+                                
+                                <!-- Français -->
                                 <button 
                                     onclick="changeLanguage('fr')" 
                                     class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'fr' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
@@ -74,13 +146,99 @@
                                         <i class="fas fa-check text-faceit-orange text-xs"></i>
                                     @endif
                                 </button>
+                                
+                                <!-- Italien -->
                                 <button 
-                                    onclick="changeLanguage('en')" 
-                                    class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'en' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
+                                    onclick="changeLanguage('it')" 
+                                    class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'it' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
                                 >
-                                    <img src="https://flagcdn.com/w20/gb.png" alt="English" class="w-5 h-5 rounded-full mr-3">
-                                    <span class="flex-1 text-left">{{ __('language.english') }}</span>
-                                    @if(app()->getLocale() === 'en')
+                                    <img src="https://flagcdn.com/w20/it.png" alt="Italiano" class="w-5 h-5 rounded-full mr-3">
+                                    <span class="flex-1 text-left">{{ __('language.italian') }}</span>
+                                    @if(app()->getLocale() === 'it')
+                                        <i class="fas fa-check text-faceit-orange text-xs"></i>
+                                    @endif
+                                </button>
+                                
+                                <!-- Polonais -->
+                                <button 
+                                    onclick="changeLanguage('pl')" 
+                                    class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'pl' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
+                                >
+                                    <img src="https://flagcdn.com/w20/pl.png" alt="Polski" class="w-5 h-5 rounded-full mr-3">
+                                    <span class="flex-1 text-left">{{ __('language.polish') }}</span>
+                                    @if(app()->getLocale() === 'pl')
+                                        <i class="fas fa-check text-faceit-orange text-xs"></i>
+                                    @endif
+                                </button>
+                                
+                                <!-- Portugais -->
+                                <button 
+                                    onclick="changeLanguage('pt')" 
+                                    class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'pt' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
+                                >
+                                    <img src="https://flagcdn.com/w20/pt.png" alt="Português" class="w-5 h-5 rounded-full mr-3">
+                                    <span class="flex-1 text-left">{{ __('language.portuguese') }}</span>
+                                    @if(app()->getLocale() === 'pt')
+                                        <i class="fas fa-check text-faceit-orange text-xs"></i>
+                                    @endif
+                                </button>
+                                
+                                <!-- Russe -->
+                                <button 
+                                    onclick="changeLanguage('ru')" 
+                                    class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'ru' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
+                                >
+                                    <img src="https://flagcdn.com/w20/ru.png" alt="Русский" class="w-5 h-5 rounded-full mr-3">
+                                    <span class="flex-1 text-left">{{ __('language.russian') }}</span>
+                                    @if(app()->getLocale() === 'ru')
+                                        <i class="fas fa-check text-faceit-orange text-xs"></i>
+                                    @endif
+                                </button>
+                                
+                                <!-- Suédois -->
+                                <button 
+                                    onclick="changeLanguage('sv')" 
+                                    class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'sv' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
+                                >
+                                    <img src="https://flagcdn.com/w20/se.png" alt="Swedish" class="w-5 h-5 rounded-full mr-3">
+                                    <span class="flex-1 text-left">{{ __('language.swedish') }}</span>
+                                    @if(app()->getLocale() === 'sv')
+                                        <i class="fas fa-check text-faceit-orange text-xs"></i>
+                                    @endif
+                                </button>
+                                
+                                <!-- Turc -->
+                                <button 
+                                    onclick="changeLanguage('tr')" 
+                                    class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'tr' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
+                                >
+                                    <img src="https://flagcdn.com/w20/tr.png" alt="Türkçe" class="w-5 h-5 rounded-full mr-3">
+                                    <span class="flex-1 text-left">{{ __('language.turkish') }}</span>
+                                    @if(app()->getLocale() === 'tr')
+                                        <i class="fas fa-check text-faceit-orange text-xs"></i>
+                                    @endif
+                                </button>
+                                
+                                <!-- Ukrainien -->
+                                <button 
+                                    onclick="changeLanguage('uk')" 
+                                    class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'uk' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
+                                >
+                                    <img src="https://flagcdn.com/w20/ua.png" alt="Українська" class="w-5 h-5 rounded-full mr-3">
+                                    <span class="flex-1 text-left">{{ __('language.ukrainian') }}</span>
+                                    @if(app()->getLocale() === 'uk')
+                                        <i class="fas fa-check text-faceit-orange text-xs"></i>
+                                    @endif
+                                </button>
+                                
+                                <!-- Chinois -->
+                                <button 
+                                    onclick="changeLanguage('zh')" 
+                                    class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'zh' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
+                                >
+                                    <img src="https://flagcdn.com/w20/cn.png" alt="中文" class="w-5 h-5 rounded-full mr-3">
+                                    <span class="flex-1 text-left">{{ __('language.chinese') }}</span>
+                                    @if(app()->getLocale() === 'zh')
                                         <i class="fas fa-check text-faceit-orange text-xs"></i>
                                     @endif
                                 </button>
@@ -112,33 +270,75 @@
                         aria-label="Changer de langue"
                     >
                         <div class="w-5 h-5 rounded-full overflow-hidden">
-                            @if(app()->getLocale() === 'fr')
-                                <img src="https://flagcdn.com/w20/fr.png" alt="Français" class="w-full h-full object-cover">
-                            @else
-                                <img src="https://flagcdn.com/w20/gb.png" alt="English" class="w-full h-full object-cover">
-                            @endif
+                            @php
+                                $mobileCurrentFlag = $flagMap[app()->getLocale()] ?? 'gb';
+                            @endphp
+                            <img src="https://flagcdn.com/w20/{{ $mobileCurrentFlag }}.png" alt="{{ __('language.current') }}" class="w-full h-full object-cover">
                         </div>
                     </button>
                     
                     <!-- Dropdown mobile -->
                     <div 
                         id="mobileLangDropdown" 
-                        class="absolute right-0 mt-2 w-40 bg-faceit-elevated border border-gray-700 rounded-xl shadow-2xl z-50 opacity-0 invisible transform translate-y-2 transition-all duration-200"
+                        class="absolute right-0 mt-2 w-48 bg-faceit-elevated border border-gray-700 rounded-xl shadow-2xl z-50 opacity-0 invisible transform translate-y-2 transition-all duration-200 max-h-60 overflow-y-auto"
                     >
                         <div class="py-2">
-                            <button 
-                                onclick="changeLanguage('fr')" 
-                                class="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'fr' ? 'text-white bg-faceit-orange/10' : '' }}"
-                            >
+                            <!-- Répéter toutes les langues pour mobile (version compacte) -->
+                            <button onclick="changeLanguage('da')" class="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'da' ? 'text-white bg-faceit-orange/10' : '' }}">
+                                <img src="https://flagcdn.com/w20/dk.png" alt="Dansk" class="w-4 h-4 rounded-full mr-2">
+                                <span>{{ __('language.danish') }}</span>
+                            </button>
+                            <button onclick="changeLanguage('de')" class="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'de' ? 'text-white bg-faceit-orange/10' : '' }}">
+                                <img src="https://flagcdn.com/w20/de.png" alt="Deutsch" class="w-4 h-4 rounded-full mr-2">
+                                <span>{{ __('language.german') }}</span>
+                            </button>
+                            <button onclick="changeLanguage('en')" class="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'en' ? 'text-white bg-faceit-orange/10' : '' }}">
+                                <img src="https://flagcdn.com/w20/gb.png" alt="English" class="w-4 h-4 rounded-full mr-2">
+                                <span>{{ __('language.english') }}</span>
+                            </button>
+                            <button onclick="changeLanguage('es')" class="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'es' ? 'text-white bg-faceit-orange/10' : '' }}">
+                                <img src="https://flagcdn.com/w20/es.png" alt="Español" class="w-4 h-4 rounded-full mr-2">
+                                <span>{{ __('language.spanish') }}</span>
+                            </button>
+                            <button onclick="changeLanguage('fi')" class="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'fi' ? 'text-white bg-faceit-orange/10' : '' }}">
+                                <img src="https://flagcdn.com/w20/fi.png" alt="Suomi" class="w-4 h-4 rounded-full mr-2">
+                                <span>{{ __('language.finnish') }}</span>
+                            </button>
+                            <button onclick="changeLanguage('fr')" class="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'fr' ? 'text-white bg-faceit-orange/10' : '' }}">
                                 <img src="https://flagcdn.com/w20/fr.png" alt="Français" class="w-4 h-4 rounded-full mr-2">
                                 <span>{{ __('language.french') }}</span>
                             </button>
-                            <button 
-                                onclick="changeLanguage('en')" 
-                                class="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'en' ? 'text-white bg-faceit-orange/10' : '' }}"
-                            >
-                                <img src="https://flagcdn.com/w20/gb.png" alt="English" class="w-4 h-4 rounded-full mr-2">
-                                <span>{{ __('language.english') }}</span>
+                            <button onclick="changeLanguage('it')" class="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'it' ? 'text-white bg-faceit-orange/10' : '' }}">
+                                <img src="https://flagcdn.com/w20/it.png" alt="Italiano" class="w-4 h-4 rounded-full mr-2">
+                                <span>{{ __('language.italian') }}</span>
+                            </button>
+                            <button onclick="changeLanguage('pl')" class="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'pl' ? 'text-white bg-faceit-orange/10' : '' }}">
+                                <img src="https://flagcdn.com/w20/pl.png" alt="Polski" class="w-4 h-4 rounded-full mr-2">
+                                <span>{{ __('language.polish') }}</span>
+                            </button>
+                            <button onclick="changeLanguage('pt')" class="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'pt' ? 'text-white bg-faceit-orange/10' : '' }}">
+                                <img src="https://flagcdn.com/w20/pt.png" alt="Português" class="w-4 h-4 rounded-full mr-2">
+                                <span>{{ __('language.portuguese') }}</span>
+                            </button>
+                            <button onclick="changeLanguage('ru')" class="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'ru' ? 'text-white bg-faceit-orange/10' : '' }}">
+                                <img src="https://flagcdn.com/w20/ru.png" alt="Русский" class="w-4 h-4 rounded-full mr-2">
+                                <span>{{ __('language.russian') }}</span>
+                            </button>
+                            <button onclick="changeLanguage('sv')" class="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'sv' ? 'text-white bg-faceit-orange/10' : '' }}">
+                                <img src="https://flagcdn.com/w20/se.png" alt="Swedish" class="w-4 h-4 rounded-full mr-2">
+                                <span>{{ __('language.swedish') }}</span>
+                            </button>
+                            <button onclick="changeLanguage('tr')" class="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'tr' ? 'text-white bg-faceit-orange/10' : '' }}">
+                                <img src="https://flagcdn.com/w20/tr.png" alt="Türkçe" class="w-4 h-4 rounded-full mr-2">
+                                <span>{{ __('language.turkish') }}</span>
+                            </button>
+                            <button onclick="changeLanguage('uk')" class="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'uk' ? 'text-white bg-faceit-orange/10' : '' }}">
+                                <img src="https://flagcdn.com/w20/ua.png" alt="Українська" class="w-4 h-4 rounded-full mr-2">
+                                <span>{{ __('language.ukrainian') }}</span>
+                            </button>
+                            <button onclick="changeLanguage('zh')" class="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'zh' ? 'text-white bg-faceit-orange/10' : '' }}">
+                                <img src="https://flagcdn.com/w20/cn.png" alt="中文" class="w-4 h-4 rounded-full mr-2">
+                                <span>{{ __('language.chinese') }}</span>
                             </button>
                         </div>
                     </div>
@@ -189,6 +389,24 @@
 // Variables globales pour les traductions
 window.translations = @json($translations ?? []);
 window.currentLocale = @json(app()->getLocale());
+
+// Mapping des langues vers les drapeaux
+const flagMap = {
+    'da': 'dk', // Danois -> Danemark
+    'de': 'de', // Allemand -> Allemagne
+    'en': 'gb', // Anglais -> Royaume-Uni
+    'es': 'es', // Espagnol -> Espagne
+    'fi': 'fi', // Finnois -> Finlande
+    'fr': 'fr', // Français -> France
+    'it': 'it', // Italien -> Italie
+    'pl': 'pl', // Polonais -> Pologne
+    'pt': 'pt', // Portugais -> Portugal
+    'ru': 'ru', // Russe -> Russie
+    'sv': 'se', // Suédois -> Suède
+    'tr': 'tr', // Turc -> Turquie
+    'uk': 'ua', // Ukrainien -> Ukraine
+    'zh': 'cn', // Chinois -> Chine
+};
 
 // Gestion du menu mobile
 document.getElementById('mobileMenuButton').addEventListener('click', function() {
@@ -356,5 +574,28 @@ window.changeLanguage = changeLanguage;
     opacity: 1;
     transform: translateX(0);
     transition: all 0.3s ease;
+}
+
+/* Scroll personnalisé pour le dropdown */
+#languageDropdown::-webkit-scrollbar,
+#mobileLangDropdown::-webkit-scrollbar {
+    width: 4px;
+}
+
+#languageDropdown::-webkit-scrollbar-track,
+#mobileLangDropdown::-webkit-scrollbar-track {
+    background: rgba(75, 85, 99, 0.3);
+    border-radius: 2px;
+}
+
+#languageDropdown::-webkit-scrollbar-thumb,
+#mobileLangDropdown::-webkit-scrollbar-thumb {
+    background: rgba(249, 115, 22, 0.6);
+    border-radius: 2px;
+}
+
+#languageDropdown::-webkit-scrollbar-thumb:hover,
+#mobileLangDropdown::-webkit-scrollbar-thumb:hover {
+    background: rgba(249, 115, 22, 0.8);
 }
 </style>
