@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Faceit Scope - Analysez vos statistiques FACEIT')
+@section('title', __('home.title'))
 
 @section('content')
 <!-- Hero Section -->
@@ -10,21 +10,20 @@
             Faceit <span class="text-faceit-orange">Scope</span>
         </h1>
         <p class="text-lg text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
-            Analysez vos performances FACEIT grâce à des algorithmes avancés 
-            et l'intelligence artificielle. Découvrez vos points forts et améliorez-vous.
+            {{ __('home.hero.subtitle') }}
         </p>
         <div class="flex flex-wrap justify-center gap-6 text-gray-400">
             <div class="flex items-center space-x-2">
                 <span class="w-2 h-2 bg-faceit-orange rounded-full"></span>
-                <span>Statistiques détaillées</span>
+                <span>{{ __('home.hero.features.detailed_stats') }}</span>
             </div>
             <div class="flex items-center space-x-2">
                 <span class="w-2 h-2 bg-faceit-orange rounded-full"></span>
-                <span>Intelligence artificielle</span>
+                <span>{{ __('home.hero.features.artificial_intelligence') }}</span>
             </div>
             <div class="flex items-center space-x-2">
                 <span class="w-2 h-2 bg-faceit-orange rounded-full"></span>
-                <span>Analyses prédictives</span>
+                <span>{{ __('home.hero.features.predictive_analysis') }}</span>
             </div>
         </div>
     </div>
@@ -37,9 +36,9 @@
         <!-- Search Section -->
         <div class="mb-20">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-white mb-4">Commencez l'analyse</h2>
+                <h2 class="text-3xl font-bold text-white mb-4">{{ __('home.search.title') }}</h2>
                 <p class="text-lg text-gray-300 max-w-2xl mx-auto">
-                    Recherchez un joueur ou analysez un match pour découvrir des insights détaillés
+                    {{ __('home.search.subtitle') }}
                 </p>
             </div>
 
@@ -49,21 +48,21 @@
                     <div class="flex items-center mb-4">
                         <div class="w-3 h-3 bg-faceit-orange rounded-full mr-3"></div>
                         <div>
-                            <h3 class="text-lg font-semibold text-white">Rechercher un joueur</h3>
-                            <p class="text-sm text-orange-200">Analysez les performances d'un joueur</p>
+                            <h3 class="text-lg font-semibold text-white">{{ __('home.search.player.title') }}</h3>
+                            <p class="text-sm text-orange-200">{{ __('home.search.player.description') }}</p>
                         </div>
                     </div>
                     <input 
                         id="playerSearchInput" 
                         type="text" 
-                        placeholder="Nom du joueur FACEIT..."
+                        placeholder="{{ __('home.search.player.placeholder') }}"
                         class="w-full px-4 py-3 bg-gray-800/70 border border-orange-500/40 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-faceit-orange focus:border-faceit-orange transition-all"
                     >
                     <button 
                         id="playerSearchButton"
                         class="w-full bg-faceit-orange hover:bg-faceit-orange/90 text-white font-medium py-3 px-4 rounded-lg transition-all shadow-lg shadow-orange-500/20"
                     >
-                        Rechercher
+                        {{ __('home.search.player.button') }}
                     </button>
                 </div>
 
@@ -72,21 +71,21 @@
                     <div class="flex items-center mb-4">
                         <div class="w-3 h-3 bg-purple-400 rounded-full mr-3"></div>
                         <div>
-                            <h3 class="text-lg font-semibold text-white">Analyser un match</h3>
-                            <p class="text-sm text-purple-200">Prédictions IA et analyse approfondie</p>
+                            <h3 class="text-lg font-semibold text-white">{{ __('home.search.match.title') }}</h3>
+                            <p class="text-sm text-purple-200">{{ __('home.search.match.description') }}</p>
                         </div>
                     </div>
                     <input 
                         id="matchSearchInput" 
                         type="text" 
-                        placeholder="ID ou URL du match..."
+                        placeholder="{{ __('home.search.match.placeholder') }}"
                         class="w-full px-4 py-3 bg-gray-800/70 border border-purple-500/40 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all"
                     >
                     <button 
                         id="matchSearchButton"
                         class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-lg transition-all shadow-lg shadow-purple-500/20"
                     >
-                        Analyser
+                        {{ __('home.search.match.button') }}
                     </button>
                 </div>
             </div>
@@ -98,34 +97,34 @@
         <!-- Features Section -->
         <div class="mb-20">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-white mb-4">Fonctionnalités</h2>
+                <h2 class="text-3xl font-bold text-white mb-4">{{ __('home.features.title') }}</h2>
                 <p class="text-lg text-gray-300 max-w-2xl mx-auto">
-                    Des outils puissants pour analyser et améliorer vos performances
+                    {{ __('home.features.subtitle') }}
                 </p>
             </div>
 
             <div class="grid md:grid-cols-3 gap-8">
                 <div class="text-center">
                     <div class="w-4 h-4 bg-green-500 rounded-full mx-auto mb-4"></div>
-                    <h3 class="text-lg font-semibold text-white mb-3">Statistiques avancées</h3>
+                    <h3 class="text-lg font-semibold text-white mb-3">{{ __('home.features.advanced_stats.title') }}</h3>
                     <p class="text-gray-400 leading-relaxed">
-                        Analysez vos performances par carte, suivez votre K/D, headshots et découvrez vos meilleures/pires cartes avec nos algorithmes.
+                        {{ __('home.features.advanced_stats.description') }}
                     </p>
                 </div>
 
                 <div class="text-center">
                     <div class="w-4 h-4 bg-purple-500 rounded-full mx-auto mb-4"></div>
-                    <h3 class="text-lg font-semibold text-white mb-3">Intelligence artificielle</h3>
+                    <h3 class="text-lg font-semibold text-white mb-3">{{ __('home.features.ai.title') }}</h3>
                     <p class="text-gray-400 leading-relaxed">
-                        Prédictions de matchs, identification des joueurs clés, analyse des rôles et recommandations personnalisées basées sur vos données.
+                        {{ __('home.features.ai.description') }}
                     </p>
                 </div>
 
                 <div class="text-center">
                     <div class="w-4 h-4 bg-yellow-500 rounded-full mx-auto mb-4"></div>
-                    <h3 class="text-lg font-semibold text-white mb-3">Analyse de lobby</h3>
+                    <h3 class="text-lg font-semibold text-white mb-3">{{ __('home.features.lobby_analysis.title') }}</h3>
                     <p class="text-gray-400 leading-relaxed">
-                        Découvrez la composition d'un match, les forces en présence et obtenez des prédictions détaillées sur l'issue de la partie.
+                        {{ __('home.features.lobby_analysis.description') }}
                     </p>
                 </div>
             </div>
@@ -137,9 +136,9 @@
         <!-- How it Works Section -->
         <div class="mb-20">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-white mb-4">Comment ça fonctionne</h2>
+                <h2 class="text-3xl font-bold text-white mb-4">{{ __('home.how_it_works.title') }}</h2>
                 <p class="text-lg text-gray-300 max-w-2xl mx-auto">
-                    Une approche scientifique de l'analyse des performances FACEIT
+                    {{ __('home.how_it_works.subtitle') }}
                 </p>
             </div>
 
@@ -148,9 +147,9 @@
                     <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center mx-auto mb-4">
                         <span class="text-gray-900 font-bold">1</span>
                     </div>
-                    <h4 class="text-lg font-semibold text-white mb-3">Récupération des données</h4>
+                    <h4 class="text-lg font-semibold text-white mb-3">{{ __('home.how_it_works.steps.data_collection.title') }}</h4>
                     <p class="text-gray-400 leading-relaxed">
-                        Nous utilisons exclusivement l'API officielle FACEIT pour récupérer toutes vos statistiques de manière transparente et légale.
+                        {{ __('home.how_it_works.steps.data_collection.description') }}
                     </p>
                 </div>
 
@@ -158,9 +157,9 @@
                     <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center mx-auto mb-4">
                         <span class="text-gray-900 font-bold">2</span>
                     </div>
-                    <h4 class="text-lg font-semibold text-white mb-3">Analyse algorithmique</h4>
+                    <h4 class="text-lg font-semibold text-white mb-3">{{ __('home.how_it_works.steps.algorithmic_analysis.title') }}</h4>
                     <p class="text-gray-400 leading-relaxed">
-                        Nos algorithmes analysent vos données avec normalisation, pondération et calculs de confiance pour des insights précis.
+                        {{ __('home.how_it_works.steps.algorithmic_analysis.description') }}
                     </p>
                 </div>
 
@@ -168,15 +167,23 @@
                     <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center mx-auto mb-4">
                         <span class="text-gray-900 font-bold">3</span>
                     </div>
-                    <h4 class="text-lg font-semibold text-white mb-3">Insights personnalisés</h4>
+                    <h4 class="text-lg font-semibold text-white mb-3">{{ __('home.how_it_works.steps.personalized_insights.title') }}</h4>
                     <p class="text-gray-400 leading-relaxed">
-                        Recevez des analyses détaillées, des prédictions et des recommandations pour améliorer vos performances de jeu.
+                        {{ __('home.how_it_works.steps.personalized_insights.description') }}
                     </p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// Injecter les traductions dans le JavaScript 
+window.translations = {!! json_encode([
+    'home' => __('home'),
+]) !!};
+window.currentLocale = '{{ app()->getLocale() }}';
+</script>
 @endsection
 
 @push('scripts')

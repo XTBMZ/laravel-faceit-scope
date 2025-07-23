@@ -1,6 +1,20 @@
 /**
- * Script pour la page d'accueil - Faceit Scope
+ * Script pour la page d'accueil - Faceit Scope (VERSION TRADUITE)
  */
+
+// Fonction de traduction
+function __(key, replacements = {}) {
+    if (!window.translations) return key;
+    
+    let translation = key.split('.').reduce((obj, k) => obj && obj[k], window.translations) || key;
+    
+    // Remplacer les placeholders
+    for (const [placeholder, value] of Object.entries(replacements)) {
+        translation = translation.replace(':' + placeholder, value);
+    }
+    
+    return translation;
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     setupSearchEventListeners();
@@ -18,7 +32,7 @@ function setupSearchEventListeners() {
             if (playerName) {
                 searchPlayer(playerName);
             } else {
-                showError("Veuillez entrer un nom de joueur");
+                showError(__('home.search.errors.empty_player'));
             }
         });
     }
@@ -30,7 +44,7 @@ function setupSearchEventListeners() {
                 if (playerName) {
                     searchPlayer(playerName);
                 } else {
-                    showError("Veuillez entrer un nom de joueur");
+                    showError(__('home.search.errors.empty_player'));
                 }
             }
         });
@@ -46,7 +60,7 @@ function setupSearchEventListeners() {
             if (matchInput) {
                 searchMatch(matchInput);
             } else {
-                showError("Veuillez entrer un ID ou URL de match");
+                showError(__('home.search.errors.empty_match'));
             }
         });
     }
@@ -58,7 +72,7 @@ function setupSearchEventListeners() {
                 if (matchInput) {
                     searchMatch(matchInput);
                 } else {
-                    showError("Veuillez entrer un ID ou URL de match");
+                    showError(__('home.search.errors.empty_match'));
                 }
             }
         });
@@ -83,7 +97,7 @@ async function searchPlayer(playerName) {
     const originalText = button.innerHTML;
     
     // Animation de chargement
-    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Recherche...';
+    button.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>${__('home.search.player.loading')}`;
     button.disabled = true;
     
     try {
@@ -94,7 +108,7 @@ async function searchPlayer(playerName) {
         
         // Vérifier si le joueur a des stats CS2
         if (!player.games || (!player.games.cs2 && !player.games.csgo)) {
-            showError(`Le joueur "${playerName}" n'a jamais joué à CS2/CS:GO sur FACEIT`);
+            showError(__('home.search.errors.no_cs_stats', { player: playerName }));
             return;
         }
         
@@ -104,7 +118,7 @@ async function searchPlayer(playerName) {
             console.log('✅ Statistiques récupérées:', playerStats);
             
             if (!playerStats || (playerStats.errors && playerStats.errors.length > 0)) {
-                showError(`Aucune statistique disponible pour "${playerName}"`);
+                showError(__('home.search.errors.no_stats_available', { player: playerName }));
                 return;
             }
         } catch (statsError) {
@@ -124,16 +138,14 @@ async function searchPlayer(playerName) {
     } catch (error) {
         console.error('❌ Erreur lors de la recherche:', error);
         
-        let errorMessage = `Erreur lors de la recherche de "${playerName}".`;
+        let errorMessage = __('home.search.errors.generic_player', { player: playerName });
         
         if (error.message.includes('404')) {
-            errorMessage = `Le joueur "${playerName}" n'a pas été trouvé sur FACEIT`;
+            errorMessage = __('home.search.errors.player_not_found', { player: playerName });
         } else if (error.message.includes('429')) {
-            errorMessage = "Trop de requêtes. Veuillez patienter un moment.";
+            errorMessage = __('home.search.errors.too_many_requests');
         } else if (error.message.includes('403')) {
-            errorMessage = "Accès interdit. Problème avec la clé API.";
-        } else {
-            errorMessage += " Vérifiez votre connexion.";
+            errorMessage = __('home.search.errors.access_forbidden');
         }
         
         showError(errorMessage);
@@ -151,7 +163,7 @@ async function searchMatch(matchInput) {
     const originalText = button.innerHTML;
     
     // Animation de chargement
-    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Analyse...';
+    button.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>${__('home.search.match.loading')}`;
     button.disabled = true;
     
     try {
@@ -184,18 +196,16 @@ async function searchMatch(matchInput) {
     } catch (error) {
         console.error('❌ Erreur lors de la recherche de match:', error);
         
-        let errorMessage = "Erreur lors de la récupération du match.";
+        let errorMessage = __('home.search.errors.generic_match');
         
         if (error.message.includes('404')) {
-            errorMessage = "Aucun match trouvé avec cet ID ou cette URL";
+            errorMessage = __('home.search.errors.match_not_found');
         } else if (error.message.includes('429')) {
-            errorMessage = "Trop de requêtes. Veuillez patienter un moment.";
+            errorMessage = __('home.search.errors.too_many_requests');
         } else if (error.message.includes('403')) {
-            errorMessage = "Accès interdit. Problème avec la clé API.";
+            errorMessage = __('home.search.errors.access_forbidden');
         } else if (error.message.includes('Format invalide')) {
-            errorMessage = "Format d'ID ou d'URL de match invalide. Exemples valides:\n• 1-73d82823-9d7b-477a-88c4-5ba16045f051\n• https://www.faceit.com/fr/cs2/room/1-73d82823-9d7b-477a-88c4-5ba16045f051";
-        } else {
-            errorMessage += " Vérifiez l'ID ou l'URL.";
+            errorMessage = __('home.search.errors.invalid_format');
         }
         
         showError(errorMessage);
@@ -283,8 +293,8 @@ function showError(message) {
     
     errorContainer.appendChild(errorElement);
     
-    // Auto-hide après 10 secondes pour les erreurs de format
-    const hideDelay = message.includes('Format') ? 12000 : 8000;
+    // Auto-hide après un délai
+    const hideDelay = message.includes(__('home.search.errors.invalid_format')) ? 12000 : 8000;
     setTimeout(() => {
         clearError();
     }, hideDelay);
@@ -301,15 +311,7 @@ function clearError() {
 
 // Fonction d'aide pour les exemples d'URLs
 function showMatchExamples() {
-    const examples = [
-        '1-73d82823-9d7b-477a-88c4-5ba16045f051',
-        'https://www.faceit.com/fr/cs2/room/1-73d82823-9d7b-477a-88c4-5ba16045f051',
-        'https://faceit.com/en/match/73d82823-9d7b-477a-88c4-5ba16045f051'
-    ];
-    
-    const exampleText = examples.join('\n');
-    
-    showError(`Formats d'ID/URL de match acceptés:\n\n${exampleText}`);
+    showError(__('home.search.errors.invalid_format'));
 }
 
 // Export pour usage global
@@ -318,4 +320,4 @@ window.searchMatch = searchMatch;
 window.clearError = clearError;
 window.showMatchExamples = showMatchExamples;
 
-console.log('🏠 Script de la page d\'accueil mis à jour avec succès');
+console.log('🏠 Script de la page d\'accueil traduit avec succès');
