@@ -138,24 +138,6 @@
                 <p class="text-sm text-gray-400">{{ __('advanced.recent_results.last_matches', ['count' => 5]) }}</p>
             </div>
         </section>
-
-        <!-- Actions -->
-        <section>
-            <div class="rounded-2xl p-8 text-center border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
-                <h3 class="text-xl font-bold text-white mb-8">{{ __('advanced.sections.quick_actions') }}</h3>
-                <div class="flex flex-wrap justify-center gap-4">
-                    <button id="comparePlayerBtn" class="bg-faceit-orange hover:bg-faceit-orange-dark px-6 py-3 rounded-xl font-medium transition-all">
-                        <i class="fas fa-balance-scale mr-2"></i>{{ __('advanced.actions.compare_player') }}
-                    </button>
-                    <button id="downloadReportBtn" class="bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-xl font-medium transition-all">
-                        <i class="fas fa-download mr-2"></i>{{ __('advanced.actions.download_report') }}
-                    </button>
-                    <button id="viewProgressionBtn" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-medium transition-all">
-                        <i class="fas fa-chart-line mr-2"></i>{{ __('advanced.actions.view_progression') }}
-                    </button>
-                </div>
-            </div>
-        </section>
     </div>
 </div>
 
