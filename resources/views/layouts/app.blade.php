@@ -336,13 +336,66 @@
             position: relative;
             min-height: calc(100vh - 64px);
         }
+
+        body {
+            padding-top: 64px; /* Hauteur du header normal */
+            transition: padding-top 0.5s ease;
+        }
+
+        /* Adjustment automatique quand la banner est visible */
+        body:has(#extensionTopBanner.show) {
+            padding-top: 124px; /* Header + Banner (64px + 60px) */
+        }
+
+        /* Fallback pour les navigateurs qui ne supportent pas :has() */
+        .banner-active {
+            padding-top: 124px !important;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 64px;
+            }
+            
+            body:has(#extensionTopBanner.show) {
+                padding-top: 120px; /* Ajusté pour mobile */
+            }
+            
+            .banner-active {
+                padding-top: 120px !important;
+            }
+        }
+
+        /* Smooth transitions */
+        .header-fixed {
+            transition: top 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Assurer que le contenu ne soit pas coupé */
+        .page-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Animation pour le contenu quand la banner apparaît */
+        .content-spacing {
+            transition: margin-top 0.5s ease;
+        }
+
     </style>
     
     @stack('styles')
 </head>
 <body class="min-h-screen flex flex-col bg-faceit-dark text-white font-inter">
-    <!-- Header fixe au top -->
-    <div class="header-fixed">
+    
+    {{-- Top Banner Extension (avant le header) --}}
+    @if(request()->routeIs(['home', 'advanced', 'comparison', 'match']))
+        <x-extension-top-banner />
+    @endif
+    
+    <!-- Header (avec ajustement pour la banner) -->
+    <div class="header-fixed" style="top: 0;">
         <x-header />
     </div>
     
@@ -356,7 +409,7 @@
     <!-- Footer -->
     <x-footer />
     
-    <!-- Scripts JavaScript -->
+    <!-- Scripts JavaScript existants -->
     <script src="{{ asset('js/faceit-service.js') }}"></script>
     <script src="{{ asset('js/common.js') }}"></script>
     <script src="{{ asset('js/faceit-auth.js') }}"></script>
@@ -384,6 +437,30 @@
                 showNotification("{{ session('info') }}", 'info');
             @endif
         });
+        
+        // Ajustement dynamique du header quand la banner apparaît/disparaît
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    const banner = document.getElementById('extensionTopBanner');
+                    const header = document.querySelector('.header-fixed');
+                    
+                    if (banner && header) {
+                        if (banner.classList.contains('show')) {
+                            header.style.top = '60px'; // Hauteur de la banner
+                        } else {
+                            header.style.top = '0px';
+                        }
+                    }
+                }
+            });
+        });
+        
+        // Observer la banner pour ajuster le header
+        const bannerElement = document.getElementById('extensionTopBanner');
+        if (bannerElement) {
+            observer.observe(bannerElement, { attributes: true });
+        }
     </script>
 </body>
 </html>
