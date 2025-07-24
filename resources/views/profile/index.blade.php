@@ -3,14 +3,14 @@
 @section('title', 'Mon Profil - Faceit Scope')
 
 @section('content')
-<!-- Page de profil utilisateur -->
-<!-- Fichier: resources/views/profile/index.blade.php -->
+
+
 
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Header du profil -->
+    
     <div class="bg-gradient-to-br from-faceit-card to-faceit-elevated rounded-3xl p-8 mb-8 border border-gray-800">
         <div class="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-6">
-            <!-- Avatar -->
+            
             <div class="relative">
                 <img 
                     src="{{ $user['picture'] ?? '/images/default-avatar.png' }}" 
@@ -21,7 +21,7 @@
                 <div class="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 border-4 border-faceit-dark rounded-full"></div>
             </div>
 
-            <!-- Informations de base -->
+            
             <div class="flex-1 text-center md:text-left">
                 <h1 class="text-3xl font-bold mb-2">{{ $user['nickname'] }}</h1>
                 
@@ -51,7 +51,7 @@
                 </div>
             </div>
 
-            <!-- Actions -->
+            
             <div class="flex flex-col space-y-3">
                 <button 
                     id="syncFaceitBtn"
@@ -70,10 +70,10 @@
         </div>
     </div>
 
-    <!-- Statut des données FACEIT -->
+    
     <div id="faceitDataSection" class="mb-8">
         @if(isset($user['player_data']))
-            <!-- Données FACEIT disponibles -->
+            
             <div class="bg-green-500/20 border border-green-500/50 rounded-2xl p-6 mb-6">
                 <div class="flex items-center justify-between">
                     <div>
@@ -93,7 +93,7 @@
                 </div>
             </div>
 
-            <!-- Informations du joueur FACEIT -->
+            
             <div class="bg-faceit-card rounded-2xl p-6">
                 <h3 class="text-xl font-semibold mb-4">
                     <i class="fas fa-gamepad text-faceit-orange mr-2"></i>Données FACEIT
@@ -154,7 +154,7 @@
                 </div>
             </div>
         @else
-            <!-- Données FACEIT non disponibles -->
+            
             <div class="bg-yellow-500/20 border border-yellow-500/50 rounded-2xl p-6">
                 <div class="text-center">
                     <div class="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -177,7 +177,7 @@
         @endif
     </div>
 
-    <!-- Historique des matches (si disponible) -->
+    
     <div id="matchHistorySection" class="hidden mb-8">
         <div class="bg-faceit-card rounded-2xl p-6">
             <div class="flex items-center justify-between mb-6">
@@ -193,19 +193,19 @@
             </div>
             
             <div id="matchHistoryContent">
-                <!-- Contenu injecté par JavaScript -->
+                
             </div>
         </div>
     </div>
 
-    <!-- Paramètres de compte -->
+    
     <div class="bg-faceit-card rounded-2xl p-6 mb-8">
         <h3 class="text-xl font-semibold mb-6">
             <i class="fas fa-cog text-faceit-orange mr-2"></i>Paramètres du compte
         </h3>
         
         <div class="space-y-6">
-            <!-- Préférences -->
+            
             <div>
                 <h4 class="font-semibold text-gray-300 mb-3">Préférences</h4>
                 <div class="grid md:grid-cols-2 gap-4">
@@ -233,7 +233,7 @@
                 </div>
             </div>
 
-            <!-- Actions de compte -->
+            
             <div>
                 <h4 class="font-semibold text-gray-300 mb-3">Actions</h4>
                 <div class="flex flex-wrap gap-4">
@@ -262,7 +262,7 @@
         </div>
     </div>
 
-    <!-- Zone de danger -->
+    
     <div class="bg-red-500/10 border border-red-500/30 rounded-2xl p-6">
         <h3 class="text-xl font-semibold text-red-400 mb-4">
             <i class="fas fa-exclamation-triangle mr-2"></i>Zone de danger
@@ -285,11 +285,11 @@
     </div>
 </div>
 
-<!-- Modal de confirmation -->
+
 <div id="confirmModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-faceit-card rounded-2xl max-w-md w-full p-6">
         <div id="confirmModalContent">
-            <!-- Contenu injecté par JavaScript -->
+            
         </div>
     </div>
 </div>
@@ -297,7 +297,7 @@
 
 @push('scripts')
 <script>
-    // Variables globales
+    
     window.profileData = {
         user: @json($user),
         hasPlayerData: {{ isset($user['player_data']) ? 'true' : 'false' }}

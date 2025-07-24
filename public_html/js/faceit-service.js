@@ -109,12 +109,12 @@ class FaceitService {
 
         let matchId = matchInput.trim();
 
-        // Si c'est déjà un ID valide
+        
         if (this.isValidMatchId(matchId)) {
             return matchId;
         }
 
-        // Si c'est une URL FACEIT, extraire l'ID
+        
         if (matchId.includes('faceit.com') || matchId.includes('www.faceit.com')) {
             const extractedId = this.extractIdFromUrl(matchId);
             if (extractedId && this.isValidMatchId(extractedId)) {
@@ -122,7 +122,7 @@ class FaceitService {
             }
         }
 
-        // Nettoyage final
+        
         const cleanedId = this.cleanMatchInput(matchId);
         if (this.isValidMatchId(cleanedId)) {
             return cleanedId;
@@ -136,15 +136,15 @@ class FaceitService {
      */
     extractIdFromUrl(url) {
         const patterns = [
-            // Format moderne: /room/{id}
+            
             /\/room\/([a-f0-9\-]+)/i,
-            // Format classique: /match/{id}
+            
             /\/match\/([a-f0-9\-]+)/i,
-            // Format avec paramètres: ?matchId={id}
+            
             /[\?&]matchId=([a-f0-9\-]+)/i,
-            // Format général UUID dans l'URL
+            
             /([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i,
-            // Format avec préfixe numérique: 1-{uuid}
+            
             /(\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i
         ];
 
@@ -162,17 +162,17 @@ class FaceitService {
      * Nettoie l'input du match
      */
     cleanMatchInput(input) {
-        // Supprimer les espaces
+        
         input = input.trim();
         
-        // Supprimer les paramètres d'URL
+        
         input = input.split('?')[0];
         input = input.split('#')[0];
         
-        // Supprimer les slashes de fin
+        
         input = input.replace(/\/$/, '');
         
-        // Supprimer les suffixes communs
+        
         const suffixes = ['/scoreboard', '/stats', '/overview'];
         for (const suffix of suffixes) {
             if (input.endsWith(suffix)) {
@@ -189,17 +189,17 @@ class FaceitService {
     isValidMatchId(matchId) {
         if (!matchId) return false;
         
-        // Format UUID standard
+        
         if (/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(matchId)) {
             return true;
         }
         
-        // Format avec préfixe numérique (ex: 1-uuid)
+        
         if (/^\d+-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(matchId)) {
             return true;
         }
         
-        // Format court FACEIT (parfois utilisé)
+        
         if (/^[a-f0-9]{24}$/i.test(matchId)) {
             return true;
         }
@@ -252,10 +252,10 @@ class FaceitService {
     }
 }
 
-// Instance globale du service
+
 const faceitService = new FaceitService();
 
-// Tests pour debug (peuvent être supprimés en production)
+
 if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
     window.faceitServiceDebug = {
         testUrls: function() {
@@ -273,6 +273,6 @@ if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
     };
 }
 
-// Export pour compatibilité
+
 window.FaceitService = FaceitService;
 window.faceitService = faceitService;

@@ -47,7 +47,7 @@ return [
                 env('MEMCACHED_PASSWORD'),
             ],
             'options' => [
-                // Memcached::OPT_CONNECT_TIMEOUT => 2000,
+                
             ],
             'servers' => [
                 [
@@ -64,17 +64,17 @@ return [
             'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'default'),
         ],
 
-        // Configuration spéciale pour FACEIT avec TTL optimisé
+        
         'faceit' => [
             'driver' => 'redis',
             'connection' => env('REDIS_CACHE_CONNECTION', 'cache'),
             'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'default'),
             'prefix' => 'faceit_scope_',
             'ttl' => [
-                'leaderboards' => 300,    // 5 minutes pour les classements
-                'player_stats' => 600,    // 10 minutes pour les stats joueur
-                'player_profile' => 1800, // 30 minutes pour les profils
-                'search_results' => 120,  // 2 minutes pour les recherches
+                'leaderboards' => 300,    
+                'player_stats' => 600,    
+                'player_profile' => 1800, 
+                'search_results' => 120,  
             ]
         ],
 

@@ -3,7 +3,7 @@
 @section('title', __('privacy.title'))
 
 @section('content')
-<!-- Header minimaliste -->
+
 <div class="py-20" style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);">
     <div class="max-w-5xl mx-auto px-6">
         <div class="text-center">
@@ -14,12 +14,12 @@
     </div>
 </div>
 
-<!-- Contenu principal -->
+
 <div style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
     <div class="max-w-5xl mx-auto px-6 py-16">
         <div class="prose prose-lg max-w-none">
             
-            <!-- 1. Introduction -->
+            
             <div class="mb-16">
                 <h2 class="text-2xl font-semibold text-white mb-6">{{ __('privacy.introduction.title') }}</h2>
                 <p class="text-gray-300 leading-relaxed">
@@ -27,7 +27,7 @@
                 </p>
             </div>
 
-            <!-- 2. Données collectées -->
+            
             <div class="mb-16">
                 <h2 class="text-2xl font-semibold text-white mb-6">{{ __('privacy.data_collected.title') }}</h2>
                 
@@ -55,7 +55,7 @@
                 </div>
             </div>
 
-            <!-- 3. Utilisation des données -->
+            
             <div class="mb-16">
                 <h2 class="text-2xl font-semibold text-white mb-6">{{ __('privacy.data_usage.title') }}</h2>
                 <p class="text-gray-300 mb-4">{{ __('privacy.data_usage.description') }}</p>
@@ -67,7 +67,7 @@
                 </ul>
             </div>
 
-            <!-- 4. Partage des données -->
+            
             <div class="mb-16">
                 <h2 class="text-2xl font-semibold text-white mb-6">{{ __('privacy.data_sharing.title') }}</h2>
                 
@@ -90,7 +90,7 @@
                 </div>
             </div>
 
-            <!-- 5. Sécurité et conservation -->
+            
             <div class="mb-16">
                 <h2 class="text-2xl font-semibold text-white mb-6">{{ __('privacy.security.title') }}</h2>
                 
@@ -113,7 +113,7 @@
                 </div>
             </div>
 
-            <!-- 6. Vos droits -->
+            
             <div class="mb-16">
                 <h2 class="text-2xl font-semibold text-white mb-6">{{ __('privacy.user_rights.title') }}</h2>
                 
@@ -136,7 +136,7 @@
                 </div>
             </div>
 
-            <!-- 7. Cookies et technologies de suivi -->
+            
             <div class="mb-16">
                 <h2 class="text-2xl font-semibold text-white mb-6">{{ __('privacy.cookies.title') }}</h2>
                 <p class="text-gray-300 mb-6">{{ __('privacy.cookies.description') }}</p>
@@ -160,7 +160,7 @@
                 </div>
             </div>
 
-            <!-- 8. Mises à jour de cette politique -->
+            
             <div class="mb-16">
                 <h2 class="text-2xl font-semibold text-white mb-6">{{ __('privacy.policy_updates.title') }}</h2>
                 <p class="text-gray-300">
@@ -168,7 +168,7 @@
                 </p>
             </div>
 
-            <!-- 9. Contact -->
+            
             <div class="mb-16">
                 <h2 class="text-2xl font-semibold text-white mb-6">{{ __('privacy.contact.title') }}</h2>
                 <p class="text-gray-300 mb-4">{{ __('privacy.contact.description') }}</p>
@@ -182,7 +182,7 @@
                 </div>
             </div>
 
-            <!-- 10. Conformité réglementaire -->
+            
             <div class="mb-16">
                 <h2 class="text-2xl font-semibold text-white mb-6">{{ __('privacy.compliance.title') }}</h2>
                 <p class="text-gray-300 mb-4">{{ __('privacy.compliance.description') }}</p>

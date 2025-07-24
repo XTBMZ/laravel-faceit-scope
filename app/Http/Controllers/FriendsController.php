@@ -56,7 +56,7 @@ class FriendsController extends Controller
                 ]);
             }
 
-            // Retourner seulement les données essentielles
+            
             $safeUserData = [
                 'id' => $user['id'],
                 'nickname' => $user['nickname'],
@@ -96,7 +96,7 @@ class FriendsController extends Controller
                 ], 401);
             }
 
-            // Stats par défaut - le JavaScript calculera les vraies stats
+            
             return response()->json([
                 'success' => true,
                 'stats' => [

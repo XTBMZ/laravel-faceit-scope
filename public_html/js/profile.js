@@ -12,7 +12,7 @@ function initializeProfilePage() {
 }
 
 function setupEventListeners() {
-    // Synchronisation FACEIT
+    
     const syncBtn = document.getElementById('syncFaceitBtn');
     const syncRetryBtn = document.getElementById('syncRetryBtn');
     
@@ -24,13 +24,13 @@ function setupEventListeners() {
         syncRetryBtn.addEventListener('click', syncFaceitData);
     }
 
-    // Export des données
+    
     const exportBtn = document.getElementById('exportDataBtn');
     if (exportBtn) {
         exportBtn.addEventListener('click', exportUserData);
     }
 
-    // Historique des matches
+    
     const historyBtn = document.getElementById('historyBtn');
     const closeHistoryBtn = document.getElementById('closeHistoryBtn');
     
@@ -42,7 +42,7 @@ function setupEventListeners() {
         closeHistoryBtn.addEventListener('click', closeMatchHistory);
     }
 
-    // Actions de profil
+    
     const updateBtn = document.getElementById('updateProfileBtn');
     if (updateBtn) {
         updateBtn.addEventListener('click', updateProfile);
@@ -53,13 +53,13 @@ function setupEventListeners() {
         clearCacheBtn.addEventListener('click', clearCache);
     }
 
-    // Déconnexion
+    
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', confirmLogout);
     }
 
-    // Suppression de compte
+    
     const deleteBtn = document.getElementById('deleteAccountBtn');
     if (deleteBtn) {
         deleteBtn.addEventListener('click', confirmDeleteAccount);
@@ -93,7 +93,7 @@ async function syncFaceitData() {
         if (data.success) {
             showSuccess('Données FACEIT synchronisées avec succès !');
             
-            // Rafraîchir la page pour afficher les nouvelles données
+            
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
@@ -283,7 +283,7 @@ async function updateProfile() {
         if (data.success) {
             showSuccess('Profil mis à jour avec succès !');
             
-            // Mettre à jour les données globales si nécessaire
+            
             if (data.user && window.faceitAuth) {
                 window.faceitAuth.currentUser = data.user;
                 window.faceitAuth.updateUI();
@@ -306,7 +306,7 @@ async function updateProfile() {
  */
 function clearCache() {
     try {
-        // Vider localStorage
+        
         const keys = Object.keys(localStorage);
         const faceitKeys = keys.filter(key => 
             key.includes('faceit') || 
@@ -318,7 +318,7 @@ function clearCache() {
             localStorage.removeItem(key);
         });
 
-        // Vider sessionStorage
+        
         const sessionKeys = Object.keys(sessionStorage);
         const faceitSessionKeys = sessionKeys.filter(key => 
             key.includes('faceit') || 
@@ -375,8 +375,8 @@ function confirmDeleteAccount() {
  */
 async function deleteAccount() {
     try {
-        // Pour l'instant, on fait juste une déconnexion
-        // TODO: Implémenter la vraie suppression côté serveur
+        
+        
         
         showSuccess('Données supprimées. Vous allez être déconnecté...');
         
@@ -427,7 +427,7 @@ function showConfirmModal(title, message, confirmText, onConfirm, confirmClass =
         </div>
     `;
 
-    // Event listeners
+    
     document.getElementById('cancelModalBtn').addEventListener('click', () => {
         modal.classList.add('hidden');
     });
@@ -437,7 +437,7 @@ function showConfirmModal(title, message, confirmText, onConfirm, confirmClass =
         onConfirm();
     });
 
-    // Fermer en cliquant à l'extérieur
+    
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             modal.classList.add('hidden');

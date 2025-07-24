@@ -15,22 +15,22 @@
         window.currentLocale = '{{ app()->getLocale() }}';
     </script>
     
-    <!-- Tailwind CSS -->
+    
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Font Awesome -->
+    
     <script src="https://kit.fontawesome.com/17efb607eb.js" crossorigin="anonymous"></script>
     
-    <!-- Google Fonts -->
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- jQuery -->
+    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-    <!-- Chart.js -->
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- Configuration Tailwind -->
+    
     <script>
         tailwind.config = {
             theme: {
@@ -76,7 +76,7 @@
         }
     </script>
     
-    <!-- Styles CSS personnalisés -->
+    
     <style>
         .glass-effect {
             background: rgba(26, 26, 26, 0.8);
@@ -394,22 +394,22 @@
         <x-extension-top-banner />
     @endif
     
-    <!-- Header (avec ajustement pour la banner) -->
+    
     <div class="header-fixed" style="top: 0;">
         <x-header />
     </div>
     
-    <!-- Main Content avec espacement approprié -->
+    
     <main class="flex-grow content-spacing">
         <div class="page-content">
             @yield('content')
         </div>
     </main>
     
-    <!-- Footer -->
+    
     <x-footer />
     
-    <!-- Scripts JavaScript existants -->
+    
     <script src="{{ asset('js/faceit-service.js') }}"></script>
     <script src="{{ asset('js/common.js') }}"></script>
     <script src="{{ asset('js/faceit-auth.js') }}"></script>
@@ -417,10 +417,10 @@
     @stack('scripts')
 
     <script>
-        // Initialisation générale après chargement complet
+        
         document.addEventListener('DOMContentLoaded', function() {
             
-            // Afficher les messages flash de session
+            
             @if(session('success'))
                 showNotification("{{ session('success') }}", 'success');
             @endif
@@ -438,7 +438,7 @@
             @endif
         });
         
-        // Ajustement dynamique du header quand la banner apparaît/disparaît
+        
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
@@ -447,7 +447,7 @@
                     
                     if (banner && header) {
                         if (banner.classList.contains('show')) {
-                            header.style.top = '60px'; // Hauteur de la banner
+                            header.style.top = '60px'; 
                         } else {
                             header.style.top = '0px';
                         }
@@ -456,7 +456,7 @@
             });
         });
         
-        // Observer la banner pour ajuster le header
+        
         const bannerElement = document.getElementById('extensionTopBanner');
         if (bannerElement) {
             observer.observe(bannerElement, { attributes: true });

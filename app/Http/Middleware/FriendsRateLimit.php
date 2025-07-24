@@ -21,9 +21,9 @@ class FriendsRateLimit
 
         $key = "friends_rate_limit_{$userId}";
         $maxRequests = config('friends.rate_limiting.requests_per_minute', 30);
-        $windowSize = 60; // 1 minute
+        $windowSize = 60; 
 
-        // Récupérer le compteur actuel
+        
         $requests = Cache::get($key, 0);
 
         if ($requests >= $maxRequests) {
@@ -39,12 +39,12 @@ class FriendsRateLimit
             ], 429);
         }
 
-        // Incrémenter le compteur
+        
         Cache::put($key, $requests + 1, $windowSize);
 
         $response = $next($request);
 
-        // Ajouter des headers informatifs
+        
         $response->headers->set('X-RateLimit-Limit', $maxRequests);
         $response->headers->set('X-RateLimit-Remaining', max(0, $maxRequests - $requests - 1));
         $response->headers->set('X-RateLimit-Reset', time() + $windowSize);
@@ -54,7 +54,7 @@ class FriendsRateLimit
 
     private function getUserId(Request $request)
     {
-        // Récupérer l'ID utilisateur depuis la session FACEIT
+        
         $user = $request->session()->get('faceit_user');
         return $user['id'] ?? null;
     }

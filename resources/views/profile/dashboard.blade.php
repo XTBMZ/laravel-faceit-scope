@@ -3,13 +3,13 @@
 @section('title', 'Mon Profil - Faceit Scope')
 
 @section('content')
-<!-- Hero Section Profile -->
+
 <div class="relative overflow-hidden bg-gradient-to-br from-faceit-dark via-gray-900 to-faceit-dark">
-    <!-- Background Pattern -->
+    
     <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
     
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <!-- Profile Header -->
+        
         <div class="text-center mb-12">
             <div class="relative inline-block mb-6">
                 <img 
@@ -55,7 +55,7 @@
                 @endif
             </div>
 
-            <!-- Quick Actions -->
+            
             <div class="flex flex-wrap justify-center gap-4">
                 @if(isset($user['player_data']['player_id']))
                     <a 
@@ -86,7 +86,7 @@
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
     @if(isset($user['player_data']))
-        <!-- FACEIT Stats Overview -->
+        
         <section class="animate-slide-up">
             <div class="flex items-center mb-6">
                 <h2 class="text-2xl font-bold text-gradient">Vue d'ensemble FACEIT</h2>
@@ -94,7 +94,7 @@
             </div>
             
             <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
-                <!-- Niveau FACEIT -->
+                
                 <div class="bg-faceit-card rounded-xl p-6 text-center hover:scale-105 transition-transform">
                     <div class="relative mb-4">
                         <img 
@@ -107,7 +107,7 @@
                     <div class="text-sm text-gray-400">Niveau</div>
                 </div>
 
-                <!-- ELO -->
+                
                 <div class="bg-faceit-card rounded-xl p-6 text-center hover:scale-105 transition-transform">
                     <div class="w-12 h-12 bg-gradient-to-r from-faceit-orange to-red-500 rounded-xl flex items-center justify-center mx-auto mb-4">
                         <i class="fas fa-trophy text-white text-xl"></i>
@@ -117,7 +117,7 @@
                 </div>
 
                 @if($playerStats)
-                    <!-- Win Rate -->
+                    
                     <div class="bg-faceit-card rounded-xl p-6 text-center hover:scale-105 transition-transform">
                         <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-percentage text-white text-xl"></i>
@@ -126,7 +126,7 @@
                         <div class="text-sm text-gray-400">Victoires</div>
                     </div>
 
-                    <!-- K/D Ratio -->
+                    
                     <div class="bg-faceit-card rounded-xl p-6 text-center hover:scale-105 transition-transform">
                         <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-crosshairs text-white text-xl"></i>
@@ -135,7 +135,7 @@
                         <div class="text-sm text-gray-400">K/D</div>
                     </div>
 
-                    <!-- Headshots -->
+                    
                     <div class="bg-faceit-card rounded-xl p-6 text-center hover:scale-105 transition-transform">
                         <div class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-bullseye text-white text-xl"></i>
@@ -144,7 +144,7 @@
                         <div class="text-sm text-gray-400">Headshots</div>
                     </div>
 
-                    <!-- Matches -->
+                    
                     <div class="bg-faceit-card rounded-xl p-6 text-center hover:scale-105 transition-transform">
                         <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-gamepad text-white text-xl"></i>
@@ -157,7 +157,7 @@
         </section>
 
         @if($recentMatches && isset($recentMatches['items']) && count($recentMatches['items']) > 0)
-            <!-- Recent Matches -->
+            
             <section class="animate-slide-up" style="animation-delay: 0.2s">
                 <div class="flex items-center mb-6">
                     <h2 class="text-2xl font-bold text-gradient">Matches récents</h2>
@@ -171,7 +171,7 @@
                                 $isWin = false;
                                 $userTeam = null;
                                 
-                                // Déterminer l'équipe du joueur et si c'est une victoire
+                                
                                 foreach($match['teams'] as $teamId => $team) {
                                     if(in_array($user['player_data']['player_id'], array_column($team['roster'], 'player_id'))) {
                                         $userTeam = $teamId;
@@ -232,7 +232,7 @@
             </section>
         @endif
     @else
-        <!-- No FACEIT Data -->
+        
         <section class="text-center py-16">
             <div class="max-w-md mx-auto">
                 <div class="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -254,7 +254,7 @@
     @endif
 </div>
 
-<!-- Loading Modal -->
+
 <div id="loadingModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center">
     <div class="bg-faceit-card rounded-2xl p-8 text-center">
         <div class="animate-spin rounded-full h-12 w-12 border-4 border-gray-600 border-t-faceit-orange mx-auto mb-4"></div>
@@ -266,7 +266,7 @@
 
 @push('scripts')
 <script>
-    // Variables globales
+    
     window.profileData = {
         user: @json($user),
         hasPlayerData: {{ isset($user['player_data']) ? 'true' : 'false' }},

@@ -45,7 +45,7 @@ class FaceitAuthController extends Controller
     public function handleFaceitCallback(Request $request)
     {
         try {
-            // Vérifier la présence du code et de l'état
+            
             $authorizationCode = $request->get('code');
             $state = $request->get('state');
             $error = $request->get('error');
@@ -69,23 +69,23 @@ class FaceitAuthController extends Controller
                 return redirect()->route('home')->with('error', 'État OAuth manquant');
             }
 
-            // Échanger le code contre un token
+            
             $tokenData = $this->faceitOAuth->exchangeCodeForToken($authorizationCode, $state);
             
             if (!isset($tokenData['access_token'])) {
                 throw new \Exception('Token d\'accès manquant dans la réponse');
             }
 
-            // Récupérer les informations utilisateur
+            
             $userInfo = $this->faceitOAuth->getUserInfo($tokenData['access_token']);
             
-            // Essayer de récupérer les données complètes du joueur
+            
             $playerData = null;
             if (isset($userInfo['sub'])) {
                 $playerData = $this->faceitOAuth->getPlayerData($tokenData['access_token'], $userInfo['sub']);
             }
 
-            // Stocker en session
+            
             $userData = $this->faceitOAuth->storeUserSession($userInfo, $tokenData['access_token'], $playerData);
 
             Log::info('FACEIT Auth: Connexion réussie', [
@@ -94,7 +94,7 @@ class FaceitAuthController extends Controller
                 'has_player_data' => $playerData !== null
             ]);
 
-            // Rediriger vers le profil ou la page d'accueil
+            
             $redirectUrl = $playerData && isset($playerData['player_id']) 
                 ? route('advanced', ['playerId' => $playerData['player_id'], 'playerNickname' => $userData['nickname']])
                 : route('home');
@@ -152,7 +152,7 @@ class FaceitAuthController extends Controller
                 ]);
             }
 
-            // Retourner les données sans le token d'accès pour la sécurité
+            
             $safeUserData = $user;
             unset($safeUserData['access_token']);
 
@@ -231,7 +231,7 @@ class FaceitAuthController extends Controller
                 ]);
             }
 
-            // Traiter l'authentification
+            
             $tokenData = $this->faceitOAuth->exchangeCodeForToken($authorizationCode, $state);
             $userInfo = $this->faceitOAuth->getUserInfo($tokenData['access_token']);
             

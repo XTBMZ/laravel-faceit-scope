@@ -20,16 +20,16 @@ class LanguageController extends Controller
      */
     public function setLanguage(Request $request, string $locale)
     {
-        // Vérifier que la langue est supportée
+        
         if (!in_array($locale, $this->supportedLocales)) {
             return back()->with('error', 'Langue non supportée');
         }
 
-        // Sauvegarder en session
+        
         Session::put('locale', $locale);
         App::setLocale($locale);
 
-        // Rediriger vers la page précédente ou l'accueil
+        
         $referer = $request->header('referer');
         if ($referer && $referer !== url()->current()) {
             return redirect($referer)->with('success', __('language.changed_successfully'));
@@ -62,7 +62,7 @@ class LanguageController extends Controller
     {
         $locale = App::getLocale();
         
-        // Fichiers de traduction à inclure dans JavaScript
+        
         $translationFiles = [
             'common',
             'friends',
@@ -84,7 +84,7 @@ class LanguageController extends Controller
             if (file_exists($filePath)) {
                 $translations[$file] = include $filePath;
             } else {
-                // Fallback vers l'anglais si le fichier n'existe pas
+                
                 $fallbackPath = resource_path("lang/en/{$file}.php");
                 if (file_exists($fallbackPath)) {
                     $translations[$file] = include $fallbackPath;

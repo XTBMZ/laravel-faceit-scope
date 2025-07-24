@@ -23,7 +23,7 @@ class ContactController extends Controller
      */
     public function submit(Request $request): JsonResponse
     {
-        // Rate limiting pour éviter le spam
+        
         $key = 'contact-form:' . $request->ip();
         if (RateLimiter::tooManyAttempts($key, 5)) {
             return response()->json([
@@ -33,7 +33,7 @@ class ContactController extends Controller
             ], 429);
         }
 
-        // Validation des données
+        
         $validated = $request->validate([
             'email' => 'nullable|email|max:255',
             'pseudo' => 'nullable|string|max:100',
@@ -52,10 +52,10 @@ class ContactController extends Controller
         ]);
 
         try {
-            // Incrémenter le rate limiter
-            RateLimiter::hit($key, 300); // 5 minutes
+            
+            RateLimiter::hit($key, 300); 
 
-            // Données pour l'email
+            
             $emailData = [
                 'email' => $validated['email'] ?? 'Non fourni',
                 'pseudo' => $validated['pseudo'] ?? 'Non fourni',
@@ -68,11 +68,11 @@ class ContactController extends Controller
                 'ticket_id' => 'FS' . time() . rand(100, 999)
             ];
 
-            // Envoyer l'email avec la classe Mailable
+            
             Mail::to(config('mail.contact.recipient', 'support@faceitscope.com'))
                 ->send(new \App\Mail\ContactFormMail($emailData));
 
-            // Log pour suivi
+            
             Log::info('Formulaire de contact soumis', [
                 'ticket_id' => $emailData['ticket_id'],
                 'type' => $validated['type'],

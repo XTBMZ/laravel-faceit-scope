@@ -24,17 +24,17 @@ class MatchController extends Controller
     public function getMatchData(Request $request, $matchId)
     {
         try {
-            // Nettoyer l'ID du match
+            
             $cleanMatchId = $this->faceitService->extractMatchId($matchId);
             
-            // Récupérer les données du match
+            
             $match = $this->faceitService->getMatch($cleanMatchId);
             
             if (!$match) {
                 return response()->json(['error' => 'Match non trouvé'], 404);
             }
 
-            // Récupérer les statistiques du match si disponibles
+            
             $matchStats = null;
             try {
                 $matchStats = $this->faceitService->getMatchStats($cleanMatchId);
@@ -42,10 +42,10 @@ class MatchController extends Controller
                 Log::warning("Impossible de récupérer les stats du match {$cleanMatchId}: " . $e->getMessage());
             }
 
-            // Enrichir les données des joueurs
+            
             $enrichedMatch = $this->enrichMatchData($match);
             
-            // Effectuer l'analyse avancée
+            
             $analysis = $this->performMatchAnalysis($enrichedMatch);
 
             return response()->json([
@@ -73,11 +73,11 @@ class MatchController extends Controller
             
             foreach ($team['roster'] as $player) {
                 try {
-                    // Récupérer les données complètes du joueur
+                    
                     $playerData = $this->faceitService->getPlayer($player['player_id']);
                     $playerStats = $this->faceitService->getPlayerStats($player['player_id']);
                     
-                    // Analyser les performances du joueur
+                    
                     $playerAnalysis = $this->analyzePlayerPerformance($playerData, $playerStats);
                     
                     $enrichedPlayers[] = array_merge($player, [
@@ -109,20 +109,20 @@ class MatchController extends Controller
         $lifetime = $playerStats['lifetime'];
         $segments = $playerStats['segments'] ?? [];
 
-        // Calculs des métriques de base
+        
         $matches = intval($lifetime['Matches'] ?? 0);
         $winRate = floatval($lifetime['Win Rate %'] ?? 0);
         $kd = floatval($lifetime['Average K/D Ratio'] ?? 0);
         $hsRate = floatval($lifetime['Average Headshots %'] ?? 0);
         $avgKills = floatval($lifetime['Average Kills'] ?? 0);
 
-        // Analyse des cartes
+        
         $mapAnalysis = $this->analyzePlayerMaps($segments);
         
-        // Calcul du niveau de menace
+        
         $threatLevel = $this->calculateThreatLevel($playerData, $lifetime, $mapAnalysis);
         
-        // Calcul des métriques avancées
+        
         $performanceMetrics = $this->calculateAdvancedMetrics($lifetime);
 
         return [
@@ -154,12 +154,12 @@ class MatchController extends Controller
             $hs = floatval($segment['stats']['Average Headshots %'] ?? 0);
             $kills = floatval($segment['stats']['Average Kills'] ?? 0);
             
-            // Ignorer les cartes avec trop peu de matches
+            
             if ($matches < 3) continue;
             
             $winRate = $matches > 0 ? ($wins / $matches) * 100 : 0;
             
-            // Score composite basé sur plusieurs métriques
+            
             $performanceScore = $this->calculateMapPerformanceScore($winRate, $kd, $hs, $kills, $matches);
             
             $mapStats[] = [
@@ -177,7 +177,7 @@ class MatchController extends Controller
             return ['best' => null, 'worst' => null];
         }
         
-        // Trier par score de performance
+        
         usort($mapStats, function($a, $b) {
             return $b['performance_score'] <=> $a['performance_score'];
         });
@@ -191,19 +191,19 @@ class MatchController extends Controller
 
     private function calculateMapPerformanceScore($winRate, $kd, $hsRate, $avgKills, $matches)
     {
-        // Pondération basée sur des standards professionnels CS2
+        
         $winRateWeight = 0.4;
         $kdWeight = 0.25;
         $hsWeight = 0.15;
         $killsWeight = 0.15;
         $experienceWeight = 0.05;
         
-        // Normalisation des valeurs
-        $normalizedWinRate = min($winRate / 70, 1); // 70% = excellent
-        $normalizedKD = min($kd / 1.3, 1); // 1.3 = très bon
-        $normalizedHS = min($hsRate / 55, 1); // 55% = excellent
-        $normalizedKills = min($avgKills / 20, 1); // 20 kills = excellent
-        $experienceBonus = min($matches / 50, 1); // Bonus pour l'expérience
+        
+        $normalizedWinRate = min($winRate / 70, 1); 
+        $normalizedKD = min($kd / 1.3, 1); 
+        $normalizedHS = min($hsRate / 55, 1); 
+        $normalizedKills = min($avgKills / 20, 1); 
+        $experienceBonus = min($matches / 50, 1); 
         
         return ($normalizedWinRate * $winRateWeight) +
                ($normalizedKD * $kdWeight) +
@@ -220,12 +220,12 @@ class MatchController extends Controller
         $winRate = floatval($lifetime['Win Rate %'] ?? 0);
         $matches = intval($lifetime['Matches'] ?? 0);
         
-        // Calcul du niveau de menace sur 100
-        $eloScore = min(($elo - 1000) / 2000, 1) * 25; // 25% pour l'ELO
-        $levelScore = ($level / 10) * 20; // 20% pour le niveau
-        $kdScore = min($kd / 1.5, 1) * 25; // 25% pour le K/D
-        $winRateScore = ($winRate / 100) * 20; // 20% pour le taux de victoire
-        $experienceScore = min($matches / 1000, 1) * 10; // 10% pour l'expérience
+        
+        $eloScore = min(($elo - 1000) / 2000, 1) * 25; 
+        $levelScore = ($level / 10) * 20; 
+        $kdScore = min($kd / 1.5, 1) * 25; 
+        $winRateScore = ($winRate / 100) * 20; 
+        $experienceScore = min($matches / 1000, 1) * 10; 
         
         $totalScore = $eloScore + $levelScore + $kdScore + $winRateScore + $experienceScore;
         
@@ -253,7 +253,7 @@ class MatchController extends Controller
 
     private function calculateConsistency($kd, $hsRate, $winRate)
     {
-        // Plus les stats sont équilibrées, plus la consistance est élevée
+        
         $kdNorm = min($kd / 1.2, 1);
         $hsNorm = min($hsRate / 50, 1);
         $winNorm = $winRate / 100;
@@ -263,7 +263,7 @@ class MatchController extends Controller
 
     private function calculateAggressiveness($avgKills, $kd)
     {
-        // Basé sur le nombre de kills et le ratio K/D
+        
         $killsScore = min($avgKills / 18, 1) * 60;
         $kdScore = min($kd / 1.5, 1) * 40;
         
@@ -272,7 +272,7 @@ class MatchController extends Controller
 
     private function calculatePrecision($hsRate, $kd)
     {
-        // Basé principalement sur le taux de headshots
+        
         $hsScore = min($hsRate / 60, 1) * 70;
         $kdBonus = min($kd / 1.3, 1) * 30;
         
@@ -281,7 +281,7 @@ class MatchController extends Controller
 
     private function calculateImpact($kd, $winRate, $avgKills)
     {
-        // Impact global sur les matches
+        
         $kdWeight = 0.4;
         $winWeight = 0.4;
         $killsWeight = 0.2;
@@ -302,10 +302,10 @@ class MatchController extends Controller
             $teamAnalysis[$teamId] = $this->analyzeTeam($team);
         }
         
-        // Prédictions
+        
         $predictions = $this->generateMatchPredictions($teamAnalysis, $teams);
         
-        // Recommandations de map pool
+        
         $mapRecommendations = $this->generateMapRecommendations($teamAnalysis);
         
         return [
@@ -343,7 +343,7 @@ class MatchController extends Controller
             
             $validPlayers++;
             
-            // Accumulation des stats
+            
             $avgStats['elo'] += $playerData['games']['cs2']['faceit_elo'] ?? 1000;
             $avgStats['level'] += $playerData['games']['cs2']['skill_level'] ?? 1;
             $avgStats['kd'] += floatval($stats['lifetime']['Average K/D Ratio'] ?? 0);
@@ -360,7 +360,7 @@ class MatchController extends Controller
             }
         }
         
-        // Calcul des moyennes
+        
         if ($validPlayers > 0) {
             foreach ($avgStats as $key => $value) {
                 $avgStats[$key] = round($value / $validPlayers, 1);
@@ -381,7 +381,7 @@ class MatchController extends Controller
     {
         $mapCounts = ['best' => [], 'worst' => []];
         
-        // Compter les préférences individuelles
+        
         foreach ($bestMaps as $map) {
             $mapName = $map['name'];
             if (!isset($mapCounts['best'][$mapName])) {
@@ -400,7 +400,7 @@ class MatchController extends Controller
             $mapCounts['worst'][$mapName]['total_score'] += $map['performance_score'];
         }
         
-        // Calculer les moyennes et identifier les meilleures/pires cartes d'équipe
+        
         foreach ($mapCounts['best'] as $mapName => &$data) {
             $data['avg_score'] = $data['total_score'] / $data['count'];
         }
@@ -409,7 +409,7 @@ class MatchController extends Controller
             $data['avg_score'] = $data['total_score'] / $data['count'];
         }
         
-        // Trier par score et nombre de votes
+        
         uasort($mapCounts['best'], function($a, $b) {
             if ($a['count'] == $b['count']) {
                 return $b['avg_score'] <=> $a['avg_score'];
@@ -436,18 +436,18 @@ class MatchController extends Controller
         $team1Stats = $teamAnalysis[array_keys($teamAnalysis)[0]]['average_stats'];
         $team2Stats = $teamAnalysis[array_keys($teamAnalysis)[1]]['average_stats'];
         
-        // Calculer les probabilités basées sur les stats
+        
         $eloAdvantage = ($team1Stats['elo'] - $team2Stats['elo']) / 100;
         $threatAdvantage = ($team1Stats['threat_score'] - $team2Stats['threat_score']) / 10;
         $kdAdvantage = ($team1Stats['kd'] - $team2Stats['kd']) * 30;
         
         $team1Advantage = $eloAdvantage + $threatAdvantage + $kdAdvantage;
         
-        // Convertir en probabilité (50% base + avantage)
+        
         $team1WinProb = 50 + min(max($team1Advantage, -45), 45);
         $team2WinProb = 100 - $team1WinProb;
         
-        // Identifier le MVP potentiel
+        
         $potentialMVP = $this->predictMVP($teamAnalysis, $teams);
         
         return [
@@ -484,7 +484,7 @@ class MatchController extends Controller
             }
         }
         
-        // Trier par score MVP
+        
         usort($allPlayers, function($a, $b) {
             return $b['mvp_score'] <=> $a['mvp_score'];
         });
@@ -506,7 +506,7 @@ class MatchController extends Controller
         $avgKills = floatval($stats['Average Kills'] ?? 0);
         $winRate = floatval($stats['Win Rate %'] ?? 0);
         
-        // Score MVP basé sur plusieurs facteurs
+        
         return ($threatScore * 0.3) + 
                ($kd * 25 * 0.25) + 
                ($avgKills * 2 * 0.25) + 
@@ -556,7 +556,7 @@ class MatchController extends Controller
 
     private function identifySupportPlayer($players)
     {
-        // Identifier le joueur support (généralement le moins de kills mais bon taux de victoire)
+        
         $supportPlayer = null;
         $bestSupportScore = 0;
         
@@ -568,7 +568,7 @@ class MatchController extends Controller
             $winRate = floatval($stats['Win Rate %'] ?? 0);
             $kd = floatval($stats['Average K/D Ratio'] ?? 0);
             
-            // Score support : bon winrate et K/D mais moins de kills
+            
             $supportScore = ($winRate / 100 * 40) + ($kd * 30) - ($avgKills * 1.5);
             
             if ($supportScore > $bestSupportScore) {
@@ -620,7 +620,7 @@ class MatchController extends Controller
 
     private function findBalancedMaps($team1Maps, $team2Maps)
     {
-        // Cartes communes les plus équilibrées
+        
         $commonMaps = ['Mirage', 'Inferno', 'Dust2', 'Nuke', 'Overpass', 'Vertigo', 'Ancient'];
         $balanced = [];
         
@@ -641,10 +641,10 @@ class MatchController extends Controller
         $team1Players = $teams[array_keys($teams)[0]]['roster'];
         $team2Players = $teams[array_keys($teams)[1]]['roster'];
         
-        // Identifier les duels clés (top fraggers, etc.)
+        
         $keyMatchups = [];
         
-        // Duel des top fraggers
+        
         $team1TopFragger = $this->identifyTopFragger($team1Players);
         $team2TopFragger = $this->identifyTopFragger($team2Players);
         

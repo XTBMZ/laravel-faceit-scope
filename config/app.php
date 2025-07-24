@@ -48,9 +48,9 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'locale' => env('APP_LOCALE', 'fr'), // Français par défaut
-    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'), // Fallback en anglais
-    'faker_locale' => env('APP_FAKER_LOCALE', 'fr_FR'), // Faker en français
+    'locale' => env('APP_LOCALE', 'fr'), 
+    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'), 
+    'faker_locale' => env('APP_FAKER_LOCALE', 'fr_FR'), 
 
     /*
     |--------------------------------------------------------------------------

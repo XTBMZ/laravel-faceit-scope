@@ -21,7 +21,7 @@ class TranslationHelper {
     __(key, replacements = {}) {
         let translation = this.getTranslation(key);
         
-        // Effectuer les remplacements
+        
         for (const [placeholder, value] of Object.entries(replacements)) {
             const regex = new RegExp(`:${placeholder}\\b`, 'g');
             translation = translation.replace(regex, value);
@@ -40,7 +40,7 @@ class TranslationHelper {
     transChoice(key, count, replacements = {}) {
         let translation = this.getTranslation(key);
         
-        // Gestion du pluriel simple (français/anglais)
+        
         if (typeof translation === 'object') {
             if (count === 0 && translation['zero']) {
                 translation = translation['zero'];
@@ -53,10 +53,10 @@ class TranslationHelper {
             }
         }
         
-        // Ajouter le count dans les remplacements
+        
         replacements.count = count;
         
-        // Effectuer les remplacements
+        
         for (const [placeholder, value] of Object.entries(replacements)) {
             const regex = new RegExp(`:${placeholder}\\b`, 'g');
             translation = translation.replace(regex, value);
@@ -78,11 +78,11 @@ class TranslationHelper {
             if (translation && typeof translation === 'object' && translation[k] !== undefined) {
                 translation = translation[k];
             } else {
-                // Fallback: essayer avec la langue par défaut
+                
                 if (this.locale !== this.fallbackLocale) {
                     return this.getFallbackTranslation(key);
                 }
-                return key; // Retourner la clé si pas de traduction
+                return key; 
             }
         }
         
@@ -95,8 +95,8 @@ class TranslationHelper {
      * @returns {string} - Traduction de fallback ou clé
      */
     getFallbackTranslation(key) {
-        // Ici, on pourrait faire un appel AJAX pour récupérer la traduction de fallback
-        // Pour simplifier, on retourne juste la clé
+        
+        
         return key;
     }
 
@@ -124,7 +124,7 @@ class TranslationHelper {
                 window.translations = data.translations;
                 window.currentLocale = data.locale;
                 
-                // Déclencher un événement pour notifier les autres composants
+                
                 window.dispatchEvent(new CustomEvent('localeChanged', {
                     detail: { locale: data.locale, translations: data.translations }
                 }));
@@ -209,17 +209,17 @@ class TranslationHelper {
     }
 }
 
-// Initialiser l'helper global
+
 window.translationHelper = new TranslationHelper();
 
-// Raccourcis globaux pour plus de simplicité (comme Laravel)
+
 window.__ = window.translationHelper.__.bind(window.translationHelper);
 window.transChoice = window.translationHelper.transChoice.bind(window.translationHelper);
 
-// Fonction globale pour changer de langue (utilisée dans le header)
+
 window.changeLanguage = async function(locale) {
     try {
-        // Afficher un indicateur de chargement
+        
         const button = document.getElementById('languageButton');
         const mobileButton = document.getElementById('mobileLangButton');
         
@@ -227,7 +227,7 @@ window.changeLanguage = async function(locale) {
             const originalContent = button.innerHTML;
             button.innerHTML = '<div class="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-faceit-orange"></div>';
             
-            // Restaurer le contenu original en cas d'erreur
+            
             window.restoreLanguageButton = () => {
                 button.innerHTML = originalContent;
             };
@@ -238,65 +238,65 @@ window.changeLanguage = async function(locale) {
             mobileButton.innerHTML = '<div class="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-faceit-orange"></div>';
         }
         
-        // Changer la langue
+        
         await window.translationHelper.changeLocale(locale);
         
-        // Recharger la page pour appliquer les nouvelles traductions
+        
         window.location.reload();
         
     } catch (error) {
         console.error('Erreur changement de langue:', error);
         
-        // Restaurer les boutons
+        
         if (window.restoreLanguageButton) {
             window.restoreLanguageButton();
         }
         
-        // Afficher une notification d'erreur
+        
         if (window.showNotification) {
             window.showNotification(__('errors.language_change_failed'), 'error');
         }
     }
 };
 
-// Écouter les changements de langue pour mettre à jour l'interface
+
 window.addEventListener('localeChanged', function(event) {
     const { locale, translations } = event.detail;
     
-    // Mettre à jour les éléments de l'interface qui ont des traductions
+    
     updateInterfaceTexts();
     
-    // Mettre à jour la direction du texte si nécessaire
+    
     document.documentElement.setAttribute('dir', window.translationHelper.getTextDirection());
     document.documentElement.setAttribute('lang', locale);
 });
 
-// Fonction pour mettre à jour les textes de l'interface
+
 function updateInterfaceTexts() {
-    // Mettre à jour les éléments avec des attributs data-translate
+    
     document.querySelectorAll('[data-translate]').forEach(element => {
         const key = element.getAttribute('data-translate');
         element.textContent = __(key);
     });
     
-    // Mettre à jour les placeholders
+    
     document.querySelectorAll('[data-translate-placeholder]').forEach(element => {
         const key = element.getAttribute('data-translate-placeholder');
         element.setAttribute('placeholder', __(key));
     });
 }
 
-// Auto-initialisation
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Définir la langue et la direction du document
+    
     document.documentElement.setAttribute('lang', window.translationHelper.locale);
     document.documentElement.setAttribute('dir', window.translationHelper.getTextDirection());
     
-    // Mettre à jour les textes existants
+    
     updateInterfaceTexts();
 });
 
-// Export pour les modules
+
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = TranslationHelper;
 }

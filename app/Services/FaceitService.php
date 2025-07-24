@@ -40,9 +40,9 @@ class FaceitService
         return $response->json();
     }
 
-    // ===============================================
-    // MÉTHODES PLAYERS (gardées pour d'autres pages)
-    // ===============================================
+    
+    
+    
 
     public function getPlayerByNickname($nickname)
     {
@@ -70,9 +70,9 @@ class FaceitService
         ]);
     }
 
-    // ===============================================
-    // MÉTHODES MATCHES (gardées pour d'autres pages)
-    // ===============================================
+    
+    
+    
 
     public function getMatch($matchId)
     {
@@ -84,9 +84,9 @@ class FaceitService
         return $this->makeRequest("matches/{$matchId}/stats");
     }
 
-    // ===============================================
-    // MÉTHODES UTILITAIRES MATCHES (gardées)
-    // ===============================================
+    
+    
+    
 
     public function extractMatchId($input)
     {
@@ -192,9 +192,9 @@ class FaceitService
         }
     }
 
-    // ===============================================
-    // AUTRES MÉTHODES (gardées pour d'autres pages)
-    // ===============================================
+    
+    
+    
 
     public function searchPlayers($nickname, $country = null, $offset = 0, $limit = 20)
     {

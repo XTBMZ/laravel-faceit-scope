@@ -3,7 +3,7 @@
 @section('title', __('leaderboards.title'))
 
 @section('content')
-<!-- Hero Section -->
+
 <div class="relative py-16 overflow-hidden" style="background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);">
     <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center">
@@ -18,11 +18,11 @@
     </div>
 </div>
 
-<!-- Main Content -->
+
 <div style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         
-        <!-- Stats rapides -->
+        
         <div id="regionStatsSection" class="mb-8">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="rounded-xl p-4 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
@@ -47,7 +47,7 @@
             </div>
         </div>
 
-        <!-- Section Filtres -->
+        
         <div class="mb-8">
             <div class="rounded-xl p-6 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
                 <div class="grid md:grid-cols-5 gap-4">
@@ -115,7 +115,7 @@
             </div>
         </div>
 
-        <!-- Recherche de joueur -->
+        
         <div id="playerSearchSection" class="hidden mb-8">
             <div class="rounded-xl p-6 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
                 <h3 class="text-lg font-bold mb-4 flex items-center justify-center">
@@ -137,7 +137,7 @@
             </div>
         </div>
 
-        <!-- Loading State -->
+        
         <div id="loadingState" class="text-center py-16">
             <div class="relative mb-8">
                 <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-600 border-t-faceit-orange mx-auto"></div>
@@ -156,7 +156,7 @@
             </div>
         </div>
 
-        <!-- Error State -->
+        
         <div id="errorState" class="hidden text-center py-16">
             <div class="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-exclamation-triangle text-red-400 text-lg"></i>
@@ -168,7 +168,7 @@
             </button>
         </div>
 
-        <!-- Section Classement -->
+        
         <div id="leaderboardContainer" class="hidden">
             <div class="text-center mb-6">
                 <h2 class="text-xl font-bold text-white mb-2">
@@ -181,7 +181,7 @@
             </div>
             
             <div class="rounded-xl border border-gray-700 overflow-hidden" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
-                <!-- Table Header -->
+                
                 <div class="px-4 py-3 border-b border-gray-700 bg-faceit-elevated/50">
                     <div class="grid grid-cols-12 gap-4 text-sm font-medium text-gray-300">
                         <div class="col-span-1 text-center">{{ __('leaderboards.leaderboard.table.rank') }}</div>
@@ -194,12 +194,12 @@
                     </div>
                 </div>
                 
-                <!-- Table Body -->
+                
                 <div id="leaderboardTable" class="divide-y divide-gray-700/50">
-                    <!-- Players will be inserted here -->
+                    
                 </div>
                 
-                <!-- Pagination -->
+                
                 <div class="px-4 py-3 border-t border-gray-700 flex justify-between items-center bg-faceit-elevated/50">
                     <button id="prevPageButton" class="bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center" disabled>
                         <i class="fas fa-chevron-left mr-2"></i>{{ __('leaderboards.leaderboard.pagination.previous') }}
@@ -378,7 +378,7 @@
 @endpush
 @push('scripts')
 <script>
-// Injecter les traductions dans le JavaScript 
+
 window.translations = {!! json_encode([
     'leaderboards' => __('leaderboards'),
 ]) !!};
@@ -389,18 +389,18 @@ window.currentLocale = '{{ app()->getLocale() }}';
  * Appels directs à l'API FACEIT comme dans le système Friends
  */
 
-// Configuration API directe ULTRA AGRESSIVE
+
 const FACEIT_API = {
     TOKEN: "9bcea3f9-2144-495e-be16-02d4eb1a811c",
     BASE_URL: "https://open.faceit.com/data/v4/",
     GAME_ID: "cs2",
     TIMEOUT: 12000,
-    MAX_CONCURRENT_ENRICHMENT: 50, // 50 joueurs enrichis simultanément
-    ENABLE_STATS_ENRICHMENT: true, // Activer l'enrichissement des stats
-    ENABLE_AVATAR_LOADING: true    // Activer le chargement des avatars
+    MAX_CONCURRENT_ENRICHMENT: 50, 
+    ENABLE_STATS_ENRICHMENT: true, 
+    ENABLE_AVATAR_LOADING: true    
 };
 
-// Variables globales
+
 let currentRegion = 'EU';
 let currentCountry = '';
 let currentLimit = 20;
@@ -410,19 +410,19 @@ let enrichedLeaderboard = [];
 let searchSectionVisible = false;
 let isLoading = false;
 
-// Cache en mémoire optimisé
+
 const leaderboardCache = new Map();
 const playerCache = new Map();
 const statsCache = new Map();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const CACHE_DURATION = 5 * 60 * 1000; 
 
-// Initialisation
+
 document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
     loadLeaderboardOptimized();
 });
 
-// ===== FONCTIONS API OPTIMISÉES =====
+
 
 async function faceitApiCall(endpoint) {
     const controller = new AbortController();
@@ -486,10 +486,10 @@ async function getLeaderboardBase(region, country, offset, limit) {
  */
 async function enrichPlayersData(players) {
     if (!FACEIT_API.ENABLE_STATS_ENRICHMENT) {
-        return players; // Retourner les données de base si enrichissement désactivé
+        return players; 
     }
     
-    // Diviser en lots pour l'enrichissement
+    
     const batches = [];
     for (let i = 0; i < players.length; i += FACEIT_API.MAX_CONCURRENT_ENRICHMENT) {
         batches.push(players.slice(i, i + FACEIT_API.MAX_CONCURRENT_ENRICHMENT));
@@ -500,13 +500,13 @@ async function enrichPlayersData(players) {
     for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
         const batch = batches[batchIndex];
 
-        // Traitement parallèle TOTAL du lot
+        
         const enrichPromises = batch.map(async (player) => {
             try {
                 return await enrichSinglePlayer(player);
             } catch (error) {
                 console.warn(`⚠️ Erreur enrichissement ${player.nickname}:`, error.message);
-                return player; // Fallback vers données de base
+                return player; 
             }
         });
         
@@ -520,7 +520,7 @@ async function enrichPlayersData(players) {
         
         enrichedPlayers.push(...validResults);
         
-        // Affichage progressif
+        
         updateProgressiveLeaderboard(enrichedPlayers);
     }
     
@@ -533,7 +533,7 @@ async function enrichPlayersData(players) {
 async function enrichSinglePlayer(player) {
     const playerId = player.player_id;
     
-    // Vérifier le cache
+    
     const playerCacheKey = `player_${playerId}`;
     const statsCacheKey = `stats_${playerId}`;
     
@@ -543,7 +543,7 @@ async function enrichSinglePlayer(player) {
     let playerData = null;
     let statsData = null;
     
-    // Récupérer les données joueur (pour avatar)
+    
     if (FACEIT_API.ENABLE_AVATAR_LOADING) {
         if (cachedPlayer && (Date.now() - cachedPlayer.timestamp) < CACHE_DURATION) {
             playerData = cachedPlayer.data;
@@ -560,7 +560,7 @@ async function enrichSinglePlayer(player) {
         }
     }
     
-    // Récupérer les stats (pour WR, K/D, forme)
+    
     if (cachedStats && (Date.now() - cachedStats.timestamp) < CACHE_DURATION) {
         statsData = cachedStats.data;
     } else {
@@ -575,12 +575,12 @@ async function enrichSinglePlayer(player) {
         }
     }
     
-    // Enrichir les données
+    
     const enrichedPlayer = {
         ...player,
         avatar: playerData?.avatar || null,
         country: playerData?.country || player.country || 'EU',
-        // CORRECTION : Utiliser game_skill_level du classement FACEIT Rankings
+        
         skill_level: player.game_skill_level || player.skill_level || 1,
         win_rate: extractWinRate(statsData),
         kd_ratio: extractKDRatio(statsData),
@@ -631,14 +631,14 @@ function calculateRecentForm(stats) {
     const recentResults = stats.lifetime['Recent Results'] || [];
     if (recentResults.length === 0) return 'unknown';
     
-    // Compter les victoires (résultat "1" = victoire)
+    
     const wins = recentResults.filter(result => result === "1").length;
     
-    // Logique basée sur le nombre de victoires sur les 5 derniers matchs
-    if (wins === 5) return 'excellent';      // 5 victoires = Excellente
-    if (wins >= 3) return 'good';            // 3-4 victoires = Bonne  
-    if (wins === 2) return 'average';        // 2 victoires = Moyenne
-    if (wins <= 1) return 'poor';            // 0-1 victoire = Difficile
+    
+    if (wins === 5) return 'excellent';      
+    if (wins >= 3) return 'good';            
+    if (wins === 2) return 'average';        
+    if (wins <= 1) return 'poor';            
     
     return 'unknown';
 }
@@ -655,7 +655,7 @@ async function loadLeaderboardOptimized() {
         
         const startTime = performance.now();
         
-        // 1. Récupération du classement de base
+        
         const leaderboardData = await getLeaderboardBase(currentRegion, currentCountry, currentOffset, currentLimit);
         
         if (!leaderboardData || !leaderboardData.items || leaderboardData.items.length === 0) {
@@ -664,19 +664,19 @@ async function loadLeaderboardOptimized() {
         
         currentLeaderboard = leaderboardData.items;
         
-        // 2. Enrichissement ultra-agressif
+        
         enrichedLeaderboard = await enrichPlayersData(currentLeaderboard);
         
         const endTime = performance.now();
         const loadTime = Math.round(endTime - startTime);
         
-        // 3. Affichage
+        
         displayLeaderboardOptimized();
         updatePaginationOptimized(leaderboardData);
         updateLoadTimeDisplay(loadTime);
         showLeaderboardContent();
         
-        // 4. Stats de région (en arrière-plan)
+        
         setTimeout(() => calculateRegionStats(), 100);
         
     } catch (error) {
@@ -700,14 +700,14 @@ async function searchPlayerOptimized(nickname) {
     }
     
     try {
-        // 1. Récupérer les données joueur
+        
         const player = await faceitApiCall(`players?nickname=${encodeURIComponent(nickname)}`);
         
         if (!player || !player.games || !player.games[FACEIT_API.GAME_ID]) {
             throw new Error(window.translations.leaderboards.search.errors.no_cs2_profile.replace(':player', nickname));
         }
         
-        // 2. Récupérer sa position dans le classement
+        
         let position = null;
         try {
             let endpoint = `rankings/games/${FACEIT_API.GAME_ID}/regions/${currentRegion}/players/${player.player_id}?limit=20`;
@@ -720,12 +720,12 @@ async function searchPlayerOptimized(nickname) {
         } catch (error) {
         }
         
-        // 3. Enrichir avec les stats
+        
         const enrichedPlayer = await enrichSinglePlayer({
             ...player,
             position: position,
             faceit_elo: player.games[FACEIT_API.GAME_ID].faceit_elo,
-            // CORRECTION : Utiliser game_skill_level si disponible
+            
             skill_level: player.games[FACEIT_API.GAME_ID].skill_level,
             game_skill_level: player.games[FACEIT_API.GAME_ID].skill_level
         });
@@ -745,7 +745,7 @@ async function searchPlayerOptimized(nickname) {
     }
 }
 
-// ===== FONCTIONS D'AFFICHAGE OPTIMISÉES =====
+
 
 function setupEventListeners() {
     const debouncedLoad = debounce(() => {
@@ -753,7 +753,7 @@ function setupEventListeners() {
         loadLeaderboardOptimized();
     }, 800);
 
-    // Filtres
+    
     const regionSelect = document.getElementById('regionSelect');
     const countrySelect = document.getElementById('countrySelect');
     const limitSelect = document.getElementById('limitSelect');
@@ -779,7 +779,7 @@ function setupEventListeners() {
         });
     }
 
-    // Bouton refresh
+    
     const refreshButton = document.getElementById('refreshButton');
     if (refreshButton) {
         refreshButton.addEventListener('click', function() {
@@ -795,13 +795,13 @@ function setupEventListeners() {
         });
     }
 
-    // Toggle search
+    
     const toggleSearchButton = document.getElementById('toggleSearchButton');
     if (toggleSearchButton) {
         toggleSearchButton.addEventListener('click', toggleSearchSection);
     }
 
-    // Recherche
+    
     const searchButton = document.getElementById('searchPlayerButton');
     const searchInput = document.getElementById('playerSearchInput');
     
@@ -818,7 +818,7 @@ function setupEventListeners() {
         });
     }
 
-    // Pagination
+    
     const prevButton = document.getElementById('prevPageButton');
     const nextButton = document.getElementById('nextPageButton');
     
@@ -879,7 +879,7 @@ function displayPlayerSearchResult(player) {
     
     const avatar = player.avatar || getDefaultAvatar(player.nickname);
     const country = player.country || 'EU';
-    // CORRECTION : Utiliser game_skill_level du classement FACEIT Rankings
+    
     const level = player.game_skill_level || player.skill_level || 1;
     const elo = player.faceit_elo || 'N/A';
     const position = player.position || 'N/A';
@@ -956,7 +956,7 @@ function updateProgressiveLeaderboard(players) {
         progressElement.textContent = window.translations.leaderboards.loading.players_enriched.replace(':count', players.length);
     }
     
-    // Affichage progressif dès qu'on a quelques joueurs
+    
     if (players.length >= 5 && !document.getElementById('leaderboardContainer').classList.contains('hidden')) {
         enrichedLeaderboard = players;
         displayLeaderboardOptimized();
@@ -967,7 +967,7 @@ function displayLeaderboardOptimized() {
     const leaderboardTable = document.getElementById('leaderboardTable');
     if (!leaderboardTable) return;
     
-    // Utiliser DocumentFragment pour performance
+    
     const fragment = document.createDocumentFragment();
     
     enrichedLeaderboard.forEach((player, index) => {
@@ -975,11 +975,11 @@ function displayLeaderboardOptimized() {
         fragment.appendChild(playerRow);
     });
     
-    // Remplacer le contenu en une seule opération DOM
+    
     leaderboardTable.innerHTML = '';
     leaderboardTable.appendChild(fragment);
     
-    // Animation échelonnée
+    
     setTimeout(() => {
         const rows = leaderboardTable.querySelectorAll('.leaderboard-row');
         rows.forEach((row, index) => {
@@ -1004,7 +1004,7 @@ function createOptimizedPlayerRow(player, index) {
     const position = player.position;
     const avatar = player.avatar || getDefaultAvatar(player.nickname);
     const country = player.country || 'EU';
-    // CORRECTION : Utiliser game_skill_level du classement FACEIT Rankings
+    
     const level = player.game_skill_level || player.skill_level || 1;
     const elo = player.faceit_elo || 'N/A';
     const nickname = player.nickname || 'Joueur inconnu';
@@ -1013,7 +1013,7 @@ function createOptimizedPlayerRow(player, index) {
     const kdRatio = player.kd_ratio || 0;
     const recentForm = player.recent_form || 'unknown';
     
-    // Couleurs spéciales pour le podium
+    
     let positionClass = 'text-gray-300';
     let positionIcon = '';
     let rowClass = '';
@@ -1122,7 +1122,7 @@ function createOptimizedPlayerRow(player, index) {
     return row;
 }
 
-// ===== FONCTIONS UTILITAIRES =====
+
 
 function getFormConfig(form) {
     const t = window.translations.leaderboards.form;
@@ -1165,7 +1165,7 @@ function updatePaginationOptimized(leaderboardData) {
     
     if (prevButton) prevButton.disabled = currentOffset === 0;
     if (nextButton) {
-        // Estimer s'il y a une page suivante
+        
         nextButton.disabled = enrichedLeaderboard.length < currentLimit;
     }
     
@@ -1183,7 +1183,7 @@ function updatePaginationOptimized(leaderboardData) {
 }
 
 function updateLeaderboardMeta() {
-    // Mettre à jour le titre
+    
     const regionName = getRegionName(currentRegion);
     const countryName = currentCountry ? ` - ${getCountryName(currentCountry)}` : '';
     const leaderboardTitle = document.getElementById('leaderboardTitle');
@@ -1191,7 +1191,7 @@ function updateLeaderboardMeta() {
         leaderboardTitle.textContent = `Classement ${regionName}${countryName}`;
     }
     
-    // Mettre à jour la date
+    
     const now = new Date();
     const lastUpdated = document.getElementById('lastUpdated');
     if (lastUpdated) {
@@ -1221,23 +1221,23 @@ function calculateRegionStats() {
         const country = player.country || 'Unknown';
         countryCounts[country] = (countryCounts[country] || 0) + 1;
         
-        // CORRECTION : Utiliser game_skill_level du classement FACEIT Rankings
+        
         const level = player.game_skill_level || player.skill_level || 1;
         levelCounts[level] = (levelCounts[level] || 0) + 1;
     });
     
     const averageElo = Math.round(totalElo / enrichedLeaderboard.length);
     
-    // Pays le plus représenté
+    
     const topCountry = Object.entries(countryCounts)
         .sort(([,a], [,b]) => b - a)[0]?.[0] || 'EU';
     
-    // Niveau le plus représenté
+    
     const topLevel = Object.entries(levelCounts)
         .sort(([,a], [,b]) => b - a)[0]?.[0] || '1';
     
-    // Estimation du nombre total de joueurs
-    const estimatedTotal = enrichedLeaderboard.length * 100; // Estimation
+    
+    const estimatedTotal = enrichedLeaderboard.length * 100; 
     
     animateNumber('totalPlayers', estimatedTotal);
     animateNumber('averageElo', averageElo);
@@ -1343,7 +1343,7 @@ function showSearchError(message) {
     }
 }
 
-// ===== FONCTIONS D'ÉTAT =====
+
 
 function showLoadingState() {
     document.getElementById('loadingState')?.classList.remove('hidden');
@@ -1366,7 +1366,7 @@ function showErrorState(message) {
     if (errorMessage) errorMessage.textContent = message;
 }
 
-// ===== FONCTIONS DE NAVIGATION =====
+
 
 function navigateToPlayer(playerId) {
     if (playerId) {
@@ -1380,7 +1380,7 @@ function navigateToComparison(playerNickname) {
     }
 }
 
-// ===== FONCTIONS UTILITAIRES FINALES =====
+
 
 function clearAllCaches() {
     leaderboardCache.clear();
@@ -1439,12 +1439,12 @@ function formatNumber(num) {
     return num.toString();
 }
 
-// Export global des fonctions
+
 window.navigateToPlayer = navigateToPlayer;
 window.navigateToComparison = navigateToComparison;
 window.loadLeaderboardOptimized = loadLeaderboardOptimized;
 
-// Nettoyage des ressources
+
 window.addEventListener('beforeunload', function() {
     clearAllCaches();
 });

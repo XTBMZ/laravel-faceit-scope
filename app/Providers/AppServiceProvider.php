@@ -21,11 +21,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Partager les traductions avec toutes les vues - ÉTENDU
+        
         View::composer('*', function ($view) {
             $locale = App::getLocale();
             
-            // Traductions à partager avec toutes les vues
+            
             $translations = [];
             
             $translationFiles = [
@@ -38,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
                 if (file_exists($filePath)) {
                     $translations[$file] = include $filePath;
                 } else {
-                    // Fallback vers l'anglais
+                    
                     $fallbackPath = resource_path("lang/en/{$file}.php");
                     if (file_exists($fallbackPath)) {
                         $translations[$file] = include $fallbackPath;
@@ -46,7 +46,7 @@ class AppServiceProvider extends ServiceProvider
                 }
             }
             
-            // Données de localisation étendues
+            
             $localeData = config('app.locale_data');
             $supportedLocales = config('app.supported_locales');
             

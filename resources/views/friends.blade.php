@@ -3,7 +3,7 @@
 @section('title', __('friends.title') . ' - Faceit Scope')
 
 @section('content')
-<!-- Hero Section Compact -->
+
 <div class="relative py-16" style="background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center space-y-4">
@@ -18,18 +18,18 @@
     </div>
 </div>
 
-<!-- Main Content -->
+
 <div style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         
-        <!-- Stats Overview Compact -->
+        
         <div class="mb-12">
             <div id="friendsStats" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <!-- Stats cards will be inserted here -->
+                
             </div>
         </div>
 
-        <!-- Filtres Compacts -->
+        
         <div class="mb-8">
             <div class="rounded-2xl p-6 border border-gray-800" style="background: linear-gradient(145deg, #2d2d2d 0%, #181818 100%);">
                 <div class="grid md:grid-cols-4 gap-4">
@@ -84,7 +84,7 @@
             </div>
         </div>
 
-        <!-- Loading State -->
+        
         <div id="loadingState" class="text-center py-16">
             <div class="relative mb-6">
                 <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-600 border-t-faceit-orange mx-auto"></div>
@@ -101,7 +101,7 @@
             </div>
         </div>
 
-        <!-- Error State -->
+        
         <div id="errorState" class="hidden text-center py-16">
             <div class="w-16 h-16 bg-red-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
@@ -113,7 +113,7 @@
             </button>
         </div>
 
-        <!-- Empty State -->
+        
         <div id="emptyState" class="hidden text-center py-16">
             <div class="w-16 h-16 bg-gray-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-user-friends text-gray-400 text-2xl"></i>
@@ -125,19 +125,19 @@
             </a>
         </div>
 
-        <!-- Friends Content -->
+        
         <div id="friendsContent" class="hidden">
-            <!-- Friends Grid -->
+            
             <div id="friendsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <!-- Friends cards will be inserted here -->
+                
             </div>
 
-            <!-- Friends List -->
+            
             <div id="friendsList" class="hidden space-y-4">
-                <!-- Friends list will be inserted here -->
+                
             </div>
 
-            <!-- Load More Button -->
+            
             <div id="loadMoreContainer" class="hidden text-center mt-8">
                 <button id="loadMoreButton" class="bg-gray-700 hover:bg-gray-600 px-8 py-3 rounded-xl font-medium transition-colors">
                     <i class="fas fa-plus mr-2"></i>{{ __('friends.load_more', ['count' => 10]) }}
@@ -147,20 +147,20 @@
     </div>
 </div>
 
-<!-- Friend Details Modal -->
+
 <div id="friendModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-faceit-card rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div id="friendModalContent">
-            <!-- Friend details will be inserted here -->
+            
         </div>
     </div>
 </div>
 @endsection
 
 @push('scripts')
-<!-- Script avec traductions injectées -->
+
 <script>
-// Injecter les traductions dans le JavaScript
+
 window.translations = {!! json_encode([
     'common' => __('common'),
     'friends' => __('friends'),
@@ -175,14 +175,14 @@ window.currentLocale = '{{ app()->getLocale() }}';
  * Tous les appels API sont faits simultanément pour un chargement plus rapide
  */
 
-// Configuration API
+
 const FACEIT_API = {
     TOKEN: "9bcea3f9-2144-495e-be16-02d4eb1a811c",
     BASE_URL: "https://open.faceit.com/data/v4/",
     TIMEOUT: 10000
 };
 
-// Variables globales
+
 let allFriends = [];
 let filteredFriends = [];
 let currentPage = 1;
@@ -190,17 +190,17 @@ const friendsPerPage = 20;
 let currentViewMode = 'grid';
 let isLoading = false;
 
-// Cache
+
 const cache = new Map();
 const CACHE_DURATION = 5 * 60 * 1000;
 
-// Fonction de traduction
+
 function __(key, replacements = {}) {
     if (!window.translations) return key;
     
     let translation = key.split('.').reduce((obj, k) => obj && obj[k], window.translations) || key;
     
-    // Remplacer les placeholders
+    
     for (const [placeholder, value] of Object.entries(replacements)) {
         translation = translation.replace(':' + placeholder, value);
     }
@@ -208,13 +208,13 @@ function __(key, replacements = {}) {
     return translation;
 }
 
-// Initialisation
+
 document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
     loadFriends();
 });
 
-// ===== API =====
+
 
 async function faceitApiCall(endpoint) {
     const controller = new AbortController();
@@ -253,7 +253,7 @@ async function getPlayerWithStats(playerId) {
             return null;
         }
 
-        // Récupérer le dernier match pour avoir la date d'activité
+        
         let lastMatchDate = null;
         try {
             const history = await faceitApiCall(`players/${playerId}/history?game=cs2&limit=1`);
@@ -276,7 +276,7 @@ async function getPlayerWithStats(playerId) {
     }
 }
 
-// ===== ENRICHISSEMENT DES DONNÉES =====
+
 
 function enrichPlayerData(player, lastMatchDate) {
     const csGame = player.games?.cs2 || player.games?.csgo || {};
@@ -346,7 +346,7 @@ function getRankInfo(skillLevel) {
     return ranks[skillLevel] || ranks[1];
 }
 
-// ===== CHARGEMENT PRINCIPAL =====
+
 
 async function loadFriends() {
     if (isLoading) return;
@@ -356,7 +356,7 @@ async function loadFriends() {
         showLoading();
         updateProgress(__('friends.loading.connecting'), 10);
         
-        // 1. Récupérer l'utilisateur actuel
+        
         const userResponse = await fetch('/api/auth/user');
         if (!userResponse.ok) throw new Error(__('friends.error.not_authenticated'));
         
@@ -368,7 +368,7 @@ async function loadFriends() {
         const currentUserId = userData.user.player_data.player_id;
         updateProgress(__('friends.loading.fetching_friends'), 30);
         
-        // 2. Récupérer la liste d'amis
+        
         const playerData = await faceitApiCall(`players/${currentUserId}`);
         
         if (!playerData.friends_ids || playerData.friends_ids.length === 0) {
@@ -378,23 +378,23 @@ async function loadFriends() {
         
         const friendIds = playerData.friends_ids;
         
-        // 3. Chargement de TOUS les amis d'un coup
+        
         updateProgress(__('friends.loading.loading_all'), 50);
         
-        // Créer toutes les promesses en parallèle
+        
         const promises = friendIds.map(id => getPlayerWithStats(id));
         
-        // Exécuter toutes les promesses en parallèle
+        
         const results = await Promise.allSettled(promises);
         
-        // Traiter les résultats
+        
         allFriends = results
             .filter(result => result.status === 'fulfilled' && result.value)
             .map(result => result.value);
         
         const successRate = Math.round((allFriends.length / friendIds.length) * 100);
         
-        // 4. Affichage
+        
         updateProgress(__('friends.loading.finalizing'), 90);
         displayStats(calculateStats());
         filterFriends();
@@ -408,7 +408,7 @@ async function loadFriends() {
     }
 }
 
-// ===== INDICATEURS DE CHARGEMENT =====
+
 
 function calculateStats() {
     if (allFriends.length === 0) {
@@ -469,7 +469,7 @@ function displayStats(stats) {
     `;
 }
 
-// ===== EVENT LISTENERS =====
+
 
 function setupEventListeners() {
     const searchInput = document.getElementById('searchInput');
@@ -500,7 +500,7 @@ function setupEventListeners() {
     });
 }
 
-// ===== FILTRAGE =====
+
 
 function filterFriends() {
     const searchQuery = document.getElementById('searchInput')?.value.toLowerCase() || '';
@@ -555,7 +555,7 @@ function updateDisplay() {
     displayFriends();
 }
 
-// ===== AFFICHAGE =====
+
 
 function displayFriends() {
     const endIndex = currentPage * friendsPerPage;
@@ -668,7 +668,7 @@ function createFriendListItem(friend) {
     return item;
 }
 
-// ===== MODAL =====
+
 
 function showFriendDetails(friend) {
     const modal = document.getElementById('friendModal');
@@ -741,7 +741,7 @@ function showPlayerStats(playerId, nickname) {
     window.location.href = `/advanced?playerId=${playerId}&playerNickname=${encodeURIComponent(nickname)}`;
 }
 
-// ===== UTILITAIRES =====
+
 
 function setViewMode(mode) {
     currentViewMode = mode;
@@ -859,7 +859,7 @@ function buildFaceitProfileUrl(friend) {
     return `https://www.faceit.com/fr/players/${friend.nickname}`;
 }
 
-// Export global pour les autres scripts
+
 window.closeFriendModal = closeFriendModal;
 window.showPlayerStats = showPlayerStats;
 

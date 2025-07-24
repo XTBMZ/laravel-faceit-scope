@@ -3,7 +3,7 @@
 @section('title', __('contact.title'))
 
 @section('content')
-<!-- Hero Section Épuré -->
+
 <div class="relative py-14" style="background: linear-gradient(135deg, #1a1a1a 0%, #242424 100%);">
     <div class="max-w-5xl mx-auto px-6">
         <div class="text-center">
@@ -15,20 +15,20 @@
     </div>
 </div>
 
-<!-- Contenu Principal -->
+
 <div class="pb-14 pt-6" style="background: linear-gradient(180deg, #1e1e1e 0%, #191919 100%);">
     <div class="max-w-6xl mx-auto px-6">
 
-        <!-- Messages Flash -->
+        
         <div id="flashMessages" class="mb-8"></div>
 
         <div class="grid lg:grid-cols-10 gap-12">
             
-            <!-- Informations - Sidebar -->
+            
             <div class="lg:col-span-2 lg:-ml-8">
                 <div class="space-y-8">
                     
-                    <!-- Développeur -->
+                    
                     <div class="p-8 rounded-lg border border-gray-700/50" style="background: rgba(255, 255, 255, 0.02);">
                         <h3 class="text-xl font-light text-white mb-6 tracking-wide">{{ __('contact.sidebar.developer.title') }}</h3>
                         <div class="space-y-4 text-gray-400">
@@ -39,7 +39,7 @@
                         </div>
                     </div>
 
-                    <!-- Temps de réponse -->
+                    
                     <div class="p-8 rounded-lg border border-gray-700/50" style="background: rgba(255, 255, 255, 0.02);">
                         <h3 class="text-xl font-light text-white mb-6 tracking-wide">{{ __('contact.sidebar.response.title') }}</h3>
                         <div class="space-y-4">
@@ -52,13 +52,13 @@
                 </div>
             </div>
 
-            <!-- Formulaire Principal -->
+            
             <div class="lg:col-span-8">
                 <div class="p-10 rounded-xl border border-gray-700/50" style="background: rgba(255, 255, 255, 0.03);">
                     <form id="contactForm" class="space-y-8">
                         @csrf
                         
-                        <!-- Type et Sujet -->
+                        
                         <div class="grid md:grid-cols-2 gap-8">
                             <div>
                                 <label class="block text-sm uppercase tracking-widest text-gray-400 mb-4">
@@ -96,7 +96,7 @@
                             </div>
                         </div>
 
-                        <!-- Email et Pseudo -->
+                        
                         <div class="grid md:grid-cols-2 gap-8">
                             <div>
                                 <label class="block text-sm uppercase tracking-widest text-gray-400 mb-4">
@@ -127,7 +127,7 @@
                             </div>
                         </div>
 
-                        <!-- Message -->
+                        
                         <div>
                             <label class="block text-sm uppercase tracking-widest text-gray-400 mb-4">
                                 {{ __('contact.form.message.label') }} <span class="text-faceit-orange">{{ __('contact.form.message.required') }}</span>
@@ -149,7 +149,7 @@
                             </div>
                         </div>
 
-                        <!-- Bouton d'envoi -->
+                        
                         <div class="pt-6">
                             <button 
                                 type="submit" 
@@ -163,7 +163,7 @@
                             </button>
                         </div>
 
-                        <!-- Note de confidentialité -->
+                        
                         <div class="text-xs text-gray-500 pt-4 border-t border-gray-700/50">
                             <div class="flex items-center">
                                 <div class="w-1 h-1 bg-gray-500 rounded-full mr-2"></div>
@@ -180,7 +180,7 @@
 
 @push('scripts')
 <script>
-// Injecter les traductions dans le JavaScript
+
 window.translations = {!! json_encode([
     'contact' => __('contact'),
 ]) !!};
@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const messageTextarea = document.getElementById('message');
     const messageCount = document.getElementById('message-count');
 
-    // Compteur de caractères
+    
     messageTextarea.addEventListener('input', function() {
         const count = this.value.length;
         messageCount.textContent = count;
@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Soumission du formulaire
+    
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
         

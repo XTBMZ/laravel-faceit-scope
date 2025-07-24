@@ -2,7 +2,7 @@
  * Fonctions communes pour Faceit Scope
  */
 
-// ===== FONCTIONS UTILITAIRES =====
+
 
 function formatNumber(num) {
     if (typeof num !== 'number') num = parseFloat(num) || 0;
@@ -122,7 +122,7 @@ function getCleanMapName(mapLabel) {
     return cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
 }
 
-// ===== FONCTIONS DE NOTIFICATION =====
+
 
 function showNotification(message, type = 'info', duration = 5000) {
     const colors = {
@@ -189,7 +189,7 @@ function showSuccess(message) {
     showNotification(message, 'success');
 }
 
-// ===== FONCTIONS DE STOCKAGE =====
+
 
 function saveToLocalStorage(key, data, expirationMinutes = null) {
     try {
@@ -235,7 +235,7 @@ function removeFromLocalStorage(key) {
     }
 }
 
-// ===== FONCTIONS DE CRÉATION DE CONTENU =====
+
 
 function createLoader(text = 'Chargement...') {
     return `
@@ -265,7 +265,7 @@ function createErrorDisplay(message, canRetry = false, retryCallback = null) {
     `;
 }
 
-// ===== FONCTIONS UTILITAIRES =====
+
 
 function debounce(func, wait) {
     let timeout;
@@ -307,7 +307,7 @@ function validateMatchData(match) {
     return true;
 }
 
-// ===== EXPORT GLOBAL =====
+
 
 window.formatNumber = formatNumber;
 window.getRankIconUrl = getRankIconUrl;

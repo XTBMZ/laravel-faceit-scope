@@ -3,7 +3,7 @@
 @section('title', __('home.title'))
 
 @section('content')
-<!-- Hero Section -->
+
 <div class="py-16" style="background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);">
     <div class="max-w-4xl mx-auto px-6 text-center">
         <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -29,11 +29,11 @@
     </div>
 </div>
 
-<!-- Main Content -->
+
 <div style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
     <div class="max-w-4xl mx-auto px-6 py-16">
 
-        <!-- Search Section -->
+        
         <div class="mb-20">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-bold text-white mb-4">{{ __('home.search.title') }}</h2>
@@ -43,7 +43,7 @@
             </div>
 
             <div class="grid md:grid-cols-2 gap-8">
-                <!-- Player Search -->
+                
                 <div class="space-y-4 border border-orange-500/30 rounded-lg p-6" style="background: linear-gradient(135deg, #3a2317 0%, #4a2c1a 100%);">
                     <div class="flex items-center mb-4">
                         <div class="w-3 h-3 bg-faceit-orange rounded-full mr-3"></div>
@@ -66,7 +66,7 @@
                     </button>
                 </div>
 
-                <!-- Match Search -->
+                
                 <div class="space-y-4 border border-purple-500/30 rounded-lg p-6" style="background: linear-gradient(135deg, #2a1f3d 0%, #3d2a5c 100%);">
                     <div class="flex items-center mb-4">
                         <div class="w-3 h-3 bg-purple-400 rounded-full mr-3"></div>
@@ -90,11 +90,11 @@
                 </div>
             </div>
 
-            <!-- Error Messages -->
+            
             <div id="errorContainer" class="mt-6"></div>
         </div>
 
-        <!-- Features Section -->
+        
         <div class="mb-20">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-bold text-white mb-4">{{ __('home.features.title') }}</h2>
@@ -130,10 +130,10 @@
             </div>
         </div>
 
-        <!-- Separator -->
+        
         <div class="border-t border-gray-700 mb-20"></div>
 
-        <!-- How it Works Section -->
+        
         <div class="mb-20">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-bold text-white mb-4">{{ __('home.how_it_works.title') }}</h2>
@@ -178,7 +178,7 @@
 </div>
 
 <script>
-// Injecter les traductions dans le JavaScript 
+
 window.translations = {!! json_encode([
     'home' => __('home'),
 ]) !!};

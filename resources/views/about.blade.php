@@ -3,7 +3,7 @@
 @section('title', __('about.title'))
 
 @section('content')
-<!-- Hero Section -->
+
 <div class="relative py-16" style="background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center space-y-6">
@@ -20,11 +20,11 @@
     </div>
 </div>
 
-<!-- Main Content -->
+
 <div style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         
-        <!-- Section Projet -->
+        
         <div class="mb-20">
             <div class="grid lg:grid-cols-2 gap-12 items-center">
                 <div>
@@ -57,7 +57,7 @@
             </div>
         </div>
 
-        <!-- Section Algorithmes mise à jour -->
+        
         <div class="mb-20">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-bold text-white mb-4">{{ __('about.how_it_works.title') }}</h2>
@@ -68,7 +68,7 @@
             </div>
 
             <div class="space-y-16">
-                <!-- Algorithme 1: Player Impact Score (PIS) -->
+                
                 <div class="rounded-3xl p-8 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
                     <h3 class="text-xl font-bold text-white mb-6 text-center">{{ __('about.how_it_works.pis.title') }}</h3>
                     
@@ -141,7 +141,7 @@
                     </div>
                 </div>
 
-                <!-- Algorithme 2: Attribution des rôles -->
+                
                 <div class="rounded-3xl p-8 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
                     <h3 class="text-xl font-bold text-white mb-6 text-center">{{ __('about.how_it_works.roles.title') }}</h3>
                     
@@ -213,7 +213,7 @@
                     </div>
                 </div>
 
-                <!-- Algorithme 3: Analyse des cartes -->
+                
                 <div class="rounded-3xl p-8 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
                     <h3 class="text-xl font-bold text-white mb-6 text-center">{{ __('about.how_it_works.maps.title') }}</h3>
                     
@@ -258,7 +258,7 @@
                     </div>
                 </div>
 
-                <!-- Algorithme 4: Prédictions de match -->
+                
                 <div class="rounded-3xl p-8 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
                     <h3 class="text-xl font-bold text-white mb-6 text-center">{{ __('about.how_it_works.predictions.title') }}</h3>
                     
@@ -318,7 +318,7 @@
             </div>
         </div>
 
-        <!-- Section Contact -->
+        
         <div class="text-center">
             <h2 class="text-4xl font-bold text-white mb-4">{{ __('about.contact.title') }}</h2>
             <div class="w-24 h-1 bg-faceit-orange mx-auto mb-6"></div>
@@ -338,7 +338,7 @@
     </div>
 </div>
 
-<!-- Footer disclaimer -->
+
 <div class="py-8 border-t border-gray-700" style="background: linear-gradient(180deg, #0d0d0d 0%, #000000 100%);">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <p class="text-gray-400 text-sm leading-relaxed">

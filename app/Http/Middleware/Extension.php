@@ -16,17 +16,17 @@ class ExtensionCors
      */
     public function handle(Request $request, Closure $next)
     {
-        // Origines autorisées pour l'extension
+        
         $allowedOrigins = [
             'chrome-extension://*',
-            'moz-extension://*', // Firefox
-            'safari-web-extension://*', // Safari
-            'edge-extension://*', // Edge
+            'moz-extension://*', 
+            'safari-web-extension://*', 
+            'edge-extension://*', 
         ];
 
         $origin = $request->headers->get('origin');
         
-        // Répondre aux requêtes OPTIONS (preflight)
+        
         if ($request->getMethod() === "OPTIONS") {
             return response('', 200)
                 ->header('Access-Control-Allow-Origin', $origin)
@@ -38,7 +38,7 @@ class ExtensionCors
 
         $response = $next($request);
 
-        // Ajouter les headers CORS à toutes les réponses
+        
         if ($this->isExtensionOrigin($origin)) {
             $response->headers->set('Access-Control-Allow-Origin', $origin);
             $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -75,11 +75,11 @@ class ExtensionCors
     }
 }
 
-// Dans app/Http/Kernel.php, ajouter le middleware :
+
 
 /*
 protected $routeMiddleware = [
-    // ... autres middlewares
+    
     'extension.cors' => \App\Http\Middleware\ExtensionCors::class,
 ];
 */

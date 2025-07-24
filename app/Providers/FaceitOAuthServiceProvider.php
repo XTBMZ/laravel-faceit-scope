@@ -22,12 +22,12 @@ class FaceitOAuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Publier la configuration si nécessaire
+        
         $this->publishes([
             __DIR__.'/../../config/faceit.php' => config_path('faceit.php'),
         ], 'faceit-config');
 
-        // Valider la configuration
+        
         $this->validateConfiguration();
     }
 

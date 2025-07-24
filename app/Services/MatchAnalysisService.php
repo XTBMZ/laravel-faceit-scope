@@ -54,14 +54,14 @@ class MatchAnalysisService
         $mapPerformances = [];
 
         foreach ($validPlayers as $player) {
-            // ELO et niveau
+            
             $elo = $player['games']['cs2']['faceit_elo'] ?? $player['games']['csgo']['faceit_elo'] ?? 1000;
             $level = $player['games']['cs2']['skill_level'] ?? $player['games']['csgo']['skill_level'] ?? 1;
             
             $totalElo += $elo;
             $totalLevel += $level;
 
-            // Statistiques de base
+            
             if (isset($player['stats']['lifetime'])) {
                 $lifetime = $player['stats']['lifetime'];
                 $totalKD += floatval($lifetime['Average K/D Ratio'] ?? 0);
@@ -69,7 +69,7 @@ class MatchAnalysisService
                 $totalHeadshots += floatval($lifetime['Average Headshots %'] ?? 0);
             }
 
-            // Analyse des cartes
+            
             $playerMapPerfs = $this->analyzePlayerMaps($player);
             foreach ($playerMapPerfs as $map => $perf) {
                 if (!isset($mapPerformances[$map])) {
@@ -86,7 +86,7 @@ class MatchAnalysisService
         $averageWinRate = $totalWinRate / $playerCount;
         $averageHeadshots = $totalHeadshots / $playerCount;
 
-        // Calculer les meilleures et pires cartes de l'équipe
+        
         $teamMaps = $this->calculateTeamMapPerformances($mapPerformances);
 
         return [
@@ -125,14 +125,14 @@ class MatchAnalysisService
             $stats = $segment['stats'] ?? [];
 
             $matches = intval($stats['Matches'] ?? 0);
-            if ($matches < 3) continue; // Ignorer les cartes avec trop peu de matches
+            if ($matches < 3) continue; 
 
             $wins = intval($stats['Wins'] ?? 0);
             $winRate = $matches > 0 ? ($wins / $matches) * 100 : 0;
             $kd = floatval($stats['Average K/D Ratio'] ?? 0);
             $headshots = floatval($stats['Average Headshots %'] ?? 0);
 
-            // Score de performance combiné
+            
             $performanceScore = ($winRate * 0.4) + ($kd * 20 * 0.4) + ($headshots * 0.2);
 
             $mapPerformances[$mapName] = [
@@ -155,7 +155,7 @@ class MatchAnalysisService
         $teamMapScores = [];
 
         foreach ($mapPerformances as $map => $playerPerfs) {
-            if (count($playerPerfs) < 2) continue; // Au moins 2 joueurs doivent avoir joué la carte
+            if (count($playerPerfs) < 2) continue; 
 
             $avgWinRate = array_sum(array_column($playerPerfs, 'winRate')) / count($playerPerfs);
             $avgKD = array_sum(array_column($playerPerfs, 'kd')) / count($playerPerfs);
@@ -174,7 +174,7 @@ class MatchAnalysisService
             ];
         }
 
-        // Trier par score de performance
+        
         uasort($teamMapScores, function($a, $b) {
             return $b['performanceScore'] <=> $a['performanceScore'];
         });
@@ -192,17 +192,17 @@ class MatchAnalysisService
     {
         $score = 0;
 
-        // ELO
+        
         if ($averageElo >= 2000) $score += 3;
         elseif ($averageElo >= 1500) $score += 2;
         elseif ($averageElo >= 1200) $score += 1;
 
-        // K/D
+        
         if ($averageKD >= 1.3) $score += 3;
         elseif ($averageKD >= 1.1) $score += 2;
         elseif ($averageKD >= 0.9) $score += 1;
 
-        // Win Rate
+        
         if ($averageWinRate >= 65) $score += 3;
         elseif ($averageWinRate >= 55) $score += 2;
         elseif ($averageWinRate >= 45) $score += 1;
@@ -243,7 +243,7 @@ class MatchAnalysisService
             ];
         }
 
-        // Trier par influence
+        
         usort($keyPlayers, function($a, $b) {
             return $b['influence'] <=> $a['influence'];
         });
@@ -346,7 +346,7 @@ class MatchAnalysisService
 
         $recommendations = [];
 
-        // Trouver les cartes communes
+        
         $commonMaps = array_intersect_key($team1Maps, $team2Maps);
 
         foreach ($commonMaps as $map => $data) {
@@ -365,7 +365,7 @@ class MatchAnalysisService
             ];
         }
 
-        // Trier par avantage
+        
         uasort($recommendations, function($a, $b) {
             return abs($b['advantage']) <=> abs($a['advantage']);
         });
@@ -415,13 +415,13 @@ class MatchAnalysisService
         $team1Analysis = $this->analyzeTeam($team1Players, 'Team 1');
         $team2Analysis = $this->analyzeTeam($team2Players, 'Team 2');
 
-        // Prédiction du gagnant
+        
         $winnerPrediction = $this->predictWinner($team1Analysis, $team2Analysis);
 
-        // Prédiction MVP
+        
         $mvpPrediction = $this->predictMVP([...$team1Players, ...$team2Players]);
 
-        // Joueurs clés
+        
         $keyPlayers = $this->predictKeyPlayers($team1Players, $team2Players);
 
         return [
@@ -513,7 +513,7 @@ class MatchAnalysisService
         $kdDiff = abs($team1['averageKD'] - $team2['averageKD']);
         
         $confidence = min(($eloDiff / 20) + ($kdDiff * 30) + 50, 95);
-        return max(round($confidence), 60); // Minimum 60% de confiance
+        return max(round($confidence), 60); 
     }
 
     /**

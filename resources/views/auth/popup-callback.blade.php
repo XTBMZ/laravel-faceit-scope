@@ -58,7 +58,7 @@
     </div>
 
     <script>
-        // Données à transmettre à la fenêtre parent
+        
         const authResult = {
             success: {{ $success ? 'true' : 'false' }},
             @if($success)
@@ -69,10 +69,10 @@
             @endif
         };
 
-        // Fonction pour fermer la popup et transmettre les données
+        
         function closePopup() {
             try {
-                // Transmettre le résultat à la fenêtre parent
+                
                 if (window.opener) {
                     window.opener.postMessage({
                         type: 'FACEIT_AUTH_RESULT',
@@ -80,11 +80,11 @@
                     }, window.location.origin);
                 }
                 
-                // Fermer la popup
+                
                 window.close();
             } catch (error) {
                 console.error('Erreur fermeture popup:', error);
-                // Si la fermeture automatique échoue, afficher un message
+                
                 document.querySelector('.container').innerHTML = `
                     <div class="error">
                         <h3>Veuillez fermer cette fenêtre manuellement</h3>
@@ -102,13 +102,13 @@
             }
         }
 
-        // Attendre un court délai puis fermer
+        
         setTimeout(() => {
             document.getElementById('loading').style.display = 'block';
             setTimeout(closePopup, 1000);
         }, 2000);
 
-        // Fermer immédiatement si l'utilisateur clique
+        
         document.addEventListener('click', closePopup);
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' || e.key === 'Enter') {

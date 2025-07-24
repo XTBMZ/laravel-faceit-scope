@@ -37,5 +37,4 @@ class FaceitAuthenticated
     }
 }
 
-// Ajouter dans app/Http/Kernel.php dans $middlewareAliases:
-// 'faceit.auth' => \App\Http\Middleware\FaceitAuthenticated::class,
+

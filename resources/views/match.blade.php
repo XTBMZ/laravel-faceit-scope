@@ -3,7 +3,7 @@
 @section('title', 'Analyse de Match - Faceit Scope')
 
 @section('content')
-<!-- Loading State -->
+
 <div id="loadingState" class="min-h-screen flex items-center justify-center" style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
     <div class="text-center">
         <div class="relative mb-8">
@@ -17,7 +17,7 @@
     </div>
 </div>
 
-<!-- Error State -->
+
 <div id="errorState" class="hidden min-h-screen flex items-center justify-center" style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
     <div class="text-center max-w-md mx-auto px-4">
         <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -31,22 +31,22 @@
     </div>
 </div>
 
-<!-- Main Content -->
+
 <div id="mainContent" class="hidden" style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
     
-    <!-- Match Header -->
+    
     <div class="py-16">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div id="matchHeader" class="text-center">
-                <!-- Header content will be injected here -->
+                
             </div>
         </div>
     </div>
 
-    <!-- Content Container -->
+    
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 space-y-16">
 
-        <!-- Team Maps Analysis -->
+        
         <section id="teamMapsSection">
             <div class="text-center mb-8">
                 <h2 class="text-2xl font-black text-white mb-4">Analyse des cartes par équipe</h2>
@@ -54,11 +54,11 @@
             </div>
             
             <div id="teamMapsContent" class="progressive-reveal">
-                <!-- Team maps content will be injected here -->
+                
             </div>
         </section>
 
-        <!-- Match Lobby -->
+        
         <section>
             <div class="text-center mb-8">
                 <h2 class="text-2xl font-black text-white mb-4">Lobby du match</h2>
@@ -66,10 +66,10 @@
             </div>
             
             <div id="matchLobby" class="progressive-reveal delay-1">
-                <!-- Lobby content will be injected here -->
+                
             </div>
             
-            <!-- Player Comparison Button -->
+            
             <div id="comparisonSection" class="progressive-reveal delay-1 text-center mt-8">
                 <button id="comparePlayersBtn" class="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-xl font-medium text-white transition-all transform hover:scale-105 shadow-lg border border-blue-600/20">
                     <i class="fas fa-balance-scale mr-2"></i>Comparer des joueurs
@@ -77,7 +77,7 @@
             </div>
         </section>
 
-        <!-- AI Predictions -->
+        
         <section>
             <div class="text-center mb-8">
                 <h2 class="text-2xl font-black text-white mb-4">Prédictions IA</h2>
@@ -85,11 +85,11 @@
             </div>
             
             <div id="predictionsContent" class="progressive-reveal delay-2">
-                <!-- Predictions content will be injected here -->
+                
             </div>
         </section>
 
-        <!-- Explanation Section -->
+        
         <section>
             <div class="text-center mb-8">
                 <h2 class="text-2xl font-black text-white mb-4">Comment ça marche ?</h2>
@@ -98,7 +98,7 @@
             
             <div class="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-8 progressive-reveal delay-4">
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                    <!-- Score de Performance -->
+                    
                     <div class="space-y-4">
                         <div class="flex items-center space-x-3 mb-4">
                             <div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
@@ -128,7 +128,7 @@
                         </div>
                     </div>
                     
-                    <!-- Prédiction MVP -->
+                    
                     <div class="space-y-4">
                         <div class="flex items-center space-x-3 mb-4">
                             <div class="w-10 h-10 bg-faceit-orange/20 rounded-full flex items-center justify-center">
@@ -157,7 +157,7 @@
                         </div>
                     </div>
                     
-                    <!-- Attribution des Rôles -->
+                    
                     <div class="space-y-4">
                         <div class="flex items-center space-x-3 mb-4">
                             <div class="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
@@ -190,7 +190,7 @@
                         </div>
                     </div>
                     
-                    <!-- Gagnant du Match -->
+                    
                     <div class="space-y-4">
                         <div class="flex items-center space-x-3 mb-4">
                             <div class="w-10 h-10 bg-yellow-500/20 rounded-full flex items-center justify-center">
@@ -238,7 +238,7 @@
     </div>
 </div>
 
-<!-- Player Comparison Modal -->
+
 <div id="comparisonModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-faceit-card rounded-2xl max-w-2xl w-full p-6 border border-gray-700 shadow-2xl">
         <div class="text-center mb-6">
@@ -250,7 +250,7 @@
         </div>
         
         <div id="playerSelectionGrid" class="grid grid-cols-2 gap-3 mb-6">
-            <!-- Player selection will be injected here -->
+            
         </div>
         
         <div class="flex justify-between">
@@ -438,7 +438,7 @@
 
 @push('scripts')
 <script>
-// Configuration API
+
 const FACEIT_API = {
     TOKEN: "9bcea3f9-2144-495e-be16-02d4eb1a811c",
     BASE_URL: "https://open.faceit.com/data/v4/",
@@ -446,14 +446,14 @@ const FACEIT_API = {
     NO_DELAY: true
 };
 
-// Variables globales
+
 let currentMatchData = null;
 let playersAnalysis = [];
 let teamMapsAnalysis = null;
 let matchPredictions = null;
 let selectedPlayersForComparison = [];
 
-// Initialisation
+
 document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
     
@@ -465,19 +465,19 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupEventListeners() {
-    // Comparison modal events
+    
     document.getElementById('comparePlayersBtn')?.addEventListener('click', showComparisonModal);
     document.getElementById('cancelComparison')?.addEventListener('click', hideComparisonModal);
     document.getElementById('startComparison')?.addEventListener('click', startPlayerComparison);
     
-    // Close modal on outside click
+    
     document.addEventListener('click', function(e) {
         if (e.target.id === 'comparisonModal') {
             hideComparisonModal();
         }
     });
     
-    // Close modal on escape key
+    
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             hideComparisonModal();
@@ -496,28 +496,28 @@ async function loadMatchAnalysis(matchId) {
     ];
     
     try {
-        // Étape 1: Récupérer le match
+        
         updateLoadingText(steps[0]);
         const matchData = await fetchMatch(matchId);
         currentMatchData = matchData;
         
-        // Étape 2: Analyser tous les joueurs
+        
         updateLoadingText(steps[1]);
         const playersList = extractAllPlayers(matchData);
         playersAnalysis = await analyzeAllPlayers(playersList);
         
-        // Étape 3: Calculs avancés
+        
         updateLoadingText(steps[2]);
         
-        // Étape 4: Analyse des cartes par équipe
+        
         updateLoadingText(steps[3]);
         teamMapsAnalysis = calculateTeamMapsAnalysis(matchData, playersAnalysis);
         
-        // Étape 5: Prédictions IA
+        
         updateLoadingText(steps[4]);
         matchPredictions = generateAdvancedPredictions(matchData, playersAnalysis);
         
-        // Étape 6: Affichage
+        
         updateLoadingText(steps[5]);
         
         setTimeout(() => {
@@ -532,7 +532,7 @@ async function loadMatchAnalysis(matchId) {
     }
 }
 
-// API Calls
+
 async function fetchMatch(matchId) {
     const cleanMatchId = extractMatchId(matchId);
     const response = await fetch(`${FACEIT_API.BASE_URL}matches/${cleanMatchId}`, {
@@ -571,7 +571,7 @@ async function fetchPlayerData(playerId) {
     }
 }
 
-// Algorithmes d'analyse avancés
+
 function calculateAdvancedPlayerScore(playerData, playerStats) {
     if (!playerData || !playerStats || !playerStats.lifetime) {
         return { score: 0, level: 1, role: 'unknown', details: {} };
@@ -581,13 +581,13 @@ function calculateAdvancedPlayerScore(playerData, playerStats) {
     const elo = playerData.games?.[FACEIT_API.GAME_ID]?.faceit_elo || 1000;
     const lifetime = playerStats.lifetime;
     
-    // Extraction des statistiques avec combinaisons avancées
+    
     const stats = extractAdvancedStats(lifetime);
     
-    // Calcul du coefficient de niveau (facteur multiplicateur crucial)
+    
     const levelCoefficient = calculateLevelCoefficient(level, elo);
     
-    // Calcul des scores normalisés par catégorie
+    
     const categoryScores = {
         combat: calculateCombatScore(stats, levelCoefficient),
         game_sense: calculateGameSenseScore(stats, levelCoefficient),
@@ -596,13 +596,13 @@ function calculateAdvancedPlayerScore(playerData, playerStats) {
         experience: calculateExperienceScore(stats, levelCoefficient)
     };
     
-    // Score global avec pondération
+    
     const weights = {
-        combat: 0.35,      // K/D, ADR, Headshots
-        game_sense: 0.25,  // Entry, Clutch, Positioning
-        utility: 0.15,     // Flash, Utility usage
-        consistency: 0.15, // Win rate, streaks
-        experience: 0.10   // Matches, data reliability
+        combat: 0.35,      
+        game_sense: 0.25,  
+        utility: 0.15,     
+        consistency: 0.15, 
+        experience: 0.10   
     };
     
     const globalScore = Object.entries(categoryScores).reduce((total, [category, score]) => {
@@ -610,7 +610,7 @@ function calculateAdvancedPlayerScore(playerData, playerStats) {
     }, 0);
     
     
-    // Détermination du rôle principal
+    
     const role = determinePlayerRole(stats);
     
     const finalScore = Math.min(10, Math.max(0, globalScore));
@@ -630,63 +630,63 @@ function calculateAdvancedPlayerScore(playerData, playerStats) {
 
 function extractAdvancedStats(lifetime) {
     const baseStats = {
-        // Stats de base
+        
         kd: parseFloat(lifetime['Average K/D Ratio']) || 0,
         adr: parseFloat(lifetime['ADR']) || 0,
         winRate: parseFloat(lifetime['Win Rate %']) || 0,
         headshots: parseFloat(lifetime['Average Headshots %']) || 0,
         matches: parseInt(lifetime['Matches']) || 0,
         
-        // Stats d'entrée
+        
         entryRate: parseFloat(lifetime['Entry Rate']) || 0,
         entrySuccess: parseFloat(lifetime['Entry Success Rate']) || 0,
         
-        // Stats de clutch
+        
         clutch1v1: parseFloat(lifetime['1v1 Win Rate']) || 0,
         clutch1v2: parseFloat(lifetime['1v2 Win Rate']) || 0,
         
-        // Stats d'utilitaires
+        
         flashSuccess: parseFloat(lifetime['Flash Success Rate']) || 0,
         flashesPerRound: parseFloat(lifetime['Flashes per Round']) || 0,
         utilitySuccess: parseFloat(lifetime['Utility Success Rate']) || 0,
         
-        // Stats de sniper
+        
         sniperRate: parseFloat(lifetime['Sniper Kill Rate']) || 0,
         
-        // Stats de constance
+        
         currentStreak: parseInt(lifetime['Current Win Streak']) || 0,
         longestStreak: parseInt(lifetime['Longest Win Streak']) || 0
     };
     
-    // Création de combinaisons avancées avec vérifications de NaN
+    
     const advanced = {
-        // Efficacité d'entrée globale
+        
         entryEfficiency: baseStats.entryRate * baseStats.entrySuccess,
         
-        // Score de clutch global
+        
         clutchScore: (baseStats.clutch1v1 * 2) + baseStats.clutch1v2,
         
-        // Efficacité des utilitaires
+        
         utilityEfficiency: baseStats.flashSuccess * baseStats.flashesPerRound,
         
-        // Score de constance (avec protection contre log(0))
+        
         consistencyScore: (baseStats.winRate / 100) * Math.log10(Math.max(baseStats.matches, 1) + 1),
         
-        // Potentiel offensif
+        
         offensivePotential: (baseStats.kd * 0.6) + (baseStats.adr * 0.004) + (baseStats.headshots * 0.01),
         
-        // Adaptabilité (capacité à être polyvalent) - CORRECTION du calcul
-        adaptability: 0 // On va le calculer après avoir toutes les autres stats
+        
+        adaptability: 0 
     };
     
-    // Calcul sécurisé de l'adaptabilité
+    
     const entryComponent = isNaN(advanced.entryEfficiency) ? 0 : advanced.entryEfficiency;
     const clutchComponent = isNaN(advanced.clutchScore) ? 0 : advanced.clutchScore;
     const utilityComponent = isNaN(advanced.utilityEfficiency) ? 0 : advanced.utilityEfficiency;
     
     advanced.adaptability = (entryComponent + clutchComponent + utilityComponent) / 3;
     
-    // Vérification finale - remplacer tous les NaN par 0
+    
     const finalStats = {...baseStats, ...advanced};
     Object.keys(finalStats).forEach(key => {
         if (isNaN(finalStats[key])) {
@@ -699,25 +699,25 @@ function extractAdvancedStats(lifetime) {
 }
 
 function calculateLevelCoefficient(level, elo) {
-    // Coefficient de base basé sur le niveau FACEIT
+    
     const levelBase = Math.pow(level / 10, 1.5);
     
-    // Coefficient ELO normalisé (1000-4000)
+    
     const eloNormalized = Math.min(Math.max((elo - 800) / 2400, 0), 1);
     
-    // Coefficient final (entre 0.5 et 2.5)
+    
     return 0.5 + (levelBase * 1.0) + (eloNormalized * 1.0);
 }
 
 function calculateCombatScore(stats, levelCoeff) {
-    // Score de combat brut
+    
     const kdScore = Math.min((stats.kd - 0.5) / 1.5, 1);
     const adrScore = Math.min((stats.adr - 60) / 80, 1);
     const headshotScore = Math.min((stats.headshots - 30) / 30, 1);
     
     const combatBase = (kdScore * 0.5) + (adrScore * 0.3) + (headshotScore * 0.2);
     
-    // Application du coefficient de niveau
+    
     return Math.max(0, combatBase * levelCoeff * 10);
 }
 
@@ -751,7 +751,7 @@ function calculateExperienceScore(stats, levelCoeff) {
 }
 
 function determinePlayerRole(stats) {
-    // Calculs sécurisés pour éviter les NaN
+    
     const roleScores = {
         entry: (stats.entryRate * 200) + (stats.entrySuccess * 100) + (stats.offensivePotential * 15),
         support: (stats.flashesPerRound * 150) + (stats.flashSuccess * 100) + (stats.utilitySuccess * 50),
@@ -761,7 +761,7 @@ function determinePlayerRole(stats) {
         lurker: (stats.adaptability * 80) + ((stats.kd - stats.entryRate) * 40) + (stats.adr * 0.2)
     };
     
-    // Vérification et correction des NaN
+    
     Object.keys(roleScores).forEach(role => {
         if (isNaN(roleScores[role])) {
             console.warn(`⚠️ NaN détecté pour le rôle ${role}, remplacé par 0`);
@@ -769,14 +769,14 @@ function determinePlayerRole(stats) {
         }
     });
     
-    // Critères spécifiques pour une attribution plus précise
+    
     const hasStrongEntry = stats.entryRate > 0.25 && stats.entrySuccess > 0.55;
     const hasStrongAwp = stats.sniperRate > 0.15;
     const hasStrongSupport = stats.flashesPerRound > 0.4 && stats.flashSuccess > 0.5;
     const hasStrongClutch = stats.clutch1v1 > 0.4 || (stats.clutch1v1 > 0.3 && stats.clutch1v2 > 0.25);
     const hasStrongFragging = stats.kd > 1.3 && stats.adr > 85 && stats.entryRate < 0.15;
     
-    // Attribution par critères spécifiques d'abord
+    
     if (hasStrongAwp) {
         return 'awper';
     }
@@ -797,12 +797,12 @@ function determinePlayerRole(stats) {
         return 'fragger';
     }
     
-    // Sinon, prendre le meilleur score
+    
     const dominantRole = Object.keys(roleScores).reduce((a, b) => 
         roleScores[a] > roleScores[b] ? a : b
     );
     
-    // Si c'est encore lurker et que les scores sont proches, forcer un autre rôle
+    
     if (dominantRole === 'lurker') {
         const sortedRoles = Object.entries(roleScores)
             .filter(([role]) => role !== 'lurker')
@@ -811,7 +811,7 @@ function determinePlayerRole(stats) {
         const bestNonLurker = sortedRoles[0];
         const scoreDiff = roleScores[dominantRole] - bestNonLurker[1];
         
-        // Si la différence est faible (<30), prendre l'autre rôle
+        
         if (scoreDiff < 30) {
             return bestNonLurker[0];
         }
@@ -835,7 +835,7 @@ function calculateBestWorstMaps(playerStats) {
         const stats = segment.stats;
         const matches = parseFloat(stats.Matches) || 0;
         
-        // Ignorer les cartes avec moins de 3 matches
+        
         if (matches < 3) return null;
         
         const wins = parseFloat(stats.Wins) || 0;
@@ -844,17 +844,17 @@ function calculateBestWorstMaps(playerStats) {
         const adr = parseFloat(stats.ADR) || 0;
         const winRate = matches > 0 ? (wins / matches) * 100 : 0;
         
-        // Voici l'algorithme ULTRA PRÉCIS pour les cartes
-        // Chaque facteur a un coefficient spécifique
+        
+        
         const coefficients = {
-            winRate: 0.4,          // Le plus important - résultat final
-            kd: 0.25,              // Performance individuelle
-            adr: 0.2,              // Contribution aux dégâts
-            headshots: 0.1,        // Précision
-            consistency: 0.05      // Facteur de constance
+            winRate: 0.4,          
+            kd: 0.25,              
+            adr: 0.2,              
+            headshots: 0.1,        
+            consistency: 0.05      
         };
         
-        // Normalisation avancée avec courbes logarithmiques
+        
         const normalizedStats = {
             winRate: Math.min(Math.max((winRate - 30) / 40, 0), 1),
             kd: Math.min(Math.max(Math.log10(kd * 10) / Math.log10(20), 0), 1),
@@ -862,17 +862,17 @@ function calculateBestWorstMaps(playerStats) {
             headshots: Math.min(Math.max((hs - 25) / 35, 0), 1)
         };
         
-        // Facteur de fiabilité basé sur le nombre de matches
+        
         const reliabilityFactor = Math.min(Math.log10(matches + 1) / Math.log10(11), 1);
         
-        // Score composite avec pondération
+        
         const compositeScore = 
             normalizedStats.winRate * coefficients.winRate +
             normalizedStats.kd * coefficients.kd +
             normalizedStats.adr * coefficients.adr +
             normalizedStats.headshots * coefficients.headshots;
         
-        // Score final avec facteur de fiabilité
+        
         const finalScore = compositeScore * reliabilityFactor;
         
         return {
@@ -887,7 +887,7 @@ function calculateBestWorstMaps(playerStats) {
         };
     }).filter(map => map !== null);
     
-    // Tri par score
+    
     mapAnalysis.sort((a, b) => b.score - a.score);
     
     return {
@@ -910,13 +910,13 @@ function calculateTeamMapsAnalysis(matchData, playersAnalysis) {
             return;
         }
         
-        // Collecte de toutes les cartes avec pondération par ELO
+        
         const allMaps = new Map();
         const teamAvgElo = teamPlayers.reduce((sum, p) => sum + p.elo, 0) / teamPlayers.length;
         
         teamPlayers.forEach(player => {
             if (player.mapAnalysis && player.mapAnalysis.all) {
-                const playerWeight = player.elo / teamAvgElo; // Poids relatif à la moyenne d'équipe
+                const playerWeight = player.elo / teamAvgElo; 
                 
                 player.mapAnalysis.all.forEach(mapData => {
                     const mapName = mapData.name;
@@ -931,7 +931,7 @@ function calculateTeamMapsAnalysis(matchData, playersAnalysis) {
                     }
                     
                     const mapInfo = allMaps.get(mapName);
-                    const effectiveWeight = playerWeight * Math.min(mapData.matches / 5, 1); // Plus de matches = plus de poids
+                    const effectiveWeight = playerWeight * Math.min(mapData.matches / 5, 1); 
                     
                     mapInfo.totalWeight += effectiveWeight;
                     mapInfo.weightedScore += mapData.score * effectiveWeight;
@@ -940,9 +940,9 @@ function calculateTeamMapsAnalysis(matchData, playersAnalysis) {
             }
         });
         
-        // Calcul des scores finaux
+        
         const teamMapScores = Array.from(allMaps.values())
-            .filter(map => map.playersCount >= 2) // Au moins 2 joueurs
+            .filter(map => map.playersCount >= 2) 
             .map(map => ({
                 name: map.name,
                 score: map.totalWeight > 0 ? map.weightedScore / map.totalWeight : 0,
@@ -965,25 +965,25 @@ function generateAdvancedPredictions(matchData, playersAnalysis) {
     const team1Players = playersAnalysis.filter(p => p.teamId === teams[0]);
     const team2Players = playersAnalysis.filter(p => p.teamId === teams[1]);
     
-    // Calcul de la force moyenne des équipes
+    
     const team1Strength = calculateTeamStrength(team1Players);
     const team2Strength = calculateTeamStrength(team2Players);
     
-    // Prédiction de l'équipe gagnante avec algorithme avancé
+    
     const strengthDiff = team1Strength.score - team2Strength.score;
-    const probabilityTeam1 = 50 + (strengthDiff * 8); // Facteur de 8 pour amplifier les différences
+    const probabilityTeam1 = 50 + (strengthDiff * 8); 
     const winnerTeam = probabilityTeam1 > 50 ? teams[0] : teams[1];
     const winnerProb = Math.max(probabilityTeam1, 100 - probabilityTeam1);
     const confidence = getConfidenceLevel(Math.abs(strengthDiff));
     
-    // Prédiction MVP
+    
     const allPlayers = [...team1Players, ...team2Players].sort((a, b) => b.impactScore.score - a.impactScore.score);
     const predictedMVP = allPlayers[0];
     
-    // Joueurs clés par rôle
+    
     const keyPlayers = identifyKeyPlayers(playersAnalysis);
     
-    // Facteurs déterminants
+    
     const keyFactors = analyzeKeyFactors(team1Strength, team2Strength, playersAnalysis);
     
     return {
@@ -1012,21 +1012,21 @@ function calculateTeamStrength(teamPlayers) {
     const avgElo = teamPlayers.reduce((sum, p) => sum + p.elo, 0) / teamPlayers.length;
     const avgLevel = teamPlayers.reduce((sum, p) => sum + p.level, 0) / teamPlayers.length;
     
-    // Analyse des rôles
+    
     const roles = {};
     teamPlayers.forEach(p => {
         const role = p.impactScore.role;
         roles[role] = (roles[role] || 0) + 1;
     });
     
-    // Bonus d'équilibre des rôles
+    
     const roleBalance = calculateRoleBalance(roles);
     const topPlayer = teamPlayers.reduce((best, current) => 
         current.impactScore.score > best.impactScore.score ? current : best
     );
     
     return {
-        score: avgScore + (roleBalance * 2), // Bonus pour équilibre
+        score: avgScore + (roleBalance * 2), 
         details: {
             avgScore: avgScore,
             avgElo: Math.round(avgElo),
@@ -1108,7 +1108,7 @@ function getConfidenceLevel(strengthDiff) {
     return 'Faible';
 }
 
-// Extraction et analyse des joueurs
+
 function extractAllPlayers(matchData) {
     const players = [];
     
@@ -1161,7 +1161,7 @@ async function analyzeAllPlayers(playersList) {
     const validResults = results.filter(r => r !== null);
     
     
-    // Debug des rôles finaux
+    
     const rolesSummary = {};
     validResults.forEach(player => {
         const role = player.impactScore.role;
@@ -1171,7 +1171,7 @@ async function analyzeAllPlayers(playersList) {
     return validResults;
 }
 
-// Affichage du contenu
+
 function displayMatchContent() {
     displayMatchHeader();
     displayTeamMapsAnalysis();
@@ -1182,23 +1182,23 @@ function displayMatchContent() {
 function displayMatchHeader() {
     const container = document.getElementById('matchHeader');
     
-    // Informations de base du match
+    
     const competitionName = currentMatchData.competition_name || 'Europe 5v5 Queue';
     const status = currentMatchData.status || 'unknown';
     const region = currentMatchData.region || 'EU';
     const bestOf = currentMatchData.best_of || 1;
     
-    // Date et heure
+    
     const matchDate = getMatchDate();
     const matchTime = getMatchTime();
     
-    // Statut avec style
+    
     const statusInfo = getMatchStatusInfo(status);
     
-    // Résultat si terminé
+    
     const matchResult = getMatchResult();
     
-    // Carte jouée
+    
     const mapPlayed = getMapPlayed();
     
     container.innerHTML = `
@@ -1395,7 +1395,7 @@ function displayPredictions() {
     
     container.innerHTML = `
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Winner Prediction -->
+            
             <div class="prediction-card winner">
                 <div class="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-trophy text-yellow-400 text-xl"></i>
@@ -1411,7 +1411,7 @@ function displayPredictions() {
                 </div>
             </div>
             
-            <!-- MVP Prediction -->
+            
             <div class="prediction-card mvp">
                 <div class="w-12 h-12 bg-faceit-orange/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-star text-faceit-orange text-xl"></i>
@@ -1433,7 +1433,7 @@ function displayPredictions() {
                 `}
             </div>
             
-            <!-- Key Players -->
+            
             <div class="prediction-card key-player">
                 <div class="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-users text-blue-400 text-xl"></i>
@@ -1481,7 +1481,7 @@ function displayPredictions() {
     `;
 }
 
-// Fonctions utilitaires
+
 function extractMatchId(matchId) {
     if (matchId.includes('room/')) {
         return matchId.split('room/')[1].split('/')[0];
@@ -1628,7 +1628,7 @@ function startProgressiveReveal() {
     });
 }
 
-// Player Comparison Functions
+
 function showComparisonModal() {
     if (!playersAnalysis || playersAnalysis.length === 0) {
         alert('Aucun joueur disponible pour la comparaison');
@@ -1638,10 +1638,10 @@ function showComparisonModal() {
     const modal = document.getElementById('comparisonModal');
     const grid = document.getElementById('playerSelectionGrid');
     
-    // Reset selection
+    
     selectedPlayersForComparison = [];
     
-    // Populate player grid
+    
     grid.innerHTML = playersAnalysis.map(player => `
         <button class="player-selection-btn bg-faceit-elevated rounded-xl p-3 text-left transition-all border-2 border-transparent hover:border-faceit-orange"
                 onclick="togglePlayerSelection('${player.playerId}')"
@@ -1671,15 +1671,15 @@ function togglePlayerSelection(playerId) {
     const startButton = document.getElementById('startComparison');
     
     if (selectedPlayersForComparison.includes(playerId)) {
-        // Deselect player
+        
         selectedPlayersForComparison = selectedPlayersForComparison.filter(id => id !== playerId);
         button.classList.remove('selected');
     } else if (selectedPlayersForComparison.length < 2) {
-        // Select player
+        
         selectedPlayersForComparison.push(playerId);
         button.classList.add('selected');
     } else {
-        // Replace oldest selection if 2 already selected
+        
         const oldestSelection = selectedPlayersForComparison.shift();
         const oldButton = document.querySelector(`[data-player-id="${oldestSelection}"]`);
         oldButton.classList.remove('selected');
@@ -1688,10 +1688,10 @@ function togglePlayerSelection(playerId) {
         button.classList.add('selected');
     }
     
-    // Update start button state
+    
     startButton.disabled = selectedPlayersForComparison.length !== 2;
     
-    // Update button text
+    
     if (selectedPlayersForComparison.length === 0) {
         startButton.innerHTML = '<i class="fas fa-balance-scale mr-2"></i>Sélectionnez 2 joueurs';
     } else if (selectedPlayersForComparison.length === 1) {
@@ -1718,19 +1718,19 @@ function hideComparisonModal() {
     modal.classList.add('hidden');
     modal.classList.remove('flex');
     
-    // Reset selections
+    
     selectedPlayersForComparison = [];
     document.querySelectorAll('.player-selection-btn').forEach(btn => {
         btn.classList.remove('selected');
     });
 }
 
-// Export functions for HTML onclick events
+
 window.togglePlayerSelection = togglePlayerSelection;
 </script>
 
 <script>
-    // Variables globales pour les données du match
+    
     window.matchData = {
         matchId: @json($matchId)
     };

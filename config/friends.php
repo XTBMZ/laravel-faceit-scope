@@ -1,6 +1,6 @@
 <?php
-// Fichier: config/friends.php
-// Configuration spécifique pour la fonctionnalité Friends
+
+
 
 return [
     /*
@@ -9,47 +9,47 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    // Cache des amis en minutes
+    
     'cache_duration' => [
-        'friends_list' => 5,        // 5 minutes pour la liste des amis
-        'friend_data' => 10,        // 10 minutes pour les données individuelles
-        'friends_stats' => 10,      // 10 minutes pour les statistiques
-        'search_results' => 2,      // 2 minutes pour les résultats de recherche
+        'friends_list' => 5,        
+        'friend_data' => 10,        
+        'friends_stats' => 10,      
+        'search_results' => 2,      
     ],
 
-    // Limites de pagination et performance
+    
     'pagination' => [
-        'default_limit' => 50,      // Nombre maximum d'amis à récupérer
-        'batch_size' => 3,          // Taille des lots pour les requêtes API
-        'max_concurrent' => 5,      // Maximum de requêtes simultanées
-        'retry_attempts' => 3,      // Nombre de tentatives en cas d'échec
-        'retry_delay' => 1000,      // Délai entre les tentatives (ms)
+        'default_limit' => 50,      
+        'batch_size' => 3,          
+        'max_concurrent' => 5,      
+        'retry_attempts' => 3,      
+        'retry_delay' => 1000,      
     ],
 
-    // Rate limiting pour éviter la surcharge API
+    
     'rate_limiting' => [
-        'requests_per_minute' => 30,    // Limite de requêtes par minute
-        'burst_size' => 10,             // Taille du burst autorisé
-        'cooldown_period' => 60,        // Période de refroidissement (secondes)
+        'requests_per_minute' => 30,    
+        'burst_size' => 10,             
+        'cooldown_period' => 60,        
     ],
 
-    // Optimisations des données
+    
     'data_optimization' => [
-        'preload_avatars' => true,      // Précharger les avatars des premiers amis
-        'lazy_load_images' => true,     // Lazy loading pour les images
-        'compress_responses' => true,   // Compresser les réponses JSON
-        'enable_etag' => true,          // Utiliser ETag pour la mise en cache
+        'preload_avatars' => true,      
+        'lazy_load_images' => true,     
+        'compress_responses' => true,   
+        'enable_etag' => true,          
     ],
 
-    // Configuration des statuts d'activité
+    
     'activity_status' => [
-        'online_threshold' => 1,        // Jours pour considérer comme "en ligne"
-        'recent_threshold' => 7,        // Jours pour considérer comme "récent"
-        'away_threshold' => 30,         // Jours pour considérer comme "absent"
-        // Au-delà = "inactif"
+        'online_threshold' => 1,        
+        'recent_threshold' => 7,        
+        'away_threshold' => 30,         
+        
     ],
 
-    // Rangs et niveaux
+    
     'ranks' => [
         1 => ['name' => 'Iron', 'color' => 'gray-400'],
         2 => ['name' => 'Bronze', 'color' => 'yellow-600'],
@@ -63,7 +63,7 @@ return [
         10 => ['name' => 'Legendary', 'color' => 'orange-400']
     ],
 
-    // Messages d'erreur personnalisés
+    
     'error_messages' => [
         'no_friends' => 'Aucun ami trouvé. Ajoutez des amis sur FACEIT pour les voir ici.',
         'load_failed' => 'Impossible de charger vos amis. Vérifiez votre connexion.',
@@ -72,40 +72,40 @@ return [
         'server_error' => 'Erreur serveur. Veuillez réessayer plus tard.',
     ],
 
-    // Features flags
+    
     'features' => [
-        'enable_search' => true,        // Activer la recherche dans les amis
-        'enable_sorting' => true,       // Activer le tri
-        'enable_filtering' => true,     // Activer les filtres par statut
-        'enable_stats' => true,         // Afficher les statistiques globales
-        'enable_export' => false,       // Exporter la liste d'amis
-        'enable_bulk_actions' => false, // Actions en lot (future feature)
+        'enable_search' => true,        
+        'enable_sorting' => true,       
+        'enable_filtering' => true,     
+        'enable_stats' => true,         
+        'enable_export' => false,       
+        'enable_bulk_actions' => false, 
     ],
 
-    // Configuration de l'interface
+    
     'ui' => [
-        'default_view_mode' => 'grid',      // 'grid' ou 'list'
-        'cards_per_page' => 12,             // Nombre de cartes par page
-        'enable_animations' => true,        // Activer les animations
-        'show_online_indicator' => true,    // Afficher l'indicateur en ligne
-        'show_rank_icons' => true,          // Afficher les icônes de rang
-        'show_country_flags' => true,       // Afficher les drapeaux pays
+        'default_view_mode' => 'grid',      
+        'cards_per_page' => 12,             
+        'enable_animations' => true,        
+        'show_online_indicator' => true,    
+        'show_rank_icons' => true,          
+        'show_country_flags' => true,       
     ],
 
-    // Métriques et monitoring
+    
     'monitoring' => [
-        'track_load_times' => true,     // Suivre les temps de chargement
-        'track_api_calls' => true,      // Suivre les appels API
-        'track_user_actions' => true,   // Suivre les actions utilisateur
-        'log_errors' => true,           // Logger les erreurs
-        'log_performance' => false,     // Logger les métriques de performance
+        'track_load_times' => true,     
+        'track_api_calls' => true,      
+        'track_user_actions' => true,   
+        'log_errors' => true,           
+        'log_performance' => false,     
     ],
 
-    // Nettoyage automatique du cache
+    
     'cache_cleanup' => [
-        'enable_auto_cleanup' => true,     // Nettoyage automatique
-        'cleanup_interval' => 3600,        // Intervalle en secondes (1 heure)
-        'max_cache_size' => 100,            // Taille max du cache (MB)
-        'cleanup_old_entries' => true,     // Supprimer les anciennes entrées
+        'enable_auto_cleanup' => true,     
+        'cleanup_interval' => 3600,        
+        'max_cache_size' => 100,            
+        'cleanup_old_entries' => true,     
     ]
 ];

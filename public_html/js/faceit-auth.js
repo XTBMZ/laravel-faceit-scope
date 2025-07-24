@@ -22,12 +22,12 @@ class FaceitAuth {
             if (value && typeof value === 'object' && k in value) {
                 value = value[k];
             } else {
-                return key; // Fallback to key if translation not found
+                return key; 
             }
         }
         
         if (typeof value === 'string') {
-            // Replace placeholders like :nickname
+            
             return value.replace(/:(\w+)/g, (match, placeholder) => {
                 return replacements[placeholder] || match;
             });
@@ -85,7 +85,7 @@ class FaceitAuth {
      * Configure les écouteurs d'événements
      */
     setupEventListeners() {
-        // Bouton de connexion
+        
         const loginButtons = document.querySelectorAll('#faceitLogin, [data-faceit-login]');
         loginButtons.forEach(button => {
             button.addEventListener('click', (e) => {
@@ -94,7 +94,7 @@ class FaceitAuth {
             });
         });
 
-        // Bouton de déconnexion
+        
         const logoutButtons = document.querySelectorAll('#faceitLogout, [data-faceit-logout]');
         logoutButtons.forEach(button => {
             button.addEventListener('click', (e) => {
@@ -103,7 +103,7 @@ class FaceitAuth {
             });
         });
 
-        // Avatar cliquable
+        
         const avatarElements = document.querySelectorAll('#userAvatar, [data-user-avatar]');
         avatarElements.forEach(avatar => {
             avatar.addEventListener('click', (e) => {
@@ -112,7 +112,7 @@ class FaceitAuth {
             });
         });
 
-        // Écouter les messages de la popup
+        
         window.addEventListener('message', (event) => {
             if (event.origin !== window.location.origin) return;
             
@@ -127,7 +127,7 @@ class FaceitAuth {
      */
     async loginWithPopup() {
         try {
-            // Ouvrir la popup
+            
             const popup = window.open(
                 '/auth/faceit/popup/callback?redirect_to_popup=1',
                 'faceit-login',
@@ -138,7 +138,7 @@ class FaceitAuth {
                 throw new Error(this.t('errors.popup_blocked'));
             }
 
-            // Rediriger la popup vers FACEIT
+            
             popup.location.href = '/auth/faceit/login';
 
         } catch (error) {
@@ -157,7 +157,7 @@ class FaceitAuth {
             this.updateUI();
             this.showNotification(this.t('status.welcome', { nickname: authData.user.nickname }), 'success');
             
-            // Redirection optionnelle vers le profil
+            
             if (authData.user.player_data && authData.user.player_data.player_id) {
                 setTimeout(() => {
                     window.location.href = `/advanced?playerId=${authData.user.player_data.player_id}&playerNickname=${encodeURIComponent(authData.user.nickname)}`;
@@ -214,17 +214,17 @@ class FaceitAuth {
      * Met à jour l'interface utilisateur
      */
     updateUI() {
-        // Éléments d'authentification
+        
         const authSection = document.getElementById('authSection');
         const mobileAuthSection = document.getElementById('mobileAuthSection');
         const loginButtons = document.querySelectorAll('#faceitLogin, [data-faceit-login]');
         const logoutButtons = document.querySelectorAll('#faceitLogout, [data-faceit-logout]');
 
         if (this.isAuthenticated && this.currentUser) {
-            // Utilisateur connecté
+            
             this.updateAuthenticatedUI();
         } else {
-            // Utilisateur non connecté
+            
             this.updateUnauthenticatedUI();
         }
     }
@@ -239,7 +239,7 @@ class FaceitAuth {
         if (authSection) {
             authSection.innerHTML = `
                 <div class="flex items-center space-x-3">
-                    <!-- Avatar avec tooltip -->
+                    
                     <div class="relative group cursor-pointer" id="userAvatar" title="${this.t('buttons.profile')}">
                         <img 
                             src="${this.currentUser.picture || '/images/default-avatar.png'}" 
@@ -247,17 +247,17 @@ class FaceitAuth {
                             class="w-8 h-8 rounded-full border-2 border-faceit-orange hover:border-white transition-all transform hover:scale-110"
                             onerror="this.src='/images/default-avatar.png'"
                         >
-                        <!-- Indicateur en ligne -->
+                        
                         <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-faceit-dark rounded-full"></div>
                     </div>
                     
-                    <!-- Infos utilisateur (masquées sur petits écrans) -->
+                    
                     <div class="hidden lg:block">
                         <div class="text-sm font-medium text-white truncate max-w-24">${this.currentUser.nickname}</div>
                         <div class="text-xs text-gray-400">${this.t('status.connected')}</div>
                     </div>
                     
-                    <!-- Menu déroulant (optionnel) -->
+                    
                     <div class="relative">
                         <button 
                             id="userMenuButton"
@@ -267,7 +267,7 @@ class FaceitAuth {
                             <i class="fas fa-chevron-down text-xs"></i>
                         </button>
                         
-                        <!-- Dropdown menu (caché par défaut) -->
+                        
                         <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-faceit-card border border-gray-700 rounded-xl shadow-lg z-50">
                             <div class="py-2">
                                 <a href="/profile" class="flex items-center px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700">
@@ -289,7 +289,7 @@ class FaceitAuth {
                 </div>
             `;
 
-            // Gérer le menu déroulant
+            
             const userMenuButton = document.getElementById('userMenuButton');
             const userDropdown = document.getElementById('userDropdown');
             
@@ -299,7 +299,7 @@ class FaceitAuth {
                     userDropdown.classList.toggle('hidden');
                 });
 
-                // Fermer le dropdown en cliquant ailleurs
+                
                 document.addEventListener('click', () => {
                     userDropdown.classList.add('hidden');
                 });
@@ -339,7 +339,7 @@ class FaceitAuth {
                 </div>
             `;
 
-            // Réattacher l'événement de déconnexion mobile
+            
             const mobileLogout = document.getElementById('mobileLogout');
             if (mobileLogout) {
                 mobileLogout.addEventListener('click', (e) => {
@@ -349,7 +349,7 @@ class FaceitAuth {
             }
         }
 
-        // Réattacher les événements
+        
         this.setupEventListeners();
     }
 
@@ -382,7 +382,7 @@ class FaceitAuth {
                 </button>
             `;
 
-            // Réattacher l'événement de connexion mobile
+            
             const mobileLogin = document.getElementById('mobileFaceitLogin');
             if (mobileLogin) {
                 mobileLogin.addEventListener('click', (e) => {
@@ -392,7 +392,7 @@ class FaceitAuth {
             }
         }
 
-        // Réattacher les événements
+        
         this.setupEventListeners();
     }
 
@@ -400,11 +400,11 @@ class FaceitAuth {
      * Affiche une notification
      */
     showNotification(message, type = 'info') {
-        // Utiliser la fonction globale si disponible
+        
         if (typeof showNotification === 'function') {
             showNotification(message, type);
         } else {
-            // Fallback simple
+            
             alert(message);
         }
     }
@@ -424,9 +424,9 @@ class FaceitAuth {
     }
 }
 
-// Initialiser le service d'authentification
+
 const faceitAuth = new FaceitAuth();
 
-// Export global
+
 window.faceitAuth = faceitAuth;
 window.FaceitAuth = FaceitAuth;

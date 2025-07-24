@@ -1,5 +1,5 @@
 {{-- resources/views/components/extension-top-banner.blade.php --}}
-<!-- Top Banner Extension -->
+
 <div id="extensionTopBanner" class="fixed top-0 left-0 right-0 z-[60] extension-banner" style="display: none;">
     <div class="gradient-bg text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -36,7 +36,7 @@
 
 <div id="bannerSpacer" class="banner-spacer" style="display: none; height: 60px;"></div>
 
-<!-- Menu Options -->
+
 <div id="bannerOptionsMenu" class="fixed bg-white rounded-lg shadow-xl border border-gray-200 w-48 opacity-0 invisible transform translate-y-2 transition-all duration-200" style="z-index: 99999;">
     <div class="py-2">
         <button onclick="bannerManager.remindLater()" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
@@ -194,10 +194,10 @@ class SmartExtensionBanner {
     }
 
     setupEventListeners() {
-        // Install button
+        
         document.getElementById('bannerInstallButton')?.addEventListener('click', () => this.handleInstallClick());
 
-        // Options menu
+        
         const optionsButton = document.getElementById('bannerOptionsButton');
         const optionsMenu = document.getElementById('bannerOptionsMenu');
         
@@ -214,7 +214,7 @@ class SmartExtensionBanner {
             optionsMenu.addEventListener('click', (e) => e.stopPropagation());
         }
 
-        // Escape key
+        
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 this.dismiss();
@@ -237,7 +237,7 @@ class SmartExtensionBanner {
         }).catch(() => {});
     }
 
-    // Debug utilities
+    
     reset() {
         Object.values(this.keys).forEach(key => localStorage.removeItem(key));
     }

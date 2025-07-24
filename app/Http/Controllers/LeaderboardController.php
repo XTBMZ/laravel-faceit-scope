@@ -12,12 +12,12 @@ class LeaderboardController extends Controller
      */
     public function index(Request $request)
     {
-        // Valeurs par défaut simples (plus de validation complexe)
+        
         $region = $request->get('region', 'EU');
         $country = $request->get('country', '');
         $limit = (int) $request->get('limit', 20);
 
-        // Validation basique côté serveur (le JS gère le reste)
+        
         $validRegions = ['EU', 'NA', 'SA', 'AS', 'AF', 'OC'];
         if (!in_array($region, $validRegions)) {
             $region = 'EU';

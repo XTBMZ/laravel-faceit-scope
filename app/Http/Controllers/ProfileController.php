@@ -35,16 +35,16 @@ class ProfileController extends Controller
                 ->with('error', 'Impossible de récupérer vos informations de profil');
         }
 
-        // Récupérer les statistiques du joueur si disponibles
+        
         $playerStats = null;
         $recentMatches = null;
         
         if (isset($user['player_data']) && isset($user['player_data']['player_id'])) {
             try {
-                // Stats du joueur
+                
                 $playerStats = $this->faceitService->getPlayerStats($user['player_data']['player_id']);
                 
-                // Quelques matches récents (5 derniers)
+                
                 $recentMatches = $this->faceitService->getPlayerHistory($user['player_data']['player_id'], 0, 0, 0, 5);
                 
             } catch (\Exception $e) {
@@ -91,7 +91,7 @@ class ProfileController extends Controller
                 'recent_matches' => null
             ];
 
-            // Récupérer les stats si on a les données du joueur
+            
             if (isset($user['player_data']['player_id'])) {
                 try {
                     $profileData['stats'] = $this->faceitService->getPlayerStats($user['player_data']['player_id']);
@@ -136,7 +136,7 @@ class ProfileController extends Controller
         try {
             $user = $this->faceitOAuth->getAuthenticatedUser();
             
-            // Récupérer les données via l'API FACEIT standard
+            
             $playerData = $this->faceitService->getPlayerByNickname($user['nickname']);
             
             if (!$playerData) {
@@ -146,12 +146,12 @@ class ProfileController extends Controller
                 ], 404);
             }
 
-            // Mettre à jour les données utilisateur en session
+            
             $userData = $user;
             $userData['player_data'] = $playerData;
             $userData['synced_at'] = now()->timestamp;
 
-            // Sauvegarder en session
+            
             $this->faceitOAuth->storeUserSession(
                 [
                     'sub' => $user['id'],

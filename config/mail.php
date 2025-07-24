@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'smtp'), // CHANGÉ de 'log' à 'smtp'
+    'default' => env('MAIL_MAILER', 'smtp'), 
 
     /*
     |--------------------------------------------------------------------------
@@ -42,7 +42,7 @@ return [
             'scheme' => env('MAIL_SCHEME'),
             'url' => env('MAIL_URL'),
             'host' => env('MAIL_HOST', '127.0.0.1'),
-            'port' => env('MAIL_PORT', 587), // CHANGÉ de 2525 à 587 (standard Hostinger)
+            'port' => env('MAIL_PORT', 587), 
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
@@ -55,10 +55,10 @@ return [
 
         'postmark' => [
             'transport' => 'postmark',
-            // 'message_stream_id' => env('POSTMARK_MESSAGE_STREAM_ID'),
-            // 'client' => [
-            //     'timeout' => 5,
-            // ],
+            
+            
+            
+            
         ],
 
         'resend' => [
@@ -111,8 +111,8 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'support@faceitscope.com'), // CHANGÉ
-        'name' => env('MAIL_FROM_NAME', 'Faceit Scope'), // CHANGÉ
+        'address' => env('MAIL_FROM_ADDRESS', 'support@faceitscope.com'), 
+        'name' => env('MAIL_FROM_NAME', 'Faceit Scope'), 
     ],
 
     /*
@@ -126,6 +126,6 @@ return [
 
     'contact' => [
         'recipient' => env('MAIL_CONTACT_RECIPIENT', 'support@faceitscope.com'),
-    ], // AJOUTÉ
+    ], 
 
 ];

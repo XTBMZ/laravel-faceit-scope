@@ -1,5 +1,5 @@
 <?php
-// resources/lang/fr/common.php
+
 return [
     'loading' => 'Chargement...',
     'error' => 'Erreur',

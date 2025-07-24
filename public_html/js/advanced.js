@@ -2,7 +2,7 @@
  * Script pour la page de statistiques avancées - Faceit Scope (TRADUIT)
  */
 
-// Variables globales
+
 let currentPlayerId = null;
 let currentPlayerNickname = null;
 let currentPlayerData = null;
@@ -10,7 +10,7 @@ let currentPlayerStats = null;
 let performanceRadarChart = null;
 let mapWinRateChart = null;
 
-// Images des cartes CS2
+
 const MAP_IMAGES = {
     'mirage': '/images/maps/de_mirage.webp',
     'inferno': '/images/maps/de_inferno.jpg',
@@ -24,9 +24,9 @@ const MAP_IMAGES = {
     'anubis': '/images/maps/de_anubis.webp'
 };
 
-// Initialisation
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Récupération des paramètres
+    
     if (window.playerData) {
         currentPlayerId = window.playerData.playerId;
         currentPlayerNickname = window.playerData.playerNickname;
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupEventListeners() {
-    // Boutons d'action
+    
     const compareBtn = document.getElementById('comparePlayerBtn');
     const downloadBtn = document.getElementById('downloadReportBtn');
     const progressionBtn = document.getElementById('viewProgressionBtn');
@@ -70,7 +70,7 @@ function setupEventListeners() {
         });
     }
     
-    // Fermeture du modal par clic extérieur
+    
     const modal = document.getElementById('mapStatsModal');
     if (modal) {
         modal.addEventListener('click', function(e) {
@@ -80,7 +80,7 @@ function setupEventListeners() {
         });
     }
     
-    // Fermeture du modal par touche Échap
+    
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeMapStatsModal();
@@ -117,7 +117,7 @@ async function loadPlayerByNickname() {
 
 async function loadPlayerData() {
     try {
-        // Récupération des données en parallèle
+        
         const [player, stats] = await Promise.all([
             faceitService.getPlayer(currentPlayerId),
             faceitService.getPlayerStats(currentPlayerId)
@@ -127,7 +127,7 @@ async function loadPlayerData() {
         currentPlayerStats = stats;
         currentPlayerNickname = player.nickname;
         
-        // Affichage progressif des sections
+        
         await displayPlayerHeader(player);
         await displayMainStats(stats);
         await displayCombatStats(stats);
@@ -136,7 +136,7 @@ async function loadPlayerData() {
         await displayAchievements(stats);
         await displayRecentResults(stats);
         
-        // Afficher le contenu principal
+        
         document.getElementById('loadingState').classList.add('hidden');
         document.getElementById('mainContent').classList.remove('hidden');
         
@@ -270,7 +270,7 @@ async function displayMainStats(stats) {
 async function displayCombatStats(stats) {
     const lifetime = stats.lifetime;
     
-    // Stats Clutch
+    
     const clutchContainer = document.getElementById('clutchStats');
     const clutch1v1Rate = ((parseFloat(lifetime["1v1 Win Rate"] || 0) * 100).toFixed(0)) + '%';
     const clutch1v2Rate = ((parseFloat(lifetime["1v2 Win Rate"] || 0) * 100).toFixed(0)) + '%';
@@ -304,7 +304,7 @@ async function displayCombatStats(stats) {
         </div>
     `;
     
-    // Stats Entry
+    
     const entryContainer = document.getElementById('entryStats');
     const entrySuccessRate = ((parseFloat(lifetime["Entry Success Rate"] || 0) * 100).toFixed(0)) + '%';
     const entryRate = ((parseFloat(lifetime["Entry Rate"] || 0) * 100).toFixed(1)) + '%';
@@ -335,7 +335,7 @@ async function displayCombatStats(stats) {
         </div>
     `;
     
-    // Stats Utility/Support
+    
     const utilityContainer = document.getElementById('utilityStats');
     const flashSuccessRate = ((parseFloat(lifetime["Flash Success Rate"] || 0) * 100).toFixed(0)) + '%';
     const utilitySuccessRate = ((parseFloat(lifetime["Utility Success Rate"] || 0) * 100).toFixed(0)) + '%';
@@ -367,7 +367,7 @@ async function displayCombatStats(stats) {
     `;
 }
 async function displayCharts(stats) {
-    // Radar Chart
+    
     const radarCtx = document.getElementById('performanceRadarChart');
     if (radarCtx && performanceRadarChart) {
         performanceRadarChart.destroy();
@@ -429,7 +429,7 @@ async function displayCharts(stats) {
         }
     });
     
-    // Map Win Rate Chart
+    
     const mapCtx = document.getElementById('mapWinRateChart');
     if (mapCtx && mapWinRateChart) {
         mapWinRateChart.destroy();
@@ -502,7 +502,7 @@ async function displayMapStats(stats) {
         return;
     }
     
-    // Trier par nombre de matches
+    
     mapSegments.sort((a, b) => {
         const matchesA = parseInt(a.stats["Matches"] || 0);
         const matchesB = parseInt(b.stats["Matches"] || 0);
@@ -539,7 +539,7 @@ async function displayMapStats(stats) {
                  onclick="showMapStatsModal(${index})">
                 ${positionBadge}
                 
-                <!-- Header avec image et infos principales -->
+                
                 <div class="relative h-24 ${mapImage ? '' : 'bg-gradient-to-br from-faceit-orange/30 to-faceit-orange-dark/20'}">
                     ${mapImage ? `
                         <img src="${mapImage}" alt="${mapName}" class="w-full h-full object-cover">
@@ -560,9 +560,9 @@ async function displayMapStats(stats) {
                     </div>
                 </div>
                 
-                <!-- Stats compactes -->
+                
                 <div class="p-4 space-y-3">
-                    <!-- K/D et Headshots sur une ligne -->
+                    
                     <div class="flex justify-between items-center">
                         <div class="text-center">
                             <div class="${kdColor} text-xl font-black">${kd}</div>
@@ -578,14 +578,14 @@ async function displayMapStats(stats) {
                         </div>
                     </div>
                     
-                    <!-- Multi-kills compacts -->
+                    
                     <div class="flex justify-center gap-3">
                         ${penta > 0 ? `<span class="px-2 py-1 bg-red-500/20 border border-red-500/40 rounded-full text-xs font-bold text-red-400">Ace ${penta}</span>` : ''}
                         ${quadro > 0 ? `<span class="px-2 py-1 bg-orange-500/20 border border-orange-500/40 rounded-full text-xs font-bold text-orange-400">4K ${quadro}</span>` : ''}
                         ${triple > 0 ? `<span class="px-2 py-1 bg-yellow-500/20 border border-yellow-500/40 rounded-full text-xs font-bold text-yellow-400">3K ${triple}</span>` : ''}
                     </div>
                     
-                    <!-- Call to action -->
+                    
                     <div class="text-center pt-2 border-t border-gray-700/50">
                         <span class="text-xs text-gray-500 group-hover:text-faceit-orange transition-colors">
                             <i class="fas fa-expand-arrows-alt mr-1"></i>${window.translations.advanced.map_modal.view_details}
@@ -768,7 +768,7 @@ function showMapStatsModal(mapIndex) {
     const mapImage = MAP_IMAGES[mapImageKey] || null;
     const t = window.translations.advanced.map_modal;
     
-    // Calculer les statistiques de base
+    
     const matches = parseInt(stats["Matches"] || 0);
     const wins = parseInt(stats["Wins"] || 0);
     const winRate = matches > 0 ? ((wins / matches) * 100).toFixed(1) : "0.0";
@@ -789,13 +789,13 @@ function showMapStatsModal(mapIndex) {
     const triples = parseInt(stats["Triple Kills"] || 0);
     const mvps = parseInt(stats["MVPs"] || 0);
     
-    // Statistiques Entry - Utilisation des clés exactes des segments
+    
     const totalEntryWins = parseInt(stats["Total Entry Wins"] || 0);
     const totalEntryCount = parseInt(stats["Total Entry Count"] || 0);
     const entrySuccessRate = totalEntryCount > 0 ? ((totalEntryWins / totalEntryCount) * 100).toFixed(1) : "0.0";
-    const entryRate = parseFloat(stats["Entry Rate"] || 0) * 100; // Déjà en pourcentage
+    const entryRate = parseFloat(stats["Entry Rate"] || 0) * 100; 
     
-    // Statistiques Clutch - Utilisation des clés exactes des segments
+    
     const clutch1v1Wins = parseInt(stats["Total 1v1 Wins"] || 0);
     const clutch1v1Total = parseInt(stats["Total 1v1 Count"] || 0);
     const clutch1v1Rate = clutch1v1Total > 0 ? ((clutch1v1Wins / clutch1v1Total) * 100).toFixed(1) : "0.0";
@@ -808,7 +808,7 @@ function showMapStatsModal(mapIndex) {
     const clutch1v4Wins = parseInt(stats["Total 1v4 Wins"] || 0);
     const clutch1v5Wins = parseInt(stats["Total 1v5 Wins"] || 0);
     
-    // Statistiques Utility - Utilisation des clés exactes des segments
+    
     const flashSuccesses = parseInt(stats["Total Flash Successes"] || 0);
     const flashCount = parseInt(stats["Total Flash Count"] || 0);
     const flashSuccessRate = flashCount > 0 ? ((flashSuccesses / flashCount) * 100).toFixed(1) : "0.0";
@@ -817,21 +817,21 @@ function showMapStatsModal(mapIndex) {
     const utilitySuccessRate = parseFloat(stats["Utility Success Rate"] || 0);
     const utilitySuccessRatePercent = utilitySuccessRate > 1 ? utilitySuccessRate.toFixed(1) : (utilitySuccessRate * 100).toFixed(1);
     
-    // Statistiques Sniper - Utilisation des clés exactes des segments
+    
     const sniperKills = parseInt(stats["Total Sniper Kills"] || 0);
     const sniperKillsPerRound = totalRounds > 0 ? (sniperKills / totalRounds).toFixed(2) : "0.00";
     const sniperKillsPerMatch = matches > 0 ? (sniperKills / matches).toFixed(1) : "0.0";
     
-    // Statistiques supplémentaires
+    
     const totalEnemiesFlashed = parseInt(stats["Total Enemies Flashed"] || 0);
     const enemiesFlashedPerRound = parseFloat(stats["Enemies Flashed per Round"] || 0).toFixed(2);
     
-    // Afficher le modal
+    
     const modal = document.getElementById('mapStatsModal');
     const modalContent = document.getElementById('mapStatsModalContent');
     
     modalContent.innerHTML = `
-        <!-- Header avec image de carte -->
+        
         <div class="relative h-48 rounded-t-2xl overflow-hidden">
             ${mapImage ? `
                 <img src="${mapImage}" alt="${mapName}" class="w-full h-full object-cover">
@@ -855,9 +855,9 @@ function showMapStatsModal(mapIndex) {
             </div>
         </div>
         
-        <!-- Contenu du modal -->
+        
         <div class="p-6 space-y-8">
-            <!-- Stats principales -->
+            
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="text-center p-4 bg-faceit-elevated rounded-xl">
                     <div class="text-3xl font-black text-faceit-orange mb-1">${kd}</div>
@@ -877,9 +877,9 @@ function showMapStatsModal(mapIndex) {
                 </div>
             </div>
             
-            <!-- Première ligne de stats détaillées -->
+            
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Combat Stats -->
+                
                 <div class="bg-faceit-elevated rounded-xl p-6">
                     <h3 class="text-xl font-bold text-red-400 mb-4 flex items-center">
                         <i class="fas fa-crosshairs mr-2"></i>${t.combat}
@@ -895,7 +895,7 @@ function showMapStatsModal(mapIndex) {
                     </div>
                 </div>
                 
-                <!-- Multi-kills -->
+                
                 <div class="bg-faceit-elevated rounded-xl p-6">
                     <h3 class="text-xl font-bold text-yellow-400 mb-4 flex items-center">
                         <i class="fas fa-crown mr-2"></i>${t.multi_kills}
@@ -911,7 +911,7 @@ function showMapStatsModal(mapIndex) {
                     </div>
                 </div>
                 
-                <!-- Entry Performance -->
+                
                 <div class="bg-faceit-elevated rounded-xl p-6">
                     <h3 class="text-xl font-bold text-green-400 mb-4 flex items-center">
                         <i class="fas fa-rocket mr-2"></i>${t.entry_performance}
@@ -934,9 +934,9 @@ function showMapStatsModal(mapIndex) {
                 </div>
             </div>
             
-            <!-- Deuxième ligne de stats -->
+            
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Clutch Performance -->
+                
                 <div class="bg-faceit-elevated rounded-xl p-6">
                     <h3 class="text-xl font-bold text-red-400 mb-4 flex items-center">
                         <i class="fas fa-fire mr-2"></i>${t.clutch_performance}
@@ -959,7 +959,7 @@ function showMapStatsModal(mapIndex) {
                     </div>
                 </div>
                 
-                <!-- Utility Performance -->
+                
                 <div class="bg-faceit-elevated rounded-xl p-6">
                     <h3 class="text-xl font-bold text-blue-400 mb-4 flex items-center">
                         <i class="fas fa-sun mr-2"></i>${t.utility_performance}
@@ -978,7 +978,7 @@ function showMapStatsModal(mapIndex) {
                     </div>
                 </div>
                 
-                <!-- Sniper Performance -->
+                
                 <div class="bg-faceit-elevated rounded-xl p-6">
                     <h3 class="text-xl font-bold text-purple-400 mb-4 flex items-center">
                         <i class="fas fa-crosshairs mr-2"></i>${t.sniper_performance}
@@ -995,7 +995,7 @@ function showMapStatsModal(mapIndex) {
                 </div>
             </div>
             
-            <!-- Footer avec boutons d'action -->
+            
             <div class="flex justify-center space-x-4 pt-4 border-t border-gray-700">
                 <button onclick="closeMapStatsModal()" class="px-6 py-3 bg-gray-600 hover:bg-gray-700 rounded-xl font-medium transition-colors">
                     <i class="fas fa-times mr-2"></i>${t.close}
@@ -1038,7 +1038,7 @@ function shareMapStats(mapName) {
     }
 }
 
-// Nettoyage des ressources
+
 window.addEventListener('beforeunload', function() {
     if (performanceRadarChart) {
         performanceRadarChart.destroy();
@@ -1053,7 +1053,7 @@ window.addEventListener('beforeunload', function() {
     closeMapStatsModal();
 });
 
-// Gestion du redimensionnement
+
 window.addEventListener('resize', debounce(function() {
     if (performanceRadarChart) {
         performanceRadarChart.resize();
@@ -1063,13 +1063,13 @@ window.addEventListener('resize', debounce(function() {
     }
 }, 250));
 
-// Export pour usage global
+
 window.showMapStatsModal = showMapStatsModal;
 window.closeMapStatsModal = closeMapStatsModal;
 window.shareMapStats = shareMapStats;
 window.downloadPlayerReport = downloadPlayerReport;
 
-// Fonctions utilitaires (conservées telles quelles)
+
 function formatNumber(num) {
     if (num >= 1000000) {
         return (num / 1000000).toFixed(1) + 'M';
@@ -1140,8 +1140,8 @@ function debounce(func, wait) {
 }
 
 function showNotification(message, type = 'info') {
-    // Implémentation basique - peut être améliorée avec une bibliothèque de notifications
-    // Créer une notification simple
+    
+    
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-medium z-50 ${
         type === 'success' ? 'bg-green-500' : 
@@ -1152,7 +1152,7 @@ function showNotification(message, type = 'info') {
     
     document.body.appendChild(notification);
     
-    // Supprimer après 3 secondes
+    
     setTimeout(() => {
         notification.remove();
     }, 3000);

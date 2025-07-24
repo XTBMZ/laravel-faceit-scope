@@ -27,23 +27,23 @@ class LocaleMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // 1. Vérifier si une langue est demandée via URL
+        
         if ($request->has('lang') && in_array($request->get('lang'), $this->supportedLocales)) {
             $locale = $request->get('lang');
             Session::put('locale', $locale);
             App::setLocale($locale);
             
-            // Rediriger pour nettoyer l'URL
+            
             return redirect($request->url());
         }
         
-        // 2. Vérifier la session
+        
         if (Session::has('locale') && in_array(Session::get('locale'), $this->supportedLocales)) {
             App::setLocale(Session::get('locale'));
             return $next($request);
         }
         
-        // 3. Détecter la langue du navigateur
+        
         $browserLanguage = $this->detectBrowserLanguage($request);
         if ($browserLanguage && in_array($browserLanguage, $this->supportedLocales)) {
             Session::put('locale', $browserLanguage);
@@ -51,7 +51,7 @@ class LocaleMiddleware
             return $next($request);
         }
         
-        // 4. Utiliser la langue par défaut
+        
         Session::put('locale', $this->defaultLocale);
         App::setLocale($this->defaultLocale);
         
@@ -68,26 +68,26 @@ class LocaleMiddleware
             return null;
         }
         
-        // Parser les langues acceptées
+        
         $languages = [];
         foreach (array_filter(explode(',', $acceptLanguage)) as $lang) {
             $parts = explode(';', $lang);
             $code = trim($parts[0]);
             $quality = isset($parts[1]) ? (float) str_replace('q=', '', $parts[1]) : 1.0;
             
-            // Extraire le code de langue (fr-FR -> fr, zh-CN -> zh)
+            
             $langCode = strtolower(substr($code, 0, 2));
             
-            // Gestion spéciale pour certaines langues
+            
             $langCode = $this->normalizeLanguageCode($langCode, $code);
             
             $languages[$langCode] = $quality;
         }
         
-        // Trier par qualité
+        
         arsort($languages);
         
-        // Retourner la première langue supportée
+        
         foreach ($languages as $lang => $quality) {
             if (in_array($lang, $this->supportedLocales)) {
                 return $lang;
@@ -102,15 +102,15 @@ class LocaleMiddleware
      */
     private function normalizeLanguageCode(string $langCode, string $fullCode): string
     {
-        // Mapping des codes spéciaux
+        
         $mapping = [
-            'nb' => 'da', // Norwegian Bokmål -> Danish (proche)
-            'nn' => 'da', // Norwegian Nynorsk -> Danish (proche)
-            'no' => 'da', // Norwegian -> Danish (proche)
-            'pt-br' => 'pt', // Portuguese Brazil -> Portuguese
-            'zh-cn' => 'zh', // Chinese Simplified -> Chinese
-            'zh-tw' => 'zh', // Chinese Traditional -> Chinese
-            'zh-hk' => 'zh', // Chinese Hong Kong -> Chinese
+            'nb' => 'da', 
+            'nn' => 'da', 
+            'no' => 'da', 
+            'pt-br' => 'pt', 
+            'zh-cn' => 'zh', 
+            'zh-tw' => 'zh', 
+            'zh-hk' => 'zh', 
         ];
         
         $fullLower = strtolower($fullCode);

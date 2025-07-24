@@ -156,7 +156,7 @@
 @endpush
 
 @section('content')
-    <!-- Hero Section -->
+    
     <div class="relative overflow-hidden hero-gradient border-b border-gray-800">
         <div class="absolute inset-0 opacity-10">
             <div class="w-full h-full bg-gradient-to-r from-transparent via-orange-500/20 to-transparent transform -skew-y-1"></div>
@@ -193,14 +193,14 @@
         </div>
     </div>
 
-    <!-- Main Content -->
+    
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <!-- Filter Tabs & Search -->
+        
         <div class="mb-8 animate-slide-up">
             <div class="glass-effect rounded-2xl p-6 mb-6">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                    <!-- Tabs -->
+                    
                     <div class="flex flex-wrap gap-2">
                         <button class="tab-button active" data-type="ongoing">
                             <i class="fas fa-play mr-2"></i>{{ __('tournaments.filters.tabs.ongoing') }}
@@ -216,7 +216,7 @@
                         </button>
                     </div>
                     
-                    <!-- Search -->
+                    
                     <div class="flex space-x-3">
                         <div class="relative">
                             <input 
@@ -233,7 +233,7 @@
                     </div>
                 </div>
                 
-                <!-- Quick Stats -->
+                
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-700/30">
                     <div class="text-center">
                         <div class="text-2xl font-bold text-orange-500" id="ongoingChampionships">-</div>
@@ -255,23 +255,23 @@
             </div>
         </div>
 
-        <!-- Loading State -->
+        
         <div id="loadingState" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @for($i = 0; $i < 6; $i++)
             <div class="shimmer-effect rounded-xl h-80 animate-pulse"></div>
             @endfor
         </div>
 
-        <!-- Championships Grid -->
+        
         <div id="championshipsContainer" class="hidden">
             <div id="championshipsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-scale-in">
-                <!-- Championship cards will be inserted here -->
+                
             </div>
             
-            <!-- Pagination sera ajoutée ici dynamiquement -->
+            
         </div>
 
-        <!-- Empty State -->
+        
         <div id="emptyState" class="hidden text-center py-20">
             <div class="glass-effect rounded-2xl p-12 max-w-md mx-auto">
                 <i class="fas fa-trophy text-gray-600 text-6xl mb-6"></i>
@@ -283,28 +283,28 @@
             </div>
         </div>
 
-        <!-- Error Message -->
+        
         <div id="errorMessage" class="hidden"></div>
     </div>
 
-    <!-- Championship Detail Modal -->
+    
     <div id="championshipModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="glass-effect rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-gray-800 animate-scale-in">
             <div id="modalContent">
-                <!-- Modal content will be inserted here -->
+                
             </div>
         </div>
     </div>
 @endsection
 @push('scripts')
 <script>
-// Injecter les traductions dans le JavaScript 
+
 window.translations = {!! json_encode([
     'tournaments' => __('tournaments'),
 ]) !!};
 window.currentLocale = '{{ app()->getLocale() }}';
 
-// Configuration des endpoints Laravel basés sur l'API FACEIT
+
 const API_ENDPOINTS = {
     championships: '{{ route("api.championships.list") }}',
     details: '{{ route("api.championships.details", ":id") }}',
@@ -315,15 +315,15 @@ const API_ENDPOINTS = {
     stats: '{{ route("api.championships.stats") }}'
 };
 
-// Variables globales
+
 let currentFilter = 'ongoing';
 let currentPage = 0;
-let itemsPerPage = 10; // Limite API FACEIT pour championships
+let itemsPerPage = 10; 
 let hasMoreData = true;
 let isLoading = false;
 let championshipsCache = new Map();
 
-// Statistiques globales
+
 let globalStats = {
     ongoing: 0,
     upcoming: 0,
@@ -331,16 +331,16 @@ let globalStats = {
     totalPlayers: 0
 };
 
-// ==========================================
-// INITIALISATION
-// ==========================================
+
+
+
 document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
     loadInitialData();
 });
 
 function setupEventListeners() {
-    // Onglets
+    
     document.querySelectorAll('.tab-button').forEach(button => {
         button.addEventListener('click', function() {
             const type = this.dataset.type;
@@ -348,28 +348,28 @@ function setupEventListeners() {
         });
     });
 
-    // Recherche
+    
     document.getElementById('searchChampionshipButton').addEventListener('click', handleSearch);
     document.getElementById('championshipSearchInput').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') handleSearch();
     });
 
-    // Modal
+    
     document.getElementById('championshipModal').addEventListener('click', function(e) {
         if (e.target === this) closeModal();
     });
 }
 
-// ==========================================
-// CHARGEMENT DES DONNÉES
-// ==========================================
+
+
+
 async function loadInitialData() {
     showLoading();
     
-    // Charger les statistiques globales d'abord
+    
     await updateGlobalStats();
     
-    // Puis charger la première page des championnats en cours
+    
     await loadChampionshipsByType('ongoing');
     
     displayChampionships();
@@ -402,7 +402,7 @@ async function loadChampionshipsByType(type, page = 0) {
         const championships = data.championships || [];
         hasMoreData = data.hasMore || false;
 
-        // Stocker les championnats pour cette page spécifique
+        
         const cacheKey = `${type}_page_${page}`;
         championshipsCache.set(cacheKey, championships);
 
@@ -415,9 +415,9 @@ async function loadChampionshipsByType(type, page = 0) {
     }
 }
 
-// ==========================================
-// AFFICHAGE DES CHAMPIONNATS
-// ==========================================
+
+
+
 function displayChampionships() {
     const container = document.getElementById('championshipsGrid');
     const cacheKey = `${currentFilter}_page_${currentPage}`;
@@ -431,7 +431,7 @@ function displayChampionships() {
     hideEmptyState();
     container.innerHTML = championships.map(championship => createChampionshipCard(championship)).join('');
     
-    // Déclencher les animations
+    
     setTimeout(() => {
         document.querySelectorAll('.championship-card').forEach((card, index) => {
             card.style.animationDelay = `${index * 0.1}s`;
@@ -466,7 +466,7 @@ function createChampionshipCard(championship) {
         organizer_name
     } = championship;
 
-    // Utiliser les vrais champs de l'API FACEIT
+    
     const actualParticipants = current_subscriptions || participants || 0;
     const actualMaxParticipants = slots || maxParticipants || window.translations.tournaments.championship.info.unlimited || 'Illimité';
     const actualPrizeMoney = total_prizes || prizeMoney || 0;
@@ -480,7 +480,7 @@ function createChampionshipCard(championship) {
         <div class="championship-card rounded-2xl overflow-hidden group cursor-pointer" 
              onclick="showChampionshipDetails('${championship_id}')">
             
-            <!-- Header avec image ou gradient -->
+            
             <div class="relative h-48 ${!hasImage ? 'bg-gradient-to-br from-orange-500/20 to-purple-600/20' : ''}">
                 ${hasImage ? `
                     <img src="${imageUrl}" alt="${name}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
@@ -492,7 +492,7 @@ function createChampionshipCard(championship) {
                     </div>
                 `}
                 
-                <!-- Badges overlay -->
+                
                 <div class="absolute top-4 left-4 flex flex-wrap gap-2">
                     ${actualFeatured ? `<span class="status-badge px-3 py-1 rounded-full text-xs font-bold text-yellow-900" style="--bg-from: #fbbf24; --bg-to: #f59e0b; --border-color: rgba(251, 191, 36, 0.5); --shadow-color: rgba(251, 191, 36, 0.3);">
                         <i class="fas fa-crown mr-1"></i>${window.translations.tournaments.championship.badges.premium}
@@ -503,7 +503,7 @@ function createChampionshipCard(championship) {
                     </span>
                 </div>
                 
-                <!-- Region flag -->
+                
                 <div class="absolute top-4 right-4">
                     <div class="bg-black/60 backdrop-blur-sm rounded-lg px-3 py-1 flex items-center">
                         <i class="${regionFlag.icon} text-${regionFlag.color} mr-2"></i>
@@ -511,7 +511,7 @@ function createChampionshipCard(championship) {
                     </div>
                 </div>
                 
-                <!-- Competition level -->
+                
                 <div class="absolute bottom-4 right-4">
                     <div class="flex space-x-1">
                         ${Array(competitionLevel).fill(0).map(() => '<i class="fas fa-star text-yellow-400 text-sm"></i>').join('')}
@@ -520,7 +520,7 @@ function createChampionshipCard(championship) {
                 </div>
             </div>
             
-            <!-- Content -->
+            
             <div class="p-6">
                 <div class="mb-4">
                     <h3 class="text-lg font-bold text-white mb-2 line-clamp-2 group-hover:text-orange-500 transition-colors">${name}</h3>
@@ -536,7 +536,7 @@ function createChampionshipCard(championship) {
                     ` : ''}
                 </div>
                 
-                <!-- Stats grid -->
+                
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div class="bg-gray-800/50 rounded-lg p-3 text-center">
                         <div class="text-lg font-bold text-orange-500">${formatNumber(actualParticipants)}</div>
@@ -548,7 +548,7 @@ function createChampionshipCard(championship) {
                     </div>
                 </div>
                 
-                <!-- Progress bar -->
+                
                 ${actualMaxParticipants !== window.translations.tournaments.championship.info.unlimited && actualMaxParticipants !== 'Illimité' && actualMaxParticipants > 0 ? `
                 <div class="mb-4">
                     <div class="flex justify-between text-xs text-gray-400 mb-1">
@@ -562,7 +562,7 @@ function createChampionshipCard(championship) {
                 </div>
                 ` : ''}
                 
-                <!-- Actions -->
+                
                 <div class="flex space-x-2">
                     <button class="flex-1 bg-orange-500 hover:bg-orange-600 py-2 px-4 rounded-lg text-sm font-medium transition-all transform hover:scale-105 btn-glow" 
                             onclick="event.stopPropagation(); showChampionshipDetails('${championship_id}')">
@@ -581,9 +581,9 @@ function createChampionshipCard(championship) {
     `;
 }
 
-// ==========================================
-// FONCTIONS DE TRADUCTION
-// ==========================================
+
+
+
 function getLocalizedStatusText(status) {
     const statusMap = {
         'ongoing': window.translations.tournaments.championship.badges.ongoing,
@@ -603,13 +603,13 @@ function getLocalizedMatchStatus(status) {
     return statusMap[status] || status;
 }
 
-// ==========================================
-// GESTION DES FILTRES ET RECHERCHE
-// ==========================================
+
+
+
 async function switchFilter(type) {
     if (currentFilter === type || isLoading) return;
     
-    // Mise à jour UI
+    
     document.querySelectorAll('.tab-button').forEach(btn => {
         btn.classList.remove('active');
     });
@@ -621,7 +621,7 @@ async function switchFilter(type) {
     
     showLoading();
     
-    // Charger la première page du nouveau type
+    
     await loadChampionshipsByType(type, 0);
     
     displayChampionships();
@@ -652,7 +652,7 @@ async function handleSearch() {
         
         const filtered = data.championships || [];
         
-        // Afficher les résultats de recherche
+        
         const container = document.getElementById('championshipsGrid');
         if (filtered.length === 0) {
             showEmptyState();
@@ -661,7 +661,7 @@ async function handleSearch() {
             container.innerHTML = filtered.map(championship => createChampionshipCard(championship)).join('');
         }
         
-        // Cacher la pagination pendant la recherche
+        
         hidePagination();
     } catch (error) {
         console.error('Erreur lors de la recherche:', error);
@@ -671,9 +671,9 @@ async function handleSearch() {
     }
 }
 
-// ==========================================
-// PAGINATION
-// ==========================================
+
+
+
 function showPagination() {
     const paginationContainer = document.getElementById('paginationContainer') || createPaginationContainer();
     paginationContainer.style.display = 'block';
@@ -716,7 +716,7 @@ function updatePagination() {
         </div>
     `;
     
-    // Attacher les événements
+    
     document.getElementById('prevPageButton').addEventListener('click', () => {
         if (currentPage > 0) {
             goToPage(currentPage - 1);
@@ -736,7 +736,7 @@ async function goToPage(page) {
     currentPage = page;
     showLoading();
     
-    // Vérifier si on a déjà cette page en cache
+    
     const cacheKey = `${currentFilter}_page_${page}`;
     if (!championshipsCache.has(cacheKey)) {
         await loadChampionshipsByType(currentFilter, page);
@@ -746,26 +746,26 @@ async function goToPage(page) {
     hideLoading();
 }
 
-// ==========================================
-// MODAL DE DÉTAILS
-// ==========================================
+
+
+
 async function showChampionshipDetails(championshipId) {
     const modal = document.getElementById('championshipModal');
     const modalContent = document.getElementById('modalContent');
     
-    // Afficher le modal avec loading
+    
     modalContent.innerHTML = createModalLoadingContent();
     modal.classList.remove('hidden');
     
     try {
-        // Rechercher le championnat dans tous les caches d'abord
+        
         let championship = null;
         for (const [key, championships] of championshipsCache) {
             championship = championships.find(c => c.championship_id === championshipId);
             if (championship) break;
         }
         
-        // Si pas trouvé en cache, faire un appel API
+        
         if (!championship) {
             const url = API_ENDPOINTS.details.replace(':id', championshipId);
             const response = await fetch(url + '?expanded=organizer,game');
@@ -799,7 +799,7 @@ function createChampionshipModalContent(championship) {
     
     return `
         <div class="relative">
-            <!-- Header -->
+            
             <div class="h-64 bg-gradient-to-br from-orange-500 via-red-500 to-purple-600 relative overflow-hidden">
                 ${imageUrl ? `
                     <img src="${imageUrl}" alt="${championship.name}" class="w-full h-full object-cover" 
@@ -821,10 +821,10 @@ function createChampionshipModalContent(championship) {
                 </div>
             </div>
             
-            <!-- Content -->
+            
             <div class="p-8">
                 <div class="grid lg:grid-cols-3 gap-8">
-                    <!-- Informations principales -->
+                    
                     <div class="lg:col-span-2 space-y-6">
                         ${championship.description ? `
                         <div>
@@ -838,7 +838,7 @@ function createChampionshipModalContent(championship) {
                         </div>
                         `}
                         
-                        <!-- Actions pour voir plus de détails -->
+                        
                         <div class="flex space-x-4">
                             <button onclick="loadChampionshipMatches('${championship.championship_id}')" 
                                     class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">
@@ -851,7 +851,7 @@ function createChampionshipModalContent(championship) {
                         </div>
                     </div>
                     
-                    <!-- Sidebar avec infos -->
+                    
                     <div class="space-y-6">
                         <div class="bg-gray-800 rounded-xl p-6">
                             <h4 class="font-bold mb-4">${window.translations.tournaments.modal.sections.information}</h4>
@@ -900,9 +900,9 @@ function createChampionshipModalContent(championship) {
                     </div>
                 </div>
                 
-                <!-- Section dynamique pour matches/résultats -->
+                
                 <div id="championshipDetails" class="mt-8 hidden">
-                    <!-- Content will be loaded here -->
+                    
                 </div>
             </div>
         </div>
@@ -936,9 +936,9 @@ function closeModal() {
     document.getElementById('championshipModal').classList.add('hidden');
 }
 
-// ==========================================
-// CHARGEMENT DES MATCHES ET RÉSULTATS
-// ==========================================
+
+
+
 async function loadChampionshipMatches(championshipId) {
     const detailsContainer = document.getElementById('championshipDetails');
     detailsContainer.innerHTML = `<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-orange-500"></i> ${window.translations.tournaments.modal.matches.loading}</div>`;
@@ -1080,9 +1080,9 @@ function createResultCard(result) {
     `;
 }
 
-// ==========================================
-// STATISTIQUES GLOBALES
-// ==========================================
+
+
+
 async function updateGlobalStats() {
     try {
         const response = await fetch(API_ENDPOINTS.stats);
@@ -1092,14 +1092,14 @@ async function updateGlobalStats() {
         
         const stats = await response.json();
         
-        // Mettre à jour l'affichage
+        
         document.getElementById('ongoingChampionships').textContent = stats.ongoing || 0;
         document.getElementById('upcomingChampionships').textContent = stats.upcoming || 0;
         document.getElementById('totalPrizePool').textContent = formatPrizeMoney(stats.totalPrizePool || 0);
         document.getElementById('totalPlayers').textContent = formatNumber(stats.totalPlayers || 0);
         
     } catch (error) {
-        // Valeurs de fallback
+        
         document.getElementById('ongoingChampionships').textContent = '-';
         document.getElementById('upcomingChampionships').textContent = '-';
         document.getElementById('totalPrizePool').textContent = '-';
@@ -1107,9 +1107,9 @@ async function updateGlobalStats() {
     }
 }
 
-// ==========================================
-// FONCTIONS UTILITAIRES
-// ==========================================
+
+
+
 function formatPrizeMoney(amount) {
     if (amount === 0) return 'TBD';
     if (amount >= 1000000) return `${(amount / 1000000).toFixed(1)}M€`;
@@ -1129,9 +1129,9 @@ function resetFilters() {
     showPagination();
 }
 
-// ==========================================
-// GESTION DE L'UI
-// ==========================================
+
+
+
 function showLoading() {
     document.getElementById('loadingState').classList.remove('hidden');
     document.getElementById('championshipsContainer').classList.add('hidden');

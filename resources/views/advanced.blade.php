@@ -3,7 +3,7 @@
 @section('title', __('advanced.title'))
 
 @section('content')
-<!-- Loading State -->
+
 <div id="loadingState" class="min-h-screen flex items-center justify-center" style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
     <div class="text-center">
         <div class="relative mb-8">
@@ -17,22 +17,22 @@
     </div>
 </div>
 
-<!-- Main Content -->
+
 <div id="mainContent" class="hidden" style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
     
-    <!-- Hero Section Compact -->
+    
     <div class="relative py-24">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div id="playerHeader" class="text-center">
-                <!-- Le header sera injecté ici -->
+                
             </div>
         </div>
     </div>
 
-    <!-- Main Container -->
+    
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 space-y-16">
 
-        <!-- Vue d'ensemble -->
+        
         <section>
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-black text-white mb-4">{{ __('advanced.sections.overview') }}</h2>
@@ -40,11 +40,11 @@
             </div>
             
             <div id="mainStatsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <!-- Stats principales injectées ici -->
+                
             </div>
         </section>
 
-        <!-- Performance de combat -->
+        
         <section>
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-black text-white mb-4">{{ __('advanced.sections.combat_performance') }}</h2>
@@ -52,24 +52,24 @@
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Clutch Performance -->
+                
                 <div id="clutchStats" class="rounded-2xl p-6 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
-                    <!-- Stats clutch injectées ici -->
+                    
                 </div>
                 
-                <!-- Entry Fragging -->
+                
                 <div id="entryStats" class="rounded-2xl p-6 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
-                    <!-- Stats entry injectées ici -->
+                    
                 </div>
                 
-                <!-- Support/Utility -->
+                
                 <div id="utilityStats" class="rounded-2xl p-6 border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
-                    <!-- Stats utility injectées ici -->
+                    
                 </div>
             </div>
         </section>
 
-        <!-- Graphiques de performance -->
+        
         <section>
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-black text-white mb-4">{{ __('advanced.sections.graphical_analysis') }}</h2>
@@ -99,7 +99,7 @@
             </div>
         </section>
 
-        <!-- Performance par carte -->
+        
         <section>
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-black text-white mb-4">{{ __('advanced.sections.map_analysis') }}</h2>
@@ -107,11 +107,11 @@
             </div>
             
             <div id="mapStatsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Cartes injectées ici -->
+                
             </div>
         </section>
 
-        <!-- Multi-kills et achievements -->
+        
         <section>
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-black text-white mb-4">{{ __('advanced.sections.achievements') }}</h2>
@@ -119,11 +119,11 @@
             </div>
             
             <div id="achievementsGrid" class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <!-- Achievements injectés ici -->
+                
             </div>
         </section>
 
-        <!-- Forme récente -->
+        
         <section>
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-black text-white mb-4">{{ __('advanced.sections.recent_form') }}</h2>
@@ -133,7 +133,7 @@
             <div class="rounded-2xl p-8 border border-gray-700 text-center" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
                 <h3 class="text-lg font-bold text-white mb-6">{{ __('advanced.recent_results.title') }}</h3>
                 <div id="recentResults" class="flex justify-center space-x-3 mb-6">
-                    <!-- Résultats récents injectés ici -->
+                    
                 </div>
                 <p class="text-sm text-gray-400">{{ __('advanced.recent_results.last_matches', ['count' => 5]) }}</p>
             </div>
@@ -141,11 +141,11 @@
     </div>
 </div>
 
-<!-- Popup Modal pour les détails de carte -->
+
 <div id="mapStatsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-700" style="background: linear-gradient(135deg, #2a2a2a 0%, #151515 100%);">
         <div id="mapStatsModalContent">
-            <!-- Contenu du popup injecté ici -->
+            
         </div>
     </div>
 </div>
@@ -420,13 +420,13 @@
 
 @push('scripts')
 <script>
-    // Variables globales pour les données avec traductions
+    
     window.playerData = {
         playerId: @json($playerId),
         playerNickname: @json($playerNickname)
     };
     
-    // Injecter les traductions dans le JavaScript 
+    
     window.translations = {!! json_encode([
         'advanced' => __('advanced'),
     ]) !!};

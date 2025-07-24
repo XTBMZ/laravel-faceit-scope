@@ -1,18 +1,18 @@
-<!-- Navigation -->
+
 <nav class="bg-faceit-card/90 backdrop-blur-sm border-b border-gray-800 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-20">
-            <!-- Logo -->
+            
             <div class="flex items-center">
                 <a href="{{ route('home') }}" class="flex items-center space-x-2">
                     <img src="{{ asset('images/logo.png') }}" alt="Faceit Scope Logo" class="h-16 w-auto">
                 </a>
             </div>
             
-            <!-- Navigation Desktop -->
+            
             <div class="hidden md:block">
                 <div class="flex items-center space-x-4">
-                    <!-- Navigation Links -->
+                    
                     <div class="flex items-center space-x-4">
                         <a href="{{ route('home') }}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('home') ? 'text-white bg-faceit-orange/20' : '' }}">
                             <i class="fas fa-home mr-2"></i>{{ __('navigation.home') }}
@@ -31,10 +31,10 @@
                         </a>
                     </div>
                     
-                    <!-- Séparateur visuel -->
+                    
                     <div class="h-6 w-px bg-gray-600 mx-2"></div>
                     
-                    <!-- Sélecteur de langue moderne multi-langues -->
+                    
                     <div class="relative" id="languageSelector">
                         <button 
                             id="languageButton" 
@@ -44,20 +44,20 @@
                             <div class="w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
                                 @php
                                     $flagMap = [
-                                        'da' => 'dk', // Danois -> Danemark
-                                        'de' => 'de', // Allemand -> Allemagne
-                                        'en' => 'gb', // Anglais -> Royaume-Uni
-                                        'es' => 'es', // Espagnol -> Espagne
-                                        'fi' => 'fi', // Finnois -> Finlande
-                                        'fr' => 'fr', // Français -> France
-                                        'it' => 'it', // Italien -> Italie
-                                        'pl' => 'pl', // Polonais -> Pologne
-                                        'pt' => 'pt', // Portugais -> Portugal
-                                        'ru' => 'ru', // Russe -> Russie
-                                        'sv' => 'se', // Suédois -> Suède
-                                        'tr' => 'tr', // Turc -> Turquie
-                                        'uk' => 'ua', // Ukrainien -> Ukraine
-                                        'zh' => 'cn', // Chinois -> Chine
+                                        'da' => 'dk', 
+                                        'de' => 'de', 
+                                        'en' => 'gb', 
+                                        'es' => 'es', 
+                                        'fi' => 'fi', 
+                                        'fr' => 'fr', 
+                                        'it' => 'it', 
+                                        'pl' => 'pl', 
+                                        'pt' => 'pt', 
+                                        'ru' => 'ru', 
+                                        'sv' => 'se', 
+                                        'tr' => 'tr', 
+                                        'uk' => 'ua', 
+                                        'zh' => 'cn', 
                                     ];
                                     $currentFlag = $flagMap[app()->getLocale()] ?? 'gb';
                                 @endphp
@@ -69,13 +69,13 @@
                             <i class="fas fa-chevron-down text-xs transition-transform duration-200 group-hover:rotate-180"></i>
                         </button>
                         
-                        <!-- Dropdown des langues -->
+                        
                         <div 
                             id="languageDropdown" 
                             class="absolute right-0 mt-2 w-56 bg-faceit-elevated border border-gray-700 rounded-xl shadow-2xl backdrop-blur-sm z-50 opacity-0 invisible transform translate-y-2 transition-all duration-200 max-h-80 overflow-y-auto"
                         >
                             <div class="py-2">
-                                <!-- Danois -->
+                                
                                 <button 
                                     onclick="changeLanguage('da')" 
                                     class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'da' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
@@ -87,7 +87,7 @@
                                     @endif
                                 </button>
                                 
-                                <!-- Allemand -->
+                                
                                 <button 
                                     onclick="changeLanguage('de')" 
                                     class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'de' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
@@ -99,7 +99,7 @@
                                     @endif
                                 </button>
                                 
-                                <!-- Anglais -->
+                                
                                 <button 
                                     onclick="changeLanguage('en')" 
                                     class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'en' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
@@ -111,7 +111,7 @@
                                     @endif
                                 </button>
                                 
-                                <!-- Espagnol -->
+                                
                                 <button 
                                     onclick="changeLanguage('es')" 
                                     class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'es' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
@@ -123,7 +123,7 @@
                                     @endif
                                 </button>
                                 
-                                <!-- Finnois -->
+                                
                                 <button 
                                     onclick="changeLanguage('fi')" 
                                     class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'fi' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
@@ -135,7 +135,7 @@
                                     @endif
                                 </button>
                                 
-                                <!-- Français -->
+                                
                                 <button 
                                     onclick="changeLanguage('fr')" 
                                     class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'fr' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
@@ -147,7 +147,7 @@
                                     @endif
                                 </button>
                                 
-                                <!-- Italien -->
+                                
                                 <button 
                                     onclick="changeLanguage('it')" 
                                     class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'it' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
@@ -159,7 +159,7 @@
                                     @endif
                                 </button>
                                 
-                                <!-- Polonais -->
+                                
                                 <button 
                                     onclick="changeLanguage('pl')" 
                                     class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'pl' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
@@ -171,7 +171,7 @@
                                     @endif
                                 </button>
                                 
-                                <!-- Portugais -->
+                                
                                 <button 
                                     onclick="changeLanguage('pt')" 
                                     class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'pt' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
@@ -183,7 +183,7 @@
                                     @endif
                                 </button>
                                 
-                                <!-- Russe -->
+                                
                                 <button 
                                     onclick="changeLanguage('ru')" 
                                     class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'ru' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
@@ -195,7 +195,7 @@
                                     @endif
                                 </button>
                                 
-                                <!-- Suédois -->
+                                
                                 <button 
                                     onclick="changeLanguage('sv')" 
                                     class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'sv' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
@@ -207,7 +207,7 @@
                                     @endif
                                 </button>
                                 
-                                <!-- Turc -->
+                                
                                 <button 
                                     onclick="changeLanguage('tr')" 
                                     class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'tr' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
@@ -219,7 +219,7 @@
                                     @endif
                                 </button>
                                 
-                                <!-- Ukrainien -->
+                                
                                 <button 
                                     onclick="changeLanguage('uk')" 
                                     class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'uk' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
@@ -231,7 +231,7 @@
                                     @endif
                                 </button>
                                 
-                                <!-- Chinois -->
+                                
                                 <button 
                                     onclick="changeLanguage('zh')" 
                                     class="flex items-center w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'zh' ? 'text-white bg-faceit-orange/10 border-r-2 border-faceit-orange' : '' }}"
@@ -246,9 +246,9 @@
                         </div>
                     </div>
                     
-                    <!-- Section d'authentification - ALIGNÉE -->
+                    
                     <div id="authSection" class="flex items-center">
-                        <!-- Contenu injecté par JavaScript - Bouton par défaut aligné -->
+                        
                         <button 
                             id="faceitLogin" 
                             class="bg-faceit-orange hover:bg-faceit-orange-dark px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 h-10"
@@ -260,9 +260,9 @@
                 </div>
             </div>
             
-            <!-- Mobile menu button -->
+            
             <div class="md:hidden flex items-center space-x-2">
-                <!-- Sélecteur de langue mobile compact -->
+                
                 <div class="relative" id="mobileLangSelector">
                     <button 
                         id="mobileLangButton" 
@@ -277,13 +277,13 @@
                         </div>
                     </button>
                     
-                    <!-- Dropdown mobile -->
+                    
                     <div 
                         id="mobileLangDropdown" 
                         class="absolute right-0 mt-2 w-48 bg-faceit-elevated border border-gray-700 rounded-xl shadow-2xl z-50 opacity-0 invisible transform translate-y-2 transition-all duration-200 max-h-60 overflow-y-auto"
                     >
                         <div class="py-2">
-                            <!-- Répéter toutes les langues pour mobile (version compacte) -->
+                            
                             <button onclick="changeLanguage('da')" class="flex items-center w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition-colors {{ app()->getLocale() === 'da' ? 'text-white bg-faceit-orange/10' : '' }}">
                                 <img src="https://flagcdn.com/w20/dk.png" alt="Dansk" class="w-4 h-4 rounded-full mr-2">
                                 <span>{{ __('language.danish') }}</span>
@@ -351,7 +351,7 @@
         </div>
     </div>
     
-    <!-- Mobile menu -->
+    
     <div id="mobileMenu" class="hidden md:hidden bg-faceit-card border-t border-gray-800">
         <div class="px-2 pt-2 pb-3 space-y-1">
             <a href="{{ route('home') }}" class="block px-3 py-2 text-gray-300 hover:text-white rounded-md {{ request()->routeIs('home') ? 'text-white bg-faceit-orange/20' : '' }}">
@@ -371,7 +371,7 @@
             </a>
             <div class="border-t border-gray-700 pt-2 mt-2">
                 <div id="mobileAuthSection" class="px-3 py-2">
-                    <!-- Contenu injecté par JavaScript -->
+                    
                     <button 
                         id="mobileFaceitLogin" 
                         class="w-full bg-faceit-orange hover:bg-faceit-orange-dark px-3 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -384,37 +384,37 @@
     </div>
 </nav>
 
-<!-- JavaScript pour le sélecteur de langue et le menu mobile -->
+
 <script>
-// Variables globales pour les traductions
+
 window.translations = @json($translations ?? []);
 window.currentLocale = @json(app()->getLocale());
 
-// Mapping des langues vers les drapeaux
+
 const flagMap = {
-    'da': 'dk', // Danois -> Danemark
-    'de': 'de', // Allemand -> Allemagne
-    'en': 'gb', // Anglais -> Royaume-Uni
-    'es': 'es', // Espagnol -> Espagne
-    'fi': 'fi', // Finnois -> Finlande
-    'fr': 'fr', // Français -> France
-    'it': 'it', // Italien -> Italie
-    'pl': 'pl', // Polonais -> Pologne
-    'pt': 'pt', // Portugais -> Portugal
-    'ru': 'ru', // Russe -> Russie
-    'sv': 'se', // Suédois -> Suède
-    'tr': 'tr', // Turc -> Turquie
-    'uk': 'ua', // Ukrainien -> Ukraine
-    'zh': 'cn', // Chinois -> Chine
+    'da': 'dk', 
+    'de': 'de', 
+    'en': 'gb', 
+    'es': 'es', 
+    'fi': 'fi', 
+    'fr': 'fr', 
+    'it': 'it', 
+    'pl': 'pl', 
+    'pt': 'pt', 
+    'ru': 'ru', 
+    'sv': 'se', 
+    'tr': 'tr', 
+    'uk': 'ua', 
+    'zh': 'cn', 
 };
 
-// Gestion du menu mobile
+
 document.getElementById('mobileMenuButton').addEventListener('click', function() {
     const mobileMenu = document.getElementById('mobileMenu');
     mobileMenu.classList.toggle('hidden');
 });
 
-// Gestion du sélecteur de langue desktop
+
 document.getElementById('languageButton').addEventListener('click', function(e) {
     e.stopPropagation();
     const dropdown = document.getElementById('languageDropdown');
@@ -426,7 +426,7 @@ document.getElementById('languageButton').addEventListener('click', function(e) 
     chevron.classList.toggle('rotate-180');
 });
 
-// Gestion du sélecteur de langue mobile
+
 document.getElementById('mobileLangButton').addEventListener('click', function(e) {
     e.stopPropagation();
     const dropdown = document.getElementById('mobileLangDropdown');
@@ -436,9 +436,9 @@ document.getElementById('mobileLangButton').addEventListener('click', function(e
     dropdown.classList.toggle('translate-y-2');
 });
 
-// Fermer les dropdowns en cliquant ailleurs
+
 document.addEventListener('click', function() {
-    // Desktop dropdown
+    
     const dropdown = document.getElementById('languageDropdown');
     const chevron = document.querySelector('#languageButton .fa-chevron-down');
     if (!dropdown.classList.contains('opacity-0')) {
@@ -446,26 +446,26 @@ document.addEventListener('click', function() {
         chevron.classList.remove('rotate-180');
     }
     
-    // Mobile dropdown
+    
     const mobileDropdown = document.getElementById('mobileLangDropdown');
     if (!mobileDropdown.classList.contains('opacity-0')) {
         mobileDropdown.classList.add('opacity-0', 'invisible', 'translate-y-2');
     }
 });
 
-// Fonction pour changer de langue
+
 function changeLanguage(locale) {
-    // Afficher un indicateur de chargement
+    
     const button = document.getElementById('languageButton');
     const mobileButton = document.getElementById('mobileLangButton');
     const originalContent = button.innerHTML;
     const originalMobileContent = mobileButton.innerHTML;
     
-    // Indicateur de chargement
+    
     button.innerHTML = '<div class="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-faceit-orange"></div>';
     mobileButton.innerHTML = '<div class="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-faceit-orange"></div>';
     
-    // Appel API pour changer la langue
+    
     fetch('/api/language/set', {
         method: 'POST',
         headers: {
@@ -477,11 +477,11 @@ function changeLanguage(locale) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Mettre à jour les traductions globales
+            
             window.translations = data.translations;
             window.currentLocale = data.locale;
             
-            // Recharger la page pour appliquer les nouvelles traductions
+            
             window.location.reload();
         } else {
             throw new Error(data.message || 'Erreur lors du changement de langue');
@@ -489,16 +489,16 @@ function changeLanguage(locale) {
     })
     .catch(error => {
         console.error('Erreur:', error);
-        // Restaurer le contenu original
+        
         button.innerHTML = originalContent;
         mobileButton.innerHTML = originalMobileContent;
         
-        // Afficher une notification d'erreur
+        
         showNotification('Erreur lors du changement de langue', 'error');
     });
 }
 
-// Animation au scroll
+
 window.addEventListener('scroll', function() {
     const nav = document.querySelector('nav');
     if (window.scrollY > 50) {
@@ -510,9 +510,9 @@ window.addEventListener('scroll', function() {
     }
 });
 
-// Fonction utilitaire pour afficher des notifications
+
 function showNotification(message, type = 'info') {
-    // Créer une notification temporaire
+    
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white z-50 ${
         type === 'error' ? 'bg-red-500' : 'bg-green-500'
@@ -521,17 +521,17 @@ function showNotification(message, type = 'info') {
     
     document.body.appendChild(notification);
     
-    // Supprimer après 3 secondes
+    
     setTimeout(() => {
         notification.remove();
     }, 3000);
 }
 
-// Export global pour les autres scripts
+
 window.changeLanguage = changeLanguage;
 </script>
 
-<!-- CSS additionnels pour les animations -->
+
 <style>
 /* Animations personnalisées pour le sélecteur de langue */
 #languageDropdown, #mobileLangDropdown {

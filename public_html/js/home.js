@@ -2,13 +2,13 @@
  * Script pour la page d'accueil - Faceit Scope (VERSION TRADUITE)
  */
 
-// Fonction de traduction
+
 function __(key, replacements = {}) {
     if (!window.translations) return key;
     
     let translation = key.split('.').reduce((obj, k) => obj && obj[k], window.translations) || key;
     
-    // Remplacer les placeholders
+    
     for (const [placeholder, value] of Object.entries(replacements)) {
         translation = translation.replace(':' + placeholder, value);
     }
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupSearchEventListeners() {
-    // Recherche de joueur
+    
     const playerSearchButton = document.getElementById('playerSearchButton');
     const playerSearchInput = document.getElementById('playerSearchInput');
     
@@ -50,7 +50,7 @@ function setupSearchEventListeners() {
         });
     }
 
-    // Recherche de match - MISE À JOUR
+    
     const matchSearchButton = document.getElementById('matchSearchButton');
     const matchSearchInput = document.getElementById('matchSearchInput');
     
@@ -96,7 +96,7 @@ async function searchPlayer(playerName) {
     
     const originalText = button.innerHTML;
     
-    // Animation de chargement
+    
     button.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>${__('home.search.player.loading')}`;
     button.disabled = true;
     
@@ -104,13 +104,13 @@ async function searchPlayer(playerName) {
         
         const player = await faceitService.getPlayerByNickname(playerName);
         
-        // Vérifier si le joueur a des stats CS2
+        
         if (!player.games || (!player.games.cs2 && !player.games.csgo)) {
             showError(__('home.search.errors.no_cs_stats', { player: playerName }));
             return;
         }
         
-        // Vérifier les statistiques
+        
         try {
             const playerStats = await faceitService.getPlayerStats(player.player_id);
             
@@ -122,10 +122,10 @@ async function searchPlayer(playerName) {
             console.warn('⚠️ Erreur stats (continuons quand même):', statsError);
         }
         
-        // Sauvegarder dans l'historique
+        
         savePlayerSearch(player);
         
-        // Redirection
+        
         const playerId = player.player_id;
         const playerNickname = encodeURIComponent(player.nickname);
         
@@ -146,7 +146,7 @@ async function searchPlayer(playerName) {
         
         showError(errorMessage);
     } finally {
-        // Restaurer le bouton
+        
         button.innerHTML = originalText;
         button.disabled = false;
     }
@@ -158,28 +158,28 @@ async function searchMatch(matchInput) {
     
     const originalText = button.innerHTML;
     
-    // Animation de chargement
+    
     button.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>${__('home.search.match.loading')}`;
     button.disabled = true;
     
     try {
-        // Test de validation de l'URL/ID avant l'appel API
+        
         const validationResult = faceitService.testMatchUrl(matchInput);
         if (!validationResult.valid) {
             throw new Error(`Format invalide: ${validationResult.error}`);
         }
         
-        // Vérifier si le match existe via l'API
+        
         const searchResult = await faceitService.searchMatch(matchInput);
         
         if (!searchResult.found) {
             throw new Error('Match non trouvé');
         }
         
-        // Sauvegarder dans l'historique
+        
         saveMatchSearch(searchResult.match);
         
-        // Redirection vers la page d'analyse de match
+        
         const cleanMatchId = searchResult.match_id;
         window.location.href = `/match?matchId=${encodeURIComponent(cleanMatchId)}`;
         
@@ -200,7 +200,7 @@ async function searchMatch(matchInput) {
         
         showError(errorMessage);
     } finally {
-        // Restaurer le bouton
+        
         button.innerHTML = originalText;
         button.disabled = false;
     }
@@ -210,10 +210,10 @@ function savePlayerSearch(player) {
     try {
         let recentSearches = JSON.parse(localStorage.getItem('recent_player_searches') || '[]');
         
-        // Éviter les doublons
+        
         recentSearches = recentSearches.filter(p => p.player_id !== player.player_id);
         
-        // Ajouter en début de liste
+        
         recentSearches.unshift({
             player_id: player.player_id,
             nickname: player.nickname,
@@ -222,7 +222,7 @@ function savePlayerSearch(player) {
             searched_at: Date.now()
         });
         
-        // Limiter à 10 recherches
+        
         recentSearches = recentSearches.slice(0, 10);
         
         localStorage.setItem('recent_player_searches', JSON.stringify(recentSearches));
@@ -235,10 +235,10 @@ function saveMatchSearch(match) {
     try {
         let recentMatches = JSON.parse(localStorage.getItem('recent_match_searches') || '[]');
         
-        // Éviter les doublons
+        
         recentMatches = recentMatches.filter(m => m.match_id !== match.match_id);
         
-        // Ajouter en début de liste
+        
         recentMatches.unshift({
             match_id: match.match_id,
             competition_name: match.competition_name,
@@ -247,7 +247,7 @@ function saveMatchSearch(match) {
             searched_at: Date.now()
         });
         
-        // Limiter à 5 matches
+        
         recentMatches = recentMatches.slice(0, 5);
         
         localStorage.setItem('recent_match_searches', JSON.stringify(recentMatches));
@@ -260,7 +260,7 @@ function showError(message) {
     const errorContainer = document.getElementById('errorContainer');
     if (!errorContainer) return;
     
-    // Supprimer les anciennes erreurs
+    
     clearError();
     
     const errorElement = document.createElement('div');
@@ -281,7 +281,7 @@ function showError(message) {
     
     errorContainer.appendChild(errorElement);
     
-    // Auto-hide après un délai
+    
     const hideDelay = message.includes(__('home.search.errors.invalid_format')) ? 12000 : 8000;
     setTimeout(() => {
         clearError();
@@ -297,12 +297,12 @@ function clearError() {
     }
 }
 
-// Fonction d'aide pour les exemples d'URLs
+
 function showMatchExamples() {
     showError(__('home.search.errors.invalid_format'));
 }
 
-// Export pour usage global
+
 window.searchPlayer = searchPlayer;
 window.searchMatch = searchMatch;
 window.clearError = clearError;

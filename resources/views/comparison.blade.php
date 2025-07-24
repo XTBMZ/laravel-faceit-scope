@@ -3,7 +3,7 @@
 @section('title', __('comparison.title'))
 
 @section('content')
-<!-- Loading State -->
+
 <div id="loadingState" class="hidden min-h-screen flex items-center justify-center" style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
     <div class="text-center">
         <div class="relative mb-8">
@@ -17,7 +17,7 @@
     </div>
 </div>
 
-<!-- Search Section -->
+
 <div id="searchSection" class="min-h-screen flex items-center justify-center" style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
     <div class="max-w-4xl mx-auto px-6 text-center">
         <div class="mb-12">
@@ -27,7 +27,7 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-            <!-- Player 1 Input - CT Style -->
+            
             <div class="cs-card ct-card">
                 <div class="flex items-center mb-6">
                     <div class="ml-3">
@@ -46,7 +46,7 @@
                 <div class="ct-pattern"></div>
             </div>
 
-            <!-- Player 2 Input - T Style -->
+            
             <div class="cs-card t-card">
                 <div class="flex items-center mb-6">
                     <div class="ml-3">
@@ -74,22 +74,22 @@
 </div>
 
 
-<!-- Main Content -->
+
 <div id="mainContent" class="hidden" style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
     
-    <!-- Winner Section -->
+    
     <div class="py-16">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div id="winnerSection" class="text-center mb-16">
-                <!-- Winner content will be injected here -->
+                
             </div>
         </div>
     </div>
 
-    <!-- Comparison Content -->
+    
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
         
-        <!-- Tabs Navigation -->
+        
         <div class="flex justify-center mb-8 progressive-reveal delay-4">
             <div class="bg-faceit-card rounded-xl p-1 border border-gray-700">
                 <button id="overviewTab" class="tab-button active px-6 py-3 rounded-lg font-medium transition-all">
@@ -104,23 +104,23 @@
             </div>
         </div>
 
-        <!-- Tab Contents -->
+        
         <div id="overviewContent" class="tab-content progressive-reveal delay-5">
-            <!-- Overview content will be injected here -->
+            
         </div>
 
         <div id="detailedContent" class="tab-content hidden progressive-reveal delay-5">
-            <!-- Detailed stats content will be injected here -->
+            
         </div>
 
         <div id="mapsContent" class="tab-content hidden progressive-reveal delay-5">
-            <!-- Maps content will be injected here -->
+            
         </div>
 
     </div>
 </div>
 
-<!-- Error State -->
+
 <div id="errorState" class="hidden min-h-screen flex items-center justify-center" style="background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);">
     <div class="text-center max-w-md mx-auto px-4">
         <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -544,13 +544,13 @@
 @endpush
 @push('scripts')
 <script>
-// Injecter les traductions dans le JavaScript 
+
 window.translations = {!! json_encode([
     'comparison' => __('comparison'),
 ]) !!};
 window.currentLocale = '{{ app()->getLocale() }}';
 
-// Configuration API
+
 const FACEIT_API = {
     TOKEN: "9bcea3f9-2144-495e-be16-02d4eb1a811c",
     BASE_URL: "https://open.faceit.com/data/v4/",
@@ -558,18 +558,18 @@ const FACEIT_API = {
     NO_DELAY: true
 };
 
-// Variables globales
+
 let player1Data = null;
 let player2Data = null;
 let player1Stats = null;
 let player2Stats = null;
 let comparisonResult = null;
 
-// Initialisation
+
 document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
     
-    // Pré-remplir si des joueurs sont passés en paramètre
+    
     const urlParams = new URLSearchParams(window.location.search);
     const player1 = urlParams.get('player1');
     const player2 = urlParams.get('player2');
@@ -585,14 +585,14 @@ document.addEventListener('DOMContentLoaded', function() {
 function setupEventListeners() {
     document.getElementById('compareBtn').addEventListener('click', comparePlayers);
     
-    // Enter key pour lancer la comparaison
+    
     ['player1Input', 'player2Input'].forEach(id => {
         document.getElementById(id).addEventListener('keypress', function(e) {
             if (e.key === 'Enter') comparePlayers();
         });
     });
     
-    // Onglets
+    
     document.getElementById('overviewTab').addEventListener('click', () => showTab('overview'));
     document.getElementById('detailedTab').addEventListener('click', () => showTab('detailed'));
     document.getElementById('mapsTab').addEventListener('click', () => showTab('maps'));
@@ -612,7 +612,7 @@ async function comparePlayers() {
         return;
     }
     
-    // Masquer la section de recherche et afficher le loading
+    
     document.getElementById('searchSection').classList.add('hidden');
     document.getElementById('mainContent').classList.add('hidden');
     document.getElementById('errorState').classList.add('hidden');
@@ -621,7 +621,7 @@ async function comparePlayers() {
     try {
         updateLoadingText();
         
-        // Récupération des données des joueurs
+        
         const [player1, player2] = await Promise.all([
             getPlayerByNickname(player1Nickname),
             getPlayerByNickname(player2Nickname)
@@ -640,17 +640,17 @@ async function comparePlayers() {
         
         comparisonResult = analyzeComparison(player1Data, player1Stats, player2Data, player2Stats);
         
-        // Affichage des résultats
+        
         displayWinnerSection();
         displayOverviewContent();
         displayDetailedContent();
         displayMapsContent();
         
-        // Masquer le loading et afficher les résultats avec animation
+        
         document.getElementById('loadingState').classList.add('hidden');
         document.getElementById('mainContent').classList.remove('hidden');
         
-        // Déclencher l'animation progressive après un court délai
+        
         setTimeout(() => {
             startProgressiveReveal();
         }, 100);
@@ -696,21 +696,21 @@ async function getPlayerStats(playerId) {
 }
 
 function analyzeComparison(p1Data, p1Stats, p2Data, p2Stats) {
-    // Calcul des scores de performance
+    
     const p1Score = calculatePerformanceScore(p1Data, p1Stats);
     const p2Score = calculatePerformanceScore(p2Data, p2Stats);
     
-    // Détermination du gagnant
+    
     const winner = p1Score.total > p2Score.total ? 1 : 2;
     const confidence = Math.abs(p1Score.total - p2Score.total) / Math.max(p1Score.total, p2Score.total) * 100;
     
-    // Analyse des rôles
+    
     const p1Role = determinePlayerRole(p1Stats);
     const p2Role = determinePlayerRole(p2Stats);
     
     return {
         winner,
-        confidence: Math.min(confidence, 95), // Cap à 95%
+        confidence: Math.min(confidence, 95), 
         player1: {
             ...p1Data,
             stats: p1Stats,
@@ -730,28 +730,28 @@ function calculatePerformanceScore(playerData, playerStats) {
     const lifetime = playerStats.lifetime;
     const gameData = playerData.games?.[FACEIT_API.GAME_ID] || {};
     
-    // Facteurs principaux
+    
     const elo = parseInt(gameData.faceit_elo || 1000);
     const kd = parseFloat(lifetime["Average K/D Ratio"] || 0);
     const winRate = parseFloat(lifetime["Win Rate %"] || 0);
     const matches = parseInt(lifetime["Matches"] || 0);
     const level = parseInt(gameData.skill_level || 1);
     
-    // Facteurs avancés
+    
     const headshots = parseFloat(lifetime["Average Headshots %"] || 0);
     const entrySuccess = parseFloat(lifetime["Entry Success Rate"] || 0);
     const clutch1v1 = parseFloat(lifetime["1v1 Win Rate"] || 0);
     const adr = parseFloat(lifetime["ADR"] || 0);
     
-    // Coefficients basés sur l'expérience
-    const experienceMultiplier = Math.min(matches / 500, 2); // Max 2x pour 500+ matches
+    
+    const experienceMultiplier = Math.min(matches / 500, 2); 
     const eloWeight = 0.35;
     const skillWeight = 0.25;
     const experienceWeight = 0.2;
     const advancedWeight = 0.2;
     
-    // Calcul des composants
-    const eloScore = (elo / 3000) * 100; // Normalisé sur 3000 ELO max
+    
+    const eloScore = (elo / 3000) * 100; 
     const skillScore = ((kd * 30) + (winRate * 0.7) + (adr * 0.3)) * (level / 10);
     const experienceScore = Math.min((matches / 20), 100) * experienceMultiplier;
     const advancedScore = ((headshots * 0.5) + (entrySuccess * 50) + (clutch1v1 * 30));
@@ -810,7 +810,7 @@ function displayWinnerSection() {
     
     container.innerHTML = `
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            <!-- Winner -->
+            
             <div class="player-card winner-card text-center player-card-animate winner">
                 <div class="mb-4">
                     <img src="${winner.avatar}" alt="${winner.nickname}" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-faceit-orange">
@@ -852,7 +852,7 @@ function displayWinnerSection() {
                 </div>
             </div>
             
-            <!-- Loser -->
+            
             <div class="player-card text-center player-card-animate loser">
                 <div class="mb-4">
                     <img src="${loser.avatar}" alt="${loser.nickname}" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-gray-600">
@@ -895,7 +895,7 @@ function displayWinnerSection() {
             </div>
         </div>
         
-        <!-- Result -->
+        
         <div class="text-center bg-faceit-card rounded-2xl p-8 border border-gray-700 progressive-reveal delay-3">
             <h3 class="text-2xl font-bold text-white mb-4">${window.translations.comparison.winner.analysis_complete}</h3>
             <p class="text-xl text-gray-300 mb-2">
@@ -916,7 +916,7 @@ function displayOverviewContent() {
     
     container.innerHTML = `
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <!-- Scores détaillés -->
+            
             <div class="bg-faceit-card rounded-xl p-6 border border-gray-700">
                 <h3 class="text-xl font-bold text-white mb-6 flex items-center">
                     <i class="fas fa-chart-line text-faceit-orange mr-2"></i>
@@ -962,7 +962,7 @@ function displayOverviewContent() {
                 </div>
             </div>
             
-            <!-- Statistiques clés -->
+            
             <div class="bg-faceit-card rounded-xl p-6 border border-gray-700">
                 <h3 class="text-xl font-bold text-white mb-6 flex items-center">
                     <i class="fas fa-star text-faceit-orange mr-2"></i>
@@ -982,7 +982,7 @@ function displayOverviewContent() {
             </div>
         </div>
         
-        <!-- Informations sur les calculs -->
+        
         <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-6">
             <h4 class="text-lg font-bold text-blue-400 mb-4 flex items-center">
                 <i class="fas fa-info-circle mr-2"></i>
@@ -1131,7 +1131,7 @@ function displayDetailedContent() {
             `).join('')}
         </div>
         
-        <!-- Légende -->
+        
         <div class="bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-center">
             <p class="text-green-400 font-medium">
                 <i class="fas fa-info-circle mr-2"></i>
@@ -1147,7 +1147,7 @@ function displayMapsContent() {
     const p2Maps = comparisonResult.player2.stats.segments.filter(s => s.type === "Map");
     const t = window.translations.comparison.maps;
     
-    // Créer un index des cartes
+    
     const mapComparisons = {};
     
     p1Maps.forEach(mapSegment => {
@@ -1166,7 +1166,7 @@ function displayMapsContent() {
         mapComparisons[mapName].player2 = mapSegment;
     });
     
-    // Filtrer les cartes où les deux joueurs ont des données
+    
     const commonMaps = Object.entries(mapComparisons).filter(([_, data]) => 
         data.player1 && data.player2
     );
@@ -1229,7 +1229,7 @@ function displayMapsContent() {
                         
                         <div class="p-6">
                             <div class="grid grid-cols-2 gap-6 mb-6">
-                                <!-- Joueur 1 -->
+                                
                                 <div class="text-center">
                                     <h4 class="font-bold text-white mb-2">${comparisonResult.player1.nickname}</h4>
                                     <div class="space-y-2">
@@ -1245,7 +1245,7 @@ function displayMapsContent() {
                                     </div>
                                 </div>
                                 
-                                <!-- Joueur 2 -->
+                                
                                 <div class="text-center">
                                     <h4 class="font-bold text-white mb-2">${comparisonResult.player2.nickname}</h4>
                                     <div class="space-y-2">
@@ -1262,7 +1262,7 @@ function displayMapsContent() {
                                 </div>
                             </div>
                             
-                            <!-- Stats détaillées -->
+                            
                             <div class="space-y-2 text-sm">
                                 <div class="flex justify-between items-center p-2 bg-faceit-dark/30 rounded">
                                     <span class="text-gray-300">${t.headshots}</span>
@@ -1297,7 +1297,7 @@ function displayMapsContent() {
             }).join('')}
         </div>
         
-        <!-- Résumé des cartes -->
+        
         <div class="mt-8 bg-faceit-card rounded-xl p-6 border border-gray-700">
             <h3 class="text-xl font-bold text-white mb-4 flex items-center">
                 <i class="fas fa-trophy text-faceit-orange mr-2"></i>
@@ -1325,7 +1325,7 @@ function displayMapsContent() {
     `;
 }
 
-// Fonction pour déclencher l'animation progressive
+
 function startProgressiveReveal() {
     const elements = document.querySelectorAll('.progressive-reveal, .player-card-animate');
     
@@ -1334,7 +1334,7 @@ function startProgressiveReveal() {
     });
 }
 
-// Fonctions utilitaires
+
 function updateLoadingText() {
     const messages = window.translations.comparison.loading.messages;
     const messageValues = Object.values(messages);
@@ -1353,16 +1353,16 @@ function updateLoadingText() {
 }
 
 function showTab(tabName) {
-    // Masquer tous les contenus
+    
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
     
-    // Afficher le contenu sélectionné
+    
     const targetContent = document.getElementById(tabName + 'Content');
     targetContent.classList.remove('hidden');
     document.getElementById(tabName + 'Tab').classList.add('active');
     
-    // Réanimer le contenu de l'onglet
+    
     setTimeout(() => {
         const tabElements = targetContent.querySelectorAll('.progressive-reveal');
         tabElements.forEach((element, index) => {
@@ -1481,12 +1481,12 @@ function formatNumber(num) {
 }
 
 function showError(message) {
-    // Masquer toutes les autres sections
+    
     document.getElementById('searchSection').classList.add('hidden');
     document.getElementById('loadingState').classList.add('hidden');
     document.getElementById('mainContent').classList.add('hidden');
     
-    // Afficher l'erreur
+    
     document.getElementById('errorState').classList.remove('hidden');
     document.getElementById('errorMessage').textContent = message;
 }

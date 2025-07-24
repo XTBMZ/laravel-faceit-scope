@@ -13,35 +13,35 @@ function initializeProfileDashboard() {
 }
 
 function setupEventListeners() {
-    // Synchronisation FACEIT
+    
     const syncBtns = document.querySelectorAll('#syncProfileBtn');
     syncBtns.forEach(btn => {
         btn.addEventListener('click', syncFaceitData);
     });
 
-    // Export des données
+    
     const exportBtn = document.getElementById('exportDataBtn');
     if (exportBtn) {
         exportBtn.addEventListener('click', exportUserData);
     }
 
-    // Vider le cache
+    
     const clearCacheBtn = document.getElementById('clearCacheBtn');
     if (clearCacheBtn) {
         clearCacheBtn.addEventListener('click', clearCache);
     }
 
-    // Déconnexion
+    
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', confirmLogout);
     }
 
-    // Toggle switches
+    
     const toggles = document.querySelectorAll('input[type="checkbox"]');
     toggles.forEach(toggle => {
         toggle.addEventListener('change', function() {
-            // Animation visuelle du toggle
+            
             this.parentElement.classList.add('animate-pulse');
             setTimeout(() => {
                 this.parentElement.classList.remove('animate-pulse');
@@ -51,7 +51,7 @@ function setupEventListeners() {
 }
 
 function setupAnimations() {
-    // Animation des cartes de stats au survol
+    
     const statCards = document.querySelectorAll('.bg-faceit-card');
     statCards.forEach(card => {
         card.addEventListener('mouseenter', function() {
@@ -65,7 +65,7 @@ function setupAnimations() {
         });
     });
 
-    // Animation de l'avatar principal
+    
     const mainAvatar = document.querySelector('img[alt="' + window.profileData.user.nickname + '"]');
     if (mainAvatar) {
         mainAvatar.addEventListener('mouseenter', function() {
@@ -77,7 +77,7 @@ function setupAnimations() {
         });
     }
 
-    // Animation des boutons d'action
+    
     const actionButtons = document.querySelectorAll('a[href*="advanced"], a[href*="comparison"]');
     actionButtons.forEach(button => {
         button.addEventListener('mouseenter', function() {
@@ -97,13 +97,13 @@ async function syncFaceitData() {
     const syncBtns = document.querySelectorAll('#syncProfileBtn');
     const loadingModal = document.getElementById('loadingModal');
     
-    // Afficher le modal de chargement
+    
     if (loadingModal) {
         loadingModal.classList.remove('hidden');
         loadingModal.classList.add('flex');
     }
 
-    // Animation des boutons
+    
     syncBtns.forEach(btn => {
         const originalText = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Synchronisation...';
@@ -127,7 +127,7 @@ async function syncFaceitData() {
         if (data.success) {
             showSuccess('Profil synchronisé avec succès !');
             
-            // Rafraîchir la page après un délai
+            
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
@@ -139,13 +139,13 @@ async function syncFaceitData() {
         console.error('Erreur sync FACEIT:', error);
         showError('Erreur lors de la synchronisation: ' + error.message);
     } finally {
-        // Cacher le modal de chargement
+        
         if (loadingModal) {
             loadingModal.classList.add('hidden');
             loadingModal.classList.remove('flex');
         }
 
-        // Restaurer les boutons
+        
         syncBtns.forEach(btn => {
             btn.innerHTML = btn.dataset.originalText || '<i class="fas fa-sync mr-2"></i>Synchroniser';
             btn.disabled = false;
@@ -203,7 +203,7 @@ async function exportUserData() {
  */
 function clearCache() {
     try {
-        // Vider localStorage FACEIT
+        
         const keys = Object.keys(localStorage);
         const faceitKeys = keys.filter(key => 
             key.includes('faceit') || 
@@ -216,7 +216,7 @@ function clearCache() {
             localStorage.removeItem(key);
         });
 
-        // Vider sessionStorage
+        
         const sessionKeys = Object.keys(sessionStorage);
         const faceitSessionKeys = sessionKeys.filter(key => 
             key.includes('faceit') || 
@@ -244,7 +244,7 @@ function confirmLogout() {
         'Êtes-vous sûr de vouloir vous déconnecter de Faceit Scope ?',
         'Se déconnecter',
         () => {
-            // Animation de déconnexion
+            
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) {
                 logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Déconnexion...';
@@ -265,7 +265,7 @@ function confirmLogout() {
  * Affiche un modal de confirmation
  */
 function showConfirmModal(title, message, confirmText, onConfirm, confirmClass = 'bg-red-600 hover:bg-red-700') {
-    // Créer le modal dynamiquement
+    
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4';
     modal.innerHTML = `
@@ -296,7 +296,7 @@ function showConfirmModal(title, message, confirmText, onConfirm, confirmClass =
 
     document.body.appendChild(modal);
 
-    // Event listeners
+    
     const cancelBtn = modal.querySelector('#cancelModalBtn');
     const confirmBtn = modal.querySelector('#confirmModalBtn');
 
@@ -317,14 +317,14 @@ function showConfirmModal(title, message, confirmText, onConfirm, confirmClass =
         onConfirm();
     });
 
-    // Fermer en cliquant à l'extérieur
+    
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             closeModal();
         }
     });
 
-    // Animation d'entrée
+    
     modal.style.opacity = '0';
     setTimeout(() => {
         modal.style.opacity = '1';
@@ -342,7 +342,7 @@ function displayRealTimeStats() {
     statsElements.forEach(element => {
         const finalValue = parseInt(element.textContent.replace(/[^0-9]/g, ''));
         let currentValue = 0;
-        const increment = finalValue / 50; // 50 steps
+        const increment = finalValue / 50; 
 
         const counter = setInterval(() => {
             currentValue += increment;
@@ -362,12 +362,12 @@ function displayRealTimeStats() {
 function initializeAdvancedFeatures() {
     if (!window.profileData.playerStats) return;
 
-    // Graphique radar de performance (si Chart.js est disponible)
+    
     if (typeof Chart !== 'undefined') {
         createPerformanceRadar();
     }
 
-    // Animations des statistiques
+    
     setTimeout(displayRealTimeStats, 500);
 }
 
@@ -437,5 +437,5 @@ function createPerformanceRadar() {
     });
 }
 
-// Initialiser les fonctionnalités avancées après un délai
+
 setTimeout(initializeAdvancedFeatures, 1000);

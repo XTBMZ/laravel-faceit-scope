@@ -34,7 +34,7 @@ class ChampionshipService
         try {
             $url = self::FACEIT_URL . "championships?game=" . self::GAME_ID . "&offset={$offset}&limit={$limit}";
             
-            // Ajouter le type si différent de 'all'
+            
             if ($type !== 'all' && in_array($type, ['upcoming', 'ongoing', 'past'])) {
                 $url .= "&type={$type}";
             }
@@ -51,7 +51,7 @@ class ChampionshipService
             
             $championships = $data['items'] ?? [];
             
-            // Enrichir les données des championnats
+            
             $enrichedChampionships = array_map([$this, 'enrichChampionshipData'], $championships);
             
             return [
@@ -235,7 +235,7 @@ class ChampionshipService
         try {
             $allResults = [];
             
-            // Rechercher dans plusieurs pages
+            
             for ($page = 0; $page < 5; $page++) {
                 $offset = $page * 10;
                 $result = $this->getChampionships($type, $offset, 10);
@@ -251,7 +251,7 @@ class ChampionshipService
                 }
             }
             
-            // Filtrer par nom/description
+            
             $filtered = array_filter($allResults, function($championship) use ($query) {
                 $name = $championship['name'] ?? '';
                 $description = $championship['description'] ?? '';
@@ -317,7 +317,7 @@ class ChampionshipService
     {
         $enriched = $championship;
         
-        // Ajouter des champs calculés
+        
         $enriched['prizeMoney'] = $championship['total_prizes'] ?? 0;
         $enriched['participants'] = $championship['current_subscriptions'] ?? 0;
         $enriched['maxParticipants'] = $championship['slots'] ?? 'Illimité';
@@ -329,14 +329,14 @@ class ChampionshipService
         $enriched['cleanImageUrl'] = $this->cleanImageUrl($championship['cover_image'] ?? $championship['background_image'] ?? null);
         $enriched['cleanFaceitUrl'] = $this->cleanFaceitUrl($championship['faceit_url'] ?? null);
         
-        // Ajouter les données de l'organisateur si disponibles
+        
         if (isset($championship['organizer_data'])) {
             $enriched['organizer_name'] = $championship['organizer_data']['name'] ?? null;
             $enriched['organizer_avatar'] = $championship['organizer_data']['avatar'] ?? null;
             $enriched['organizer_type'] = $championship['organizer_data']['type'] ?? null;
         }
         
-        // Ajouter les données du jeu si disponibles
+        
         if (isset($championship['game_data'])) {
             $enriched['game_name'] = $championship['game_data']['long_label'] ?? null;
             $enriched['game_short_name'] = $championship['game_data']['short_label'] ?? null;
@@ -358,7 +358,7 @@ class ChampionshipService
         
         $finalStatus = strtolower($status);
         
-        // Déterminer le vrai statut basé sur les timestamps
+        
         if ($startTime > 0) {
             if ($now < $subscriptionStart && $subscriptionStart > 0) {
                 $finalStatus = 'upcoming';
@@ -371,7 +371,7 @@ class ChampionshipService
             }
         }
         
-        // Mapper les status API FACEIT
+        
         if ($status === 'FINISHED' || $status === 'CANCELLED') {
             $finalStatus = 'past';
         } elseif ($status === 'ONGOING') {

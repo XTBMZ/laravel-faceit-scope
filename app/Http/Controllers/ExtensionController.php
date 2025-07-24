@@ -39,7 +39,7 @@ class ExtensionController extends Controller
     public function getStatus(): JsonResponse
     {
         try {
-            // Vérifications basiques du système
+            
             $status = [
                 'api_online' => true,
                 'faceit_api' => $this->checkFaceitApiStatus(),
@@ -89,7 +89,7 @@ class ExtensionController extends Controller
                 'timestamp' => 'nullable|integer'
             ]);
 
-            // Enregistrer les analytics (vous pouvez adapter selon votre système)
+            
             Log::info('Extension Analytics', [
                 'event' => $validated['event'],
                 'data' => $validated['data'] ?? [],
@@ -132,7 +132,7 @@ class ExtensionController extends Controller
                 'email' => 'nullable|email'
             ]);
 
-            // Enregistrer le feedback (adapter selon votre système)
+            
             Log::info('Extension Feedback', [
                 'type' => $validated['type'],
                 'message' => $validated['message'],
@@ -144,13 +144,13 @@ class ExtensionController extends Controller
                 'timestamp' => now()
             ]);
 
-            // Optionnel: Envoyer par email ou stocker en base
-            // $this->sendFeedbackNotification($validated);
+            
+            
 
             return response()->json([
                 'success' => true,
                 'message' => 'Feedback envoyé avec succès',
-                'ticket_id' => 'FS' . time() // ID de ticket pour le suivi
+                'ticket_id' => 'FS' . time() 
             ]);
 
         } catch (\Exception $e) {
@@ -172,7 +172,7 @@ class ExtensionController extends Controller
     private function checkFaceitApiStatus(): bool
     {
         try {
-            // Test simple de l'API FACEIT
+            
             $testUrl = 'https://open.faceit.com/data/v4/games';
             $response = @file_get_contents($testUrl, false, stream_context_create([
                 'http' => [
@@ -214,10 +214,10 @@ class ExtensionController extends Controller
      */
     private function sendFeedbackNotification(array $feedback): void
     {
-        // Implémenter selon vos besoins :
-        // - Email aux développeurs
-        // - Notification Slack/Discord
-        // - Création d'un ticket de support
-        // - etc.
+        
+        
+        
+        
+        
     }
 }

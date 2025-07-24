@@ -11,7 +11,7 @@ class AboutController extends Controller
      */
     public function index()
     {
-        // Pas de fausses statistiques - on reste honnête
+        
         $stats = [
             'status' => 'En développement',
             'data_source' => 'API FACEIT officielle',

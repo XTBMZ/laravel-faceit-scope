@@ -44,12 +44,12 @@ class TournamentController extends Controller
         try {
             $type = $request->get('type', 'all');
             $offset = (int) $request->get('offset', 0);
-            $limit = min((int) $request->get('limit', 10), 10); // Max 10 selon l'API
+            $limit = min((int) $request->get('limit', 10), 10); 
             
-            // Construire l'URL de l'API FACEIT
+            
             $url = self::FACEIT_URL . "championships?game=" . self::GAME_ID . "&offset={$offset}&limit={$limit}";
             
-            // Ajouter le type si différent de 'all'
+            
             if ($type !== 'all' && in_array($type, ['upcoming', 'ongoing', 'past'])) {
                 $url .= "&type={$type}";
             }
@@ -61,10 +61,10 @@ class TournamentController extends Controller
             
             $championships = $data['items'] ?? [];
             
-            // Enrichir les données des championnats
+            
             $enrichedChampionships = array_map([$this, 'enrichChampionshipData'], $championships);
             
-            // Filtrer pour les types spéciaux
+            
             if ($type === 'featured') {
                 $enrichedChampionships = array_filter($enrichedChampionships, function($championship) {
                     return $championship['featured'] || $championship['isFeatured'];
@@ -130,7 +130,7 @@ class TournamentController extends Controller
         try {
             $type = $request->get('type', 'all');
             $offset = (int) $request->get('offset', 0);
-            $limit = min((int) $request->get('limit', 20), 100); // Max 100 selon l'API
+            $limit = min((int) $request->get('limit', 20), 100); 
             
             $url = self::FACEIT_URL . "championships/{$championshipId}/matches?offset={$offset}&limit={$limit}";
             
@@ -234,7 +234,7 @@ class TournamentController extends Controller
                 ], 400);
             }
             
-            // Rechercher dans plusieurs pages
+            
             $allResults = [];
             for ($page = 0; $page < 5; $page++) {
                 $offset = $page * 10;
@@ -251,7 +251,7 @@ class TournamentController extends Controller
                 }
             }
             
-            // Filtrer par nom
+            
             $filtered = array_filter($allResults, function($championship) use ($query) {
                 return stripos($championship['name'] ?? '', $query) !== false ||
                        stripos($championship['description'] ?? '', $query) !== false;
@@ -277,7 +277,7 @@ class TournamentController extends Controller
     public function getGlobalStats(): JsonResponse
     {
         try {
-            // Utiliser le cache pour éviter trop de requêtes
+            
             $stats = Cache::remember('championships_global_stats', 300, function () {
                 $ongoingStats = $this->getChampionshipsData('ongoing', 0, 10);
                 $upcomingStats = $this->getChampionshipsData('upcoming', 0, 10);
@@ -350,7 +350,7 @@ class TournamentController extends Controller
     {
         $enriched = $championship;
         
-        // Ajouter des champs calculés
+        
         $enriched['prizeMoney'] = $championship['total_prizes'] ?? 0;
         $enriched['participants'] = $championship['current_subscriptions'] ?? 0;
         $enriched['maxParticipants'] = $championship['slots'] ?? 'Illimité';
@@ -362,7 +362,7 @@ class TournamentController extends Controller
         $enriched['cleanImageUrl'] = $this->cleanImageUrl($championship['cover_image'] ?? $championship['background_image'] ?? null);
         $enriched['cleanFaceitUrl'] = $this->cleanFaceitUrl($championship['faceit_url'] ?? null);
         
-        // Ajouter les données de l'organisateur si disponibles
+        
         if (isset($championship['organizer_data'])) {
             $enriched['organizer_name'] = $championship['organizer_data']['name'] ?? null;
             $enriched['organizer_avatar'] = $championship['organizer_data']['avatar'] ?? null;
@@ -383,7 +383,7 @@ class TournamentController extends Controller
         
         $finalStatus = strtolower($status);
         
-        // Déterminer le vrai statut basé sur les timestamps
+        
         if ($startTime > 0) {
             if ($now < $startTime) {
                 $finalStatus = $subscriptionEnd > $now ? 'registration' : 'upcoming';

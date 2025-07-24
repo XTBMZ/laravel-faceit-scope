@@ -30,12 +30,12 @@ class FaceitOAuthService
      */
     public function getAuthorizationUrl()
     {
-        // Générer le code verifier et le challenge pour PKCE
+        
         $codeVerifier = $this->generateCodeVerifier();
         $codeChallenge = $this->generateCodeChallenge($codeVerifier);
         $state = Str::random(32);
 
-        // Stocker en session pour la vérification
+        
         Session::put(config('faceit.session.code_verifier_key'), $codeVerifier);
         Session::put(config('faceit.session.state_key'), $state);
 
@@ -65,7 +65,7 @@ class FaceitOAuthService
  */
 public function exchangeCodeForToken($authorizationCode, $state)
 {
-    // Vérifications préliminaires
+    
     $sessionState = Session::get(config('faceit.session.state_key'));
     if (!$sessionState || $sessionState !== $state) {
         throw new \Exception('État OAuth invalide');
@@ -77,7 +77,7 @@ public function exchangeCodeForToken($authorizationCode, $state)
     }
 
     try {
-        // Méthode alternative 1 : Utiliser cURL directement
+        
         $postData = http_build_query([
             'grant_type' => 'authorization_code',
             'code' => $authorizationCode,
@@ -129,7 +129,7 @@ public function exchangeCodeForToken($authorizationCode, $state)
             throw new \Exception('Réponse JSON invalide: ' . $response);
         }
 
-        // Nettoyer la session
+        
         Session::forget([
             config('faceit.session.state_key'),
             config('faceit.session.code_verifier_key')
@@ -181,7 +181,7 @@ public function exchangeCodeForToken($authorizationCode, $state)
                 'family_name' => $userInfo['family_name'] ?? null
             ]);
     
-            // Si pas d'avatar via OAuth, essayer de le récupérer via l'API standard
+            
             if (empty($userInfo['picture']) && isset($userInfo['sub'])) {
                 Log::info('FACEIT OAuth: Tentative récupération avatar via API standard');
                 
@@ -216,7 +216,7 @@ public function exchangeCodeForToken($authorizationCode, $state)
     public function getPlayerData($accessToken, $userId)
     {
         try {
-            // Utiliser l'API FACEIT standard pour récupérer les données complètes
+            
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . config('services.faceit.api_key', '9bcea3f9-2144-495e-be16-02d4eb1a811c'),
                 'Content-Type' => 'application/json'
@@ -246,23 +246,23 @@ public function exchangeCodeForToken($authorizationCode, $state)
      */
     private function getBestAvatarUrl($userInfo, $playerData)
     {
-        // Priorité 1: Avatar OAuth (scope profile)
+        
         if (!empty($userInfo['picture'])) {
             return $userInfo['picture'];
         }
         
-        // Priorité 2: Avatar depuis les données joueur API standard
+        
         if ($playerData && !empty($playerData['avatar'])) {
             return $playerData['avatar'];
         }
         
-        // Priorité 3: Avatar par défaut ou gravatar basé sur l'email
+        
         if (!empty($userInfo['email'])) {
             $emailHash = md5(strtolower(trim($userInfo['email'])));
             return "https://www.gravatar.com/avatar/{$emailHash}?s=200&d=mp";
         }
         
-        // Fallback: Avatar par défaut
+        
         return null;
     }
     
@@ -291,7 +291,7 @@ public function exchangeCodeForToken($authorizationCode, $state)
      */
     public function storeUserSession($userInfo, $accessToken, $playerData = null)
     {
-        // Déterminer la meilleure URL d'avatar disponible
+        
         $avatarUrl = $this->getBestAvatarUrl($userInfo, $playerData);
         
         $userData = [
@@ -308,11 +308,11 @@ public function exchangeCodeForToken($authorizationCode, $state)
             'player_data' => $playerData,
         ];
     
-        // Stocker en session
+        
         Session::put(config('faceit.session.user_key'), $userData);
         Session::put(config('faceit.session.access_token_key'), $accessToken);
     
-        // Stocker en cache
+        
         $cacheKey = 'faceit_user_' . $userInfo['sub'];
         Cache::put($cacheKey, $userData, config('faceit.cache_duration'));
     
@@ -352,7 +352,7 @@ public function exchangeCodeForToken($authorizationCode, $state)
         $user = $this->getAuthenticatedUser();
         
         if ($user) {
-            // Supprimer du cache
+            
             $cacheKey = 'faceit_user_' . $user['id'];
             Cache::forget($cacheKey);
             
@@ -362,7 +362,7 @@ public function exchangeCodeForToken($authorizationCode, $state)
             ]);
         }
 
-        // Nettoyer la session
+        
         Session::forget([
             config('faceit.session.user_key'),
             config('faceit.session.access_token_key'),
