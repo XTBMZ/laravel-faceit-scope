@@ -68,10 +68,6 @@ class FaceitAuth {
                 this.isAuthenticated = data.authenticated;
                 this.currentUser = data.user;
                 
-                console.log(this.t('console.auth_status'), { 
-                    authenticated: this.isAuthenticated, 
-                    user: this.currentUser?.nickname 
-                });
             } else {
                 this.isAuthenticated = false;
                 this.currentUser = null;
@@ -145,8 +141,6 @@ class FaceitAuth {
             // Rediriger la popup vers FACEIT
             popup.location.href = '/auth/faceit/login';
 
-            console.log(this.t('console.popup_opened'));
-
         } catch (error) {
             console.error('Erreur ouverture popup:', error);
             this.showNotification(this.t('errors.login_popup', { error: error.message }), 'error');
@@ -157,8 +151,6 @@ class FaceitAuth {
      * Gère le résultat de l'authentification
      */
     async handleAuthResult(authData) {
-        console.log(this.t('console.auth_result'), authData);
-
         if (authData.success) {
             this.isAuthenticated = true;
             this.currentUser = authData.user;
@@ -235,8 +227,6 @@ class FaceitAuth {
             // Utilisateur non connecté
             this.updateUnauthenticatedUI();
         }
-
-        console.log(this.t('console.ui_updated'), { authenticated: this.isAuthenticated, user: this.currentUser?.nickname });
     }
 
     /**
@@ -415,7 +405,6 @@ class FaceitAuth {
             showNotification(message, type);
         } else {
             // Fallback simple
-            console.log(`${type.toUpperCase()}: ${message}`);
             alert(message);
         }
     }
@@ -441,5 +430,3 @@ const faceitAuth = new FaceitAuth();
 // Export global
 window.faceitAuth = faceitAuth;
 window.FaceitAuth = FaceitAuth;
-
-console.log(faceitAuth.t('console.service_loaded'));

@@ -577,21 +577,15 @@ function calculateAdvancedPlayerScore(playerData, playerStats) {
         return { score: 0, level: 1, role: 'unknown', details: {} };
     }
     
-    console.log('🧮 Calcul du score pour:', playerData.nickname);
-    
     const level = playerData.games?.[FACEIT_API.GAME_ID]?.skill_level || 1;
     const elo = playerData.games?.[FACEIT_API.GAME_ID]?.faceit_elo || 1000;
     const lifetime = playerStats.lifetime;
     
-    console.log('🧮 Données de base:', { nickname: playerData.nickname, level, elo });
-    
     // Extraction des statistiques avec combinaisons avancées
     const stats = extractAdvancedStats(lifetime);
-    console.log('🧮 Stats avancées extraites:', stats);
     
     // Calcul du coefficient de niveau (facteur multiplicateur crucial)
     const levelCoefficient = calculateLevelCoefficient(level, elo);
-    console.log('🧮 Coefficient de niveau:', levelCoefficient);
     
     // Calcul des scores normalisés par catégorie
     const categoryScores = {
@@ -601,8 +595,6 @@ function calculateAdvancedPlayerScore(playerData, playerStats) {
         consistency: calculateConsistencyScore(stats, levelCoefficient),
         experience: calculateExperienceScore(stats, levelCoefficient)
     };
-    
-    console.log('🧮 Scores par catégorie:', categoryScores);
     
     // Score global avec pondération
     const weights = {
@@ -617,14 +609,11 @@ function calculateAdvancedPlayerScore(playerData, playerStats) {
         return total + (score * weights[category]);
     }, 0);
     
-    console.log('🧮 Score global avant normalisation:', globalScore);
     
     // Détermination du rôle principal
     const role = determinePlayerRole(stats);
-    console.log('🧮 Rôle final attribué:', role);
     
     const finalScore = Math.min(10, Math.max(0, globalScore));
-    console.log('🧮 Score final:', finalScore);
     
     return {
         score: finalScore,
@@ -697,12 +686,6 @@ function extractAdvancedStats(lifetime) {
     
     advanced.adaptability = (entryComponent + clutchComponent + utilityComponent) / 3;
     
-    console.log('📊 Stats extraites avec vérifications:', {
-        baseStats,
-        advanced,
-        hasNaN: Object.values({...baseStats, ...advanced}).some(val => isNaN(val))
-    });
-    
     // Vérification finale - remplacer tous les NaN par 0
     const finalStats = {...baseStats, ...advanced};
     Object.keys(finalStats).forEach(key => {
@@ -768,23 +751,6 @@ function calculateExperienceScore(stats, levelCoeff) {
 }
 
 function determinePlayerRole(stats) {
-    console.log('🎭 Détermination du rôle pour un joueur:', {
-        entryRate: stats.entryRate,
-        entrySuccess: stats.entrySuccess,
-        entryEfficiency: stats.entryEfficiency,
-        flashesPerRound: stats.flashesPerRound,
-        flashSuccess: stats.flashSuccess,
-        utilityEfficiency: stats.utilityEfficiency,
-        sniperRate: stats.sniperRate,
-        clutchScore: stats.clutchScore,
-        clutch1v1: stats.clutch1v1,
-        clutch1v2: stats.clutch1v2,
-        kd: stats.kd,
-        adr: stats.adr,
-        offensivePotential: stats.offensivePotential,
-        adaptability: stats.adaptability
-    });
-    
     // Calculs sécurisés pour éviter les NaN
     const roleScores = {
         entry: (stats.entryRate * 200) + (stats.entrySuccess * 100) + (stats.offensivePotential * 15),
@@ -803,8 +769,6 @@ function determinePlayerRole(stats) {
         }
     });
     
-    console.log('🎭 Scores des rôles calculés (après correction NaN):', roleScores);
-    
     // Critères spécifiques pour une attribution plus précise
     const hasStrongEntry = stats.entryRate > 0.25 && stats.entrySuccess > 0.55;
     const hasStrongAwp = stats.sniperRate > 0.15;
@@ -812,37 +776,24 @@ function determinePlayerRole(stats) {
     const hasStrongClutch = stats.clutch1v1 > 0.4 || (stats.clutch1v1 > 0.3 && stats.clutch1v2 > 0.25);
     const hasStrongFragging = stats.kd > 1.3 && stats.adr > 85 && stats.entryRate < 0.15;
     
-    console.log('🎭 Critères spécifiques:', {
-        hasStrongEntry,
-        hasStrongAwp, 
-        hasStrongSupport,
-        hasStrongClutch,
-        hasStrongFragging
-    });
-    
     // Attribution par critères spécifiques d'abord
     if (hasStrongAwp) {
-        console.log('🎭 Attribution par critère: AWPer');
         return 'awper';
     }
     
     if (hasStrongEntry) {
-        console.log('🎭 Attribution par critère: Entry');
         return 'entry';
     }
     
     if (hasStrongSupport) {
-        console.log('🎭 Attribution par critère: Support');
         return 'support';
     }
     
     if (hasStrongClutch) {
-        console.log('🎭 Attribution par critère: Clutcher');
         return 'clutcher';
     }
     
     if (hasStrongFragging) {
-        console.log('🎭 Attribution par critère: Fragger');
         return 'fragger';
     }
     
@@ -850,8 +801,6 @@ function determinePlayerRole(stats) {
     const dominantRole = Object.keys(roleScores).reduce((a, b) => 
         roleScores[a] > roleScores[b] ? a : b
     );
-    
-    console.log('🎭 Rôle dominant par score:', dominantRole, 'avec score:', roleScores[dominantRole]);
     
     // Si c'est encore lurker et que les scores sont proches, forcer un autre rôle
     if (dominantRole === 'lurker') {
@@ -862,16 +811,8 @@ function determinePlayerRole(stats) {
         const bestNonLurker = sortedRoles[0];
         const scoreDiff = roleScores[dominantRole] - bestNonLurker[1];
         
-        console.log('🎭 Lurker vs meilleur autre rôle:', {
-            lurkerScore: roleScores[dominantRole],
-            bestOther: bestNonLurker[0],
-            bestOtherScore: bestNonLurker[1],
-            difference: scoreDiff
-        });
-        
         // Si la différence est faible (<30), prendre l'autre rôle
         if (scoreDiff < 30) {
-            console.log('🎭 Override lurker: différence faible, choix du rôle', bestNonLurker[0]);
             return bestNonLurker[0];
         }
     }
@@ -1186,10 +1127,8 @@ function extractAllPlayers(matchData) {
 }
 
 async function analyzeAllPlayers(playersList) {
-    console.log('🧠 Début analyse de', playersList.length, 'joueurs');
     
     const promises = playersList.map(async (playerInfo, index) => {
-        console.log(`🧠 [${index + 1}/${playersList.length}] Analyse de ${playerInfo.nickname} (${playerInfo.teamName})`);
         
         try {
             const data = await fetchPlayerData(playerInfo.playerId);
@@ -1198,22 +1137,10 @@ async function analyzeAllPlayers(playersList) {
                 return null;
             }
             
-            console.log(`✅ Données récupérées pour ${playerInfo.nickname}`);
             
             const mapAnalysis = calculateBestWorstMaps(data.stats);
-            console.log(`🗺️ Cartes analysées pour ${playerInfo.nickname}:`, {
-                best: mapAnalysis.best?.name,
-                worst: mapAnalysis.worst?.name,
-                total: mapAnalysis.all.length
-            });
             
             const impactScore = calculateAdvancedPlayerScore(data.player, data.stats);
-            console.log(`🎯 Score final pour ${playerInfo.nickname}:`, {
-                score: impactScore.score,
-                role: impactScore.role,
-                level: impactScore.level,
-                elo: impactScore.elo
-            });
             
             return {
                 ...playerInfo,
@@ -1233,18 +1160,13 @@ async function analyzeAllPlayers(playersList) {
     const results = await Promise.all(promises);
     const validResults = results.filter(r => r !== null);
     
-    console.log('🧠 Analyse terminée:', validResults.length, 'joueurs analysés avec succès');
     
     // Debug des rôles finaux
-    console.log('🎭 Résumé des rôles attribués:');
     const rolesSummary = {};
     validResults.forEach(player => {
         const role = player.impactScore.role;
         rolesSummary[role] = (rolesSummary[role] || 0) + 1;
-        console.log(`🎭 ${player.nickname} (${player.teamName}) → ${role} (score: ${player.impactScore.score.toFixed(1)})`);
     });
-    
-    console.log('🎭 Distribution des rôles:', rolesSummary);
     
     return validResults;
 }

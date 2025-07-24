@@ -334,5 +334,3 @@ window.debounce = debounce;
 window.throttle = throttle;
 window.validatePlayerData = validatePlayerData;
 window.validateMatchData = validateMatchData;
-
-console.log('✅ Fonctions communes chargées avec succès');

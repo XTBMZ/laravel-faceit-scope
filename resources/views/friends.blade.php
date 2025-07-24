@@ -210,7 +210,6 @@ function __(key, replacements = {}) {
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Friends All-at-once Loading chargé (traduit)');
     setupEventListeners();
     loadFriends();
 });
@@ -378,11 +377,9 @@ async function loadFriends() {
         }
         
         const friendIds = playerData.friends_ids;
-        console.log(`📋 ${friendIds.length} amis trouvés`);
         
         // 3. Chargement de TOUS les amis d'un coup
         updateProgress(__('friends.loading.loading_all'), 50);
-        console.log('🚀 Démarrage du chargement de tous les amis simultanément');
         
         // Créer toutes les promesses en parallèle
         const promises = friendIds.map(id => getPlayerWithStats(id));
@@ -396,7 +393,6 @@ async function loadFriends() {
             .map(result => result.value);
         
         const successRate = Math.round((allFriends.length / friendIds.length) * 100);
-        console.log(`✅ ${allFriends.length} amis chargés sur ${friendIds.length} (${successRate}% de succès)`);
         
         // 4. Affichage
         updateProgress(__('friends.loading.finalizing'), 90);
@@ -867,6 +863,5 @@ function buildFaceitProfileUrl(friend) {
 window.closeFriendModal = closeFriendModal;
 window.showPlayerStats = showPlayerStats;
 
-console.log('🚀 Friends All-at-once Loading optimisé et traduit !');
 </script>
 @endpush

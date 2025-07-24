@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initializeProfilePage() {
     setupEventListeners();
-    console.log('📱 Page de profil initialisée');
 }
 
 function setupEventListeners() {
@@ -448,5 +447,3 @@ function showConfirmModal(title, message, confirmText, onConfirm, confirmClass =
     modal.classList.remove('hidden');
     modal.classList.add('flex');
 }
-
-console.log('👤 Script profil chargé avec succès');

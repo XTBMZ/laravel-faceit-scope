@@ -294,8 +294,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Mettre à jour les textes existants
     updateInterfaceTexts();
-    
-    console.log(`🌍 Translation Helper initialisé (${window.translationHelper.locale})`);
 });
 
 // Export pour les modules

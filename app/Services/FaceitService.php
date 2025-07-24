@@ -84,15 +84,6 @@ class FaceitService
         return $this->makeRequest("matches/{$matchId}/stats");
     }
 
-    // ❌ SUPPRIMER TOUTES CES MÉTHODES LOURDES:
-    // public function getGlobalRanking() - Plus utilisé
-    // public function getPlayerRanking() - Plus utilisé  
-    // public function validateRankingParams() - Plus utilisé
-    // public function getCachedRanking() - Plus utilisé
-    // public function searchPlayerWithRanking() - Plus utilisé
-    
-    // Le JavaScript fait les appels directs maintenant
-
     // ===============================================
     // MÉTHODES UTILITAIRES MATCHES (gardées)
     // ===============================================

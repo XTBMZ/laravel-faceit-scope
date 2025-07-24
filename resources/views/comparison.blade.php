@@ -622,7 +622,6 @@ async function comparePlayers() {
         updateLoadingText();
         
         // Récupération des données des joueurs
-        console.log('Récupération des données des joueurs...');
         const [player1, player2] = await Promise.all([
             getPlayerByNickname(player1Nickname),
             getPlayerByNickname(player2Nickname)
@@ -631,7 +630,6 @@ async function comparePlayers() {
         player1Data = player1;
         player2Data = player2;
         
-        console.log('Récupération des statistiques...');
         const [stats1, stats2] = await Promise.all([
             getPlayerStats(player1.player_id),
             getPlayerStats(player2.player_id)
@@ -640,7 +638,6 @@ async function comparePlayers() {
         player1Stats = stats1;
         player2Stats = stats2;
         
-        console.log('Analyse et comparaison...');
         comparisonResult = analyzeComparison(player1Data, player1Stats, player2Data, player2Stats);
         
         // Affichage des résultats
@@ -1494,6 +1491,5 @@ function showError(message) {
     document.getElementById('errorMessage').textContent = message;
 }
 
-console.log('🔥 Script de comparaison chargé avec succès!');
 </script>
 @endpush

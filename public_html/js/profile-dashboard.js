@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeProfileDashboard() {
     setupEventListeners();
     setupAnimations();
-    console.log('📱 Dashboard profil initialisé');
 }
 
 function setupEventListeners() {
@@ -440,5 +439,3 @@ function createPerformanceRadar() {
 
 // Initialiser les fonctionnalités avancées après un délai
 setTimeout(initializeAdvancedFeatures, 1000);
-
-console.log('📊 Profile Dashboard JavaScript chargé avec succès');

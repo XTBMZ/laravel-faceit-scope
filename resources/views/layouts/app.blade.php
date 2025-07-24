@@ -366,7 +366,6 @@
     <script>
         // Initialisation générale après chargement complet
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Application initialisée');
             
             // Afficher les messages flash de session
             @if(session('success'))

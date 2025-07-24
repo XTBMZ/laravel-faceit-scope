@@ -388,8 +388,6 @@ async function loadChampionshipsByType(type, page = 0) {
         url.searchParams.append('offset', offset);
         url.searchParams.append('limit', itemsPerPage);
 
-        console.log(`🌐 Requête API Laravel Championships:`, { url: url.toString(), type, offset });
-
         const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`${window.translations.tournaments.errors.api}: ${response.status}`);
@@ -403,8 +401,6 @@ async function loadChampionshipsByType(type, page = 0) {
         
         const championships = data.championships || [];
         hasMoreData = data.hasMore || false;
-
-        console.log(`📦 Réponse API Championships:`, data);
 
         // Stocker les championnats pour cette page spécifique
         const cacheKey = `${type}_page_${page}`;
@@ -1089,8 +1085,6 @@ function createResultCard(result) {
 // ==========================================
 async function updateGlobalStats() {
     try {
-        console.log('Mise à jour des statistiques globales...');
-        
         const response = await fetch(API_ENDPOINTS.stats);
         if (!response.ok) {
             throw new Error(`${window.translations.tournaments.errors.api}: ${response.status}`);
@@ -1104,9 +1098,7 @@ async function updateGlobalStats() {
         document.getElementById('totalPrizePool').textContent = formatPrizeMoney(stats.totalPrizePool || 0);
         document.getElementById('totalPlayers').textContent = formatNumber(stats.totalPlayers || 0);
         
-        console.log('Statistiques mises à jour:', stats);
     } catch (error) {
-        console.error('Erreur lors de la mise à jour des stats:', error);
         // Valeurs de fallback
         document.getElementById('ongoingChampionships').textContent = '-';
         document.getElementById('upcomingChampionships').textContent = '-';

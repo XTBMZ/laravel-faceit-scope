@@ -117,8 +117,6 @@ async function loadPlayerByNickname() {
 
 async function loadPlayerData() {
     try {
-        console.log("Chargement des données pour le joueur:", currentPlayerId);
-        
         // Récupération des données en parallèle
         const [player, stats] = await Promise.all([
             faceitService.getPlayer(currentPlayerId),
@@ -128,9 +126,6 @@ async function loadPlayerData() {
         currentPlayerData = player;
         currentPlayerStats = stats;
         currentPlayerNickname = player.nickname;
-        
-        console.log("Données joueur récupérées:", player);
-        console.log("Statistiques récupérées:", stats);
         
         // Affichage progressif des sections
         await displayPlayerHeader(player);
@@ -773,8 +768,6 @@ function showMapStatsModal(mapIndex) {
     const mapImage = MAP_IMAGES[mapImageKey] || null;
     const t = window.translations.advanced.map_modal;
     
-    console.log('Stats de la carte:', stats); // Debug pour voir les données disponibles
-    
     // Calculer les statistiques de base
     const matches = parseInt(stats["Matches"] || 0);
     const wins = parseInt(stats["Wins"] || 0);
@@ -1076,8 +1069,6 @@ window.closeMapStatsModal = closeMapStatsModal;
 window.shareMapStats = shareMapStats;
 window.downloadPlayerReport = downloadPlayerReport;
 
-console.log('🎮 Script de la page avancée chargé avec succès!');
-
 // Fonctions utilitaires (conservées telles quelles)
 function formatNumber(num) {
     if (num >= 1000000) {
@@ -1150,8 +1141,6 @@ function debounce(func, wait) {
 
 function showNotification(message, type = 'info') {
     // Implémentation basique - peut être améliorée avec une bibliothèque de notifications
-    console.log(`${type.toUpperCase()}: ${message}`);
-    
     // Créer une notification simple
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-medium z-50 ${

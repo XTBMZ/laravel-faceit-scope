@@ -108,11 +108,9 @@ class FaceitService {
         }
 
         let matchId = matchInput.trim();
-        console.log(`🔍 Extraction de l'ID depuis: ${matchId}`);
 
         // Si c'est déjà un ID valide
         if (this.isValidMatchId(matchId)) {
-            console.log(`✅ ID déjà valide: ${matchId}`);
             return matchId;
         }
 
@@ -120,7 +118,6 @@ class FaceitService {
         if (matchId.includes('faceit.com') || matchId.includes('www.faceit.com')) {
             const extractedId = this.extractIdFromUrl(matchId);
             if (extractedId && this.isValidMatchId(extractedId)) {
-                console.log(`✅ ID extrait de l'URL: ${extractedId}`);
                 return extractedId;
             }
         }
@@ -128,7 +125,6 @@ class FaceitService {
         // Nettoyage final
         const cleanedId = this.cleanMatchInput(matchId);
         if (this.isValidMatchId(cleanedId)) {
-            console.log(`✅ ID nettoyé: ${cleanedId}`);
             return cleanedId;
         }
 
@@ -270,10 +266,8 @@ if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
                 '73d82823-9d7b-477a-88c4-5ba16045f051'
             ];
             
-            console.log('🧪 Test des URLs de match:');
             testUrls.forEach(url => {
                 const result = faceitService.testMatchUrl(url);
-                console.log(`${result.valid ? '✅' : '❌'} ${url} -> ${result.valid ? result.extractedId : result.error}`);
             });
         }
     };
@@ -282,5 +276,3 @@ if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
 // Export pour compatibilité
 window.FaceitService = FaceitService;
 window.faceitService = faceitService;
-
-console.log('🔗 Service FACEIT mis à jour chargé avec succès');

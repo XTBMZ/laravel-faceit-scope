@@ -101,10 +101,8 @@ async function searchPlayer(playerName) {
     button.disabled = true;
     
     try {
-        console.log(`🔍 Recherche du joueur: ${playerName}`);
         
         const player = await faceitService.getPlayerByNickname(playerName);
-        console.log('✅ Joueur trouvé:', player);
         
         // Vérifier si le joueur a des stats CS2
         if (!player.games || (!player.games.cs2 && !player.games.csgo)) {
@@ -115,7 +113,6 @@ async function searchPlayer(playerName) {
         // Vérifier les statistiques
         try {
             const playerStats = await faceitService.getPlayerStats(player.player_id);
-            console.log('✅ Statistiques récupérées:', playerStats);
             
             if (!playerStats || (playerStats.errors && playerStats.errors.length > 0)) {
                 showError(__('home.search.errors.no_stats_available', { player: playerName }));
@@ -132,7 +129,6 @@ async function searchPlayer(playerName) {
         const playerId = player.player_id;
         const playerNickname = encodeURIComponent(player.nickname);
         
-        console.log(`🚀 Redirection vers: /advanced?playerId=${playerId}&playerNickname=${playerNickname}`);
         window.location.href = `/advanced?playerId=${playerId}&playerNickname=${playerNickname}`;
         
     } catch (error) {
@@ -167,19 +163,14 @@ async function searchMatch(matchInput) {
     button.disabled = true;
     
     try {
-        console.log(`🎮 Recherche du match: ${matchInput}`);
-        
         // Test de validation de l'URL/ID avant l'appel API
         const validationResult = faceitService.testMatchUrl(matchInput);
         if (!validationResult.valid) {
             throw new Error(`Format invalide: ${validationResult.error}`);
         }
         
-        console.log(`📝 ID du match validé: ${validationResult.extractedId}`);
-        
         // Vérifier si le match existe via l'API
         const searchResult = await faceitService.searchMatch(matchInput);
-        console.log('✅ Match trouvé:', searchResult);
         
         if (!searchResult.found) {
             throw new Error('Match non trouvé');
@@ -190,7 +181,6 @@ async function searchMatch(matchInput) {
         
         // Redirection vers la page d'analyse de match
         const cleanMatchId = searchResult.match_id;
-        console.log(`🚀 Redirection vers: /match?matchId=${cleanMatchId}`);
         window.location.href = `/match?matchId=${encodeURIComponent(cleanMatchId)}`;
         
     } catch (error) {
@@ -236,7 +226,6 @@ function savePlayerSearch(player) {
         recentSearches = recentSearches.slice(0, 10);
         
         localStorage.setItem('recent_player_searches', JSON.stringify(recentSearches));
-        console.log('💾 Recherche de joueur sauvegardée');
     } catch (error) {
         console.warn('⚠️ Impossible de sauvegarder la recherche:', error);
     }
@@ -262,7 +251,6 @@ function saveMatchSearch(match) {
         recentMatches = recentMatches.slice(0, 5);
         
         localStorage.setItem('recent_match_searches', JSON.stringify(recentMatches));
-        console.log('💾 Recherche de match sauvegardée');
     } catch (error) {
         console.warn('⚠️ Impossible de sauvegarder la recherche de match:', error);
     }
@@ -319,5 +307,3 @@ window.searchPlayer = searchPlayer;
 window.searchMatch = searchMatch;
 window.clearError = clearError;
 window.showMatchExamples = showMatchExamples;
-
-console.log('🏠 Script de la page d\'accueil traduit avec succès');
